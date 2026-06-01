@@ -69,3 +69,21 @@ def test_load_env_returns_typed_values(monkeypatch):
     assert model == "gemini-2.5-pro"
     assert batch_size == 7
     assert isinstance(batch_size, int)
+
+
+def test_load_env_raises_on_invalid_batch_size(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "key")
+    monkeypatch.setenv("GEMINI_MODEL", "model")
+    monkeypatch.setenv("BATCH_SIZE", "abc")
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="integer"):
+            _load_env()
+
+
+def test_load_env_raises_on_zero_batch_size(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "key")
+    monkeypatch.setenv("GEMINI_MODEL", "model")
+    monkeypatch.setenv("BATCH_SIZE", "0")
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match=">= 1"):
+            _load_env()

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sqlite3
 from datetime import datetime
@@ -15,7 +16,14 @@ def _load_env() -> tuple[str, str, int]:
     missing = [v for v in ("GEMINI_API_KEY", "GEMINI_MODEL", "BATCH_SIZE") if not os.getenv(v)]
     if missing:
         raise SystemExit(f"Missing required env vars: {', '.join(missing)}")
-    return os.environ["GEMINI_API_KEY"], os.environ["GEMINI_MODEL"], int(os.environ["BATCH_SIZE"])
+    raw_batch = os.environ["BATCH_SIZE"]
+    try:
+        batch_size = int(raw_batch)
+    except ValueError:
+        raise SystemExit(f"BATCH_SIZE must be an integer, got: {raw_batch!r}")
+    if batch_size < 1:
+        raise SystemExit(f"BATCH_SIZE must be >= 1, got: {batch_size}")
+    return os.environ["GEMINI_API_KEY"], os.environ["GEMINI_MODEL"], batch_size
 
 
 def _fill_prompt(template: str, batch_size: int, existing: list[str]) -> str:
@@ -41,21 +49,21 @@ def _save_json(data: dict) -> Path:
 
 def main() -> None:
     api_key, model, batch_size = _load_env()
-    template = Path("ACC-test-prompt.md").read_text()
 
-    conn = sqlite3.connect("icf_mock_exams.db")
-    init_db(conn)
+    prompt_path = Path("ACC-test-prompt.md")
+    if not prompt_path.exists():
+        raise SystemExit(f"Prompt template not found: {prompt_path.resolve()}")
+    template = prompt_path.read_text()
 
-    existing = get_existing_scenarios(conn)
-    filled_prompt = _fill_prompt(template, batch_size, existing)
+    with sqlite3.connect("icf_mock_exams.db") as conn:
+        init_db(conn)
+        existing = get_existing_scenarios(conn)
+        filled_prompt = _fill_prompt(template, batch_size, existing)
+        data = generate_questions(filled_prompt, api_key, model)
+        json_path = _save_json(data)
+        inserted = insert_questions(conn, data["mock_exam_batch"])
 
-    data = generate_questions(filled_prompt, api_key, model)
-
-    json_path = _save_json(data)
-    inserted = insert_questions(conn, data["mock_exam_batch"])
-    conn.close()
-
-    print(f"Generated {inserted} questions → {json_path} + DB")
+    logging.getLogger(__name__).info("Generated %d questions → %s + DB", inserted, json_path)
 
 
 if __name__ == "__main__":
