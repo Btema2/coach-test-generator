@@ -1,5 +1,8 @@
 import json
+import logging
 import sqlite3
+
+logger = logging.getLogger(__name__)
 
 
 def init_db(conn: sqlite3.Connection) -> None:
@@ -42,7 +45,9 @@ def insert_questions(conn: sqlite3.Connection, questions: list[dict]) -> int:
                 ),
             )
             inserted += 1
-        except sqlite3.IntegrityError:
-            print(f"Warning: duplicate question_id '{q['question_id']}', skipping")
+        except sqlite3.IntegrityError as exc:
+            if "UNIQUE constraint failed: questions.question_id" not in str(exc):
+                raise
+            logger.warning("Duplicate question_id '%s', skipping", q["question_id"])
     conn.commit()
     return inserted
