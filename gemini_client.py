@@ -1,9 +1,13 @@
 import json
+import logging
 import time
+from typing import Any, Callable
 
 from google import genai
 from google.genai import errors as genai_errors
 from google.genai import types
+
+logger = logging.getLogger(__name__)
 
 _RETRY_DELAYS = (60, 300)
 
@@ -52,14 +56,14 @@ _RESPONSE_SCHEMA = genai.types.Schema(
 )
 
 
-def _call_with_503_retry(fn, *args, **kwargs):
+def _call_with_503_retry(fn: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
     for attempt, delay in enumerate(_RETRY_DELAYS, start=1):
         try:
             return fn(*args, **kwargs)
         except genai_errors.ServerError as exc:
             if exc.code != 503:
                 raise
-            print(f"⚠️ Gemini 503 error. Attempt {attempt}. Waiting {delay}s...")
+            logger.warning("Gemini 503 error. Attempt %d. Waiting %ds...", attempt, delay)
             time.sleep(delay)
     return fn(*args, **kwargs)
 
@@ -76,4 +80,9 @@ def generate_questions(prompt: str, api_key: str, model: str) -> dict:
             response_schema=_RESPONSE_SCHEMA,
         ),
     )
-    return json.loads(response.text.strip())
+    if not response.text:
+        raise ValueError("Empty response from Gemini (may indicate a safety filter block)")
+    try:
+        return json.loads(response.text.strip())
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Gemini returned non-JSON: {response.text!r}") from exc

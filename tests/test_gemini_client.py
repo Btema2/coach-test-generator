@@ -1,4 +1,3 @@
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -39,9 +38,12 @@ def test_call_with_503_retry_raises_non_503():
 def test_call_with_503_retry_raises_after_all_retries():
     err = _make_server_error(503)
     fn = MagicMock(side_effect=[err, err, err])
-    with patch("gemini_client.time.sleep"):
+    with patch("gemini_client.time.sleep") as mock_sleep:
         with pytest.raises(genai_errors.ServerError):
             _call_with_503_retry(fn)
+    assert mock_sleep.call_count == 2
+    mock_sleep.assert_any_call(60)
+    mock_sleep.assert_any_call(300)
 
 
 def test_generate_questions_returns_parsed_dict():
@@ -57,3 +59,29 @@ def test_generate_questions_returns_parsed_dict():
 
     assert result == {"mock_exam_batch": []}
     MockClient.assert_called_once_with(api_key="fake-api-key")
+
+
+def test_generate_questions_raises_on_empty_response():
+    mock_response = MagicMock()
+    mock_response.text = None
+
+    with patch("gemini_client.genai.Client") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.models.generate_content.return_value = mock_response
+        with patch("gemini_client._call_with_503_retry") as mock_retry:
+            mock_retry.side_effect = lambda fn, *args, **kwargs: fn(*args, **kwargs)
+            with pytest.raises(ValueError, match="Empty response"):
+                generate_questions("prompt", "key", "model")
+
+
+def test_generate_questions_raises_on_invalid_json():
+    mock_response = MagicMock()
+    mock_response.text = "not valid json"
+
+    with patch("gemini_client.genai.Client") as MockClient:
+        mock_instance = MockClient.return_value
+        mock_instance.models.generate_content.return_value = mock_response
+        with patch("gemini_client._call_with_503_retry") as mock_retry:
+            mock_retry.side_effect = lambda fn, *args, **kwargs: fn(*args, **kwargs)
+            with pytest.raises(ValueError, match="non-JSON"):
+                generate_questions("prompt", "key", "model")
