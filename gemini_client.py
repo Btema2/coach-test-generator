@@ -75,9 +75,12 @@ def generate_questions(prompt: str, api_key: str, model: str) -> dict:
         model=model,
         contents=[prompt],
         config=types.GenerateContentConfig(
-            temperature=0.5,
+            temperature=1,
             response_mime_type="application/json",
             response_schema=_RESPONSE_SCHEMA,
+            thinking_config=types.ThinkingConfig(
+                thinking_level="HIGH",
+            ),
         ),
     )
     if not response.text:
