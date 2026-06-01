@@ -13,7 +13,7 @@ from gemini_client import generate_questions
 
 def _load_env() -> tuple[str, str, int]:
     load_dotenv()
-    missing = [v for v in ("GEMINI_API_KEY", "GEMINI_MODEL", "BATCH_SIZE") if not os.getenv(v)]
+    missing = [v for v in ("GEMINI_API_KEY", "GEMINI_MODEL", "BATCH_SIZE") if not os.getenv(v, "").strip()]
     if missing:
         raise SystemExit(f"Missing required env vars: {', '.join(missing)}")
     raw_batch = os.environ["BATCH_SIZE"]
@@ -48,6 +48,7 @@ def _save_json(data: dict) -> Path:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
     api_key, model, batch_size = _load_env()
 
     prompt_path = Path("ACC-test-prompt.md")
@@ -60,9 +61,9 @@ def main() -> None:
         existing = get_existing_scenarios(conn)
         filled_prompt = _fill_prompt(template, batch_size, existing)
         data = generate_questions(filled_prompt, api_key, model)
-        json_path = _save_json(data)
         inserted = insert_questions(conn, data["mock_exam_batch"])
 
+    json_path = _save_json(data)
     logging.getLogger(__name__).info("Generated %d questions → %s + DB", inserted, json_path)
 
 
