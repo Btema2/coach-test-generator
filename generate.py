@@ -23,6 +23,8 @@ def _load_env() -> tuple[str, str, int]:
         raise SystemExit(f"BATCH_SIZE must be an integer, got: {raw_batch!r}")
     if batch_size < 1:
         raise SystemExit(f"BATCH_SIZE must be >= 1, got: {batch_size}")
+    if batch_size % 10 != 0:
+        raise SystemExit(f"BATCH_SIZE must be a multiple of 10, got: {batch_size}")
     return os.environ["GEMINI_API_KEY"], os.environ["GEMINI_MODEL"], batch_size
 
 

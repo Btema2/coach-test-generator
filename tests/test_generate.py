@@ -72,11 +72,11 @@ def test_load_env_raises_on_missing_vars(monkeypatch):
 def test_load_env_returns_typed_values(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     monkeypatch.setenv("GEMINI_MODEL", "gemini-2.5-pro")
-    monkeypatch.setenv("BATCH_SIZE", "7")
+    monkeypatch.setenv("BATCH_SIZE", "10")
     api_key, model, batch_size = _load_env()
     assert api_key == "test-key"
     assert model == "gemini-2.5-pro"
-    assert batch_size == 7
+    assert batch_size == 10
     assert isinstance(batch_size, int)
 
 
@@ -95,4 +95,13 @@ def test_load_env_raises_on_zero_batch_size(monkeypatch):
     monkeypatch.setenv("BATCH_SIZE", "0")
     with patch("generate.load_dotenv"):
         with pytest.raises(SystemExit, match=">= 1"):
+            _load_env()
+
+
+def test_load_env_raises_on_non_multiple_of_ten_batch_size(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "key")
+    monkeypatch.setenv("GEMINI_MODEL", "model")
+    monkeypatch.setenv("BATCH_SIZE", "15")
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="multiple of 10"):
             _load_env()
