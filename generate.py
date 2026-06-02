@@ -32,9 +32,12 @@ def _fill_prompt(template: str, batch_size: int, existing: list[str]) -> str:
         if existing
         else "No questions generated yet."
     )
+    start_id = len(existing) + 1
     return (
         template.replace("{{NUMBER_OF_QUESTIONS}}", str(batch_size))
         .replace("{{EXISTING_QUESTIONS_DB}}", db_text)
+        .replace("{{START_ID}}", str(start_id))
+        .replace("{{START_ID_PLUS_1}}", str(start_id + 1))
     )
 
 

@@ -91,14 +91,14 @@ Rationale: According to Core Competency 3 (Establishes and Maintains Agreements)
 1. Review the <existing_database>. 
 2. Brainstorm {{NUMBER_OF_QUESTIONS}} entirely new scenarios that test different aspects of the knowledge base.
 3. Ensure a mix of questions: ~30% on Ethics (Section 1-5), ~30% on Definition/Boundaries (Therapy vs Coaching), and ~40% on Core Competencies (Listening, Questioning, Agreements, etc.).
-4. Format the output EXACTLY according to the JSON schema provided below. Generate a unique, random 8-character alphanumeric string for the "question_id".
+4. Format the output EXACTLY according to the JSON schema provided below. Use sequential numbers starting from {{START_ID}} (e.g., "{{START_ID}}", "{{START_ID_PLUS_1}}", etc.) as strings for the "question_id".
 </execution_instructions>
 
 <output_json_schema>
 {
   "mock_exam_batch": [
     {
-      "question_id": "string (e.g., 'a1b2c3d4')",
+      "question_id": "string (sequential number, e.g., '1', '2', '3')",
       "competency_reference": "string (e.g., 'Core Competency 7: Evokes Awareness' or 'Code of Ethics Section 2: Confidentiality')",
       "scenario_question": "string (The 3-5 sentence scenario and the final question prompt)",
       "options": [

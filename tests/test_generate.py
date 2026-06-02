@@ -28,6 +28,15 @@ def test_fill_prompt_no_existing_scenarios():
     assert "No questions generated yet." in result
 
 
+def test_fill_prompt_replaces_start_id():
+    template = "Start: {{START_ID}}, next: {{START_ID_PLUS_1}}"
+    result = _fill_prompt(template, 5, ["Scenario A", "Scenario B"])
+    # 2 existing, so next ID starts at 3, and the one after is 4
+    assert "Start: 3, next: 4" in result
+    assert "{{START_ID}}" not in result
+    assert "{{START_ID_PLUS_1}}" not in result
+
+
 def test_save_json_creates_file(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     data = {"mock_exam_batch": [{"question_id": "TEST1234"}]}
