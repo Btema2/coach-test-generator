@@ -43,6 +43,27 @@ def _fill_prompt(template: str, batch_size: int, existing: list[str]) -> str:
     )
 
 
+def _run_batched(
+    template: str,
+    api_key: str,
+    model: str,
+    batch_size: int,
+    initial_existing: list[str],
+) -> list[dict]:
+    n_calls = batch_size // 10
+    existing = list(initial_existing)
+    all_questions: list[dict] = []
+    log = logging.getLogger(__name__)
+    for i in range(n_calls):
+        log.info("Batch %d/%d (questions %d–%d)", i + 1, n_calls, len(existing) + 1, len(existing) + 10)
+        filled_prompt = _fill_prompt(template, 10, existing)
+        data = generate_questions(filled_prompt, api_key, model)
+        batch = data["mock_exam_batch"]
+        all_questions.extend(batch)
+        existing.extend(q["scenario_question"] for q in batch)
+    return all_questions
+
+
 def _save_json(data: dict) -> Path:
     jsons_dir = Path("jsons")
     jsons_dir.mkdir(exist_ok=True)
