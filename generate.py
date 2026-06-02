@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 from db import get_existing_scenarios, init_db, insert_questions
 from gemini_client import generate_questions
 
+_log = logging.getLogger(__name__)
+
 
 def _load_env() -> tuple[str, str, int]:
     load_dotenv()
@@ -53,9 +55,8 @@ def _run_batched(
     n_calls = batch_size // 10
     existing = list(initial_existing)
     all_questions: list[dict] = []
-    log = logging.getLogger(__name__)
     for i in range(n_calls):
-        log.info("Batch %d/%d (questions %d–%d)", i + 1, n_calls, len(existing) + 1, len(existing) + 10)
+        _log.info("Batch %d/%d (questions %d–%d)", i + 1, n_calls, len(existing) + 1, len(existing) + 10)
         filled_prompt = _fill_prompt(template, 10, existing)
         data = generate_questions(filled_prompt, api_key, model)
         batch = data["mock_exam_batch"]
@@ -87,10 +88,10 @@ def main() -> None:
         existing = get_existing_scenarios(conn)
         all_questions = _run_batched(template, api_key, model, batch_size, existing)
         data = {"mock_exam_batch": all_questions}
-        inserted = insert_questions(conn, data["mock_exam_batch"])
+        inserted = insert_questions(conn, all_questions)
 
     json_path = _save_json(data)
-    logging.getLogger(__name__).info("Generated %d questions → %s + DB", inserted, json_path)
+    _log.info("Generated %d questions → %s + DB", inserted, json_path)
 
 
 if __name__ == "__main__":
