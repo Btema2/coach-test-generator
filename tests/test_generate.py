@@ -197,4 +197,4 @@ def test_run_batched_with_non_empty_initial_existing():
 
     assert "1. DB scenario 1" in captured_prompts[0]
     assert "2. DB scenario 2" in captured_prompts[0]
-    assert "Start: 3 " in captured_prompts[0]
+    assert "Start: 1 " in captured_prompts[0]

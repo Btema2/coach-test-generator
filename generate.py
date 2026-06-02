@@ -30,13 +30,14 @@ def _load_env() -> tuple[str, str, int]:
     return os.environ["GEMINI_API_KEY"], os.environ["GEMINI_MODEL"], batch_size
 
 
-def _fill_prompt(template: str, batch_size: int, existing: list[str]) -> str:
+def _fill_prompt(template: str, batch_size: int, existing: list[str], start_id: int | None = None) -> str:
     db_text = (
         "\n".join(f"{i + 1}. {s}" for i, s in enumerate(existing))
         if existing
         else "No questions generated yet."
     )
-    start_id = len(existing) + 1
+    if start_id is None:
+        start_id = len(existing) + 1
     return (
         template.replace("{{NUMBER_OF_QUESTIONS}}", str(batch_size))
         .replace("{{EXISTING_QUESTIONS_DB}}", db_text)
@@ -56,8 +57,9 @@ def _run_batched(
     existing = list(initial_existing)
     all_questions: list[dict] = []
     for i in range(n_calls):
-        _log.info("Batch %d/%d (questions %d–%d)", i + 1, n_calls, len(existing) + 1, len(existing) + 10)
-        filled_prompt = _fill_prompt(template, 10, existing)
+        start_id = i * 10 + 1
+        _log.info("Batch %d/%d (questions %d–%d)", i + 1, n_calls, start_id, start_id + 9)
+        filled_prompt = _fill_prompt(template, 10, existing, start_id)
         data = generate_questions(filled_prompt, api_key, model)
         batch = data["mock_exam_batch"]
         all_questions.extend(batch)
