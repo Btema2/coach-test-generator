@@ -85,8 +85,8 @@ def main() -> None:
     with sqlite3.connect("icf_mock_exams.db") as conn:
         init_db(conn)
         existing = get_existing_scenarios(conn)
-        filled_prompt = _fill_prompt(template, batch_size, existing)
-        data = generate_questions(filled_prompt, api_key, model)
+        all_questions = _run_batched(template, api_key, model, batch_size, existing)
+        data = {"mock_exam_batch": all_questions}
         inserted = insert_questions(conn, data["mock_exam_batch"])
 
     json_path = _save_json(data)
