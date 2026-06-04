@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import os
@@ -89,24 +90,36 @@ def _save_json(data: dict) -> Path:
     return path
 
 
-def main() -> None:
-    logging.basicConfig(level=logging.INFO)
-    api_key, model, batch_size = _load_env()
-
-    prompt_path = Path("ACC-test-prompt.md")
-    if not prompt_path.exists():
-        raise SystemExit(f"Prompt template not found: {prompt_path.resolve()}")
-    template = prompt_path.read_text()
-
+def _run_api(batch_size: int, template: str) -> None:
+    api_key, model, _ = _load_env()
     with sqlite3.connect("icf_mock_exams.db") as conn:
         init_db(conn)
         existing = get_existing_scenarios(conn)
         all_questions = _run_batched(template, api_key, model, batch_size, existing)
         data = {"mock_exam_batch": all_questions}
         inserted = insert_questions(conn, all_questions)
-
     json_path = _save_json(data)
     _log.info("Generated %d questions → %s + DB", inserted, json_path)
+
+
+def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+    parser = argparse.ArgumentParser(description="Generate ICF ACC mock exam questions.")
+    parser.add_argument("--diy", action="store_true", help="Human-in-the-loop mode (no API).")
+    parser.add_argument("--port", type=int, default=5000, help="DIY server port.")
+    args = parser.parse_args()
+
+    prompt_path = Path("ACC-test-prompt.md")
+    if not prompt_path.exists():
+        raise SystemExit(f"Prompt template not found: {prompt_path.resolve()}")
+    template = prompt_path.read_text()
+
+    if args.diy:
+        import diy
+        diy.run(template, _load_batch_size(), port=args.port)
+        return
+
+    _run_api(_load_batch_size(), template)
 
 
 if __name__ == "__main__":

@@ -225,3 +225,35 @@ def test_run_batched_with_non_empty_initial_existing():
     assert "1. DB scenario 1" in captured_prompts[0]
     assert "2. DB scenario 2" in captured_prompts[0]
     assert "Start: 1 " in captured_prompts[0]
+
+
+def test_main_diy_routes_to_diy_run(monkeypatch, tmp_path):
+    import generate
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "ACC-test-prompt.md").write_text("template")
+    monkeypatch.setattr(generate, "_load_batch_size", lambda: 20)
+    monkeypatch.setattr("sys.argv", ["generate.py", "--diy"])
+    called = {}
+    monkeypatch.setattr("diy.run", lambda template, batch_size, port=5000: called.update(
+        template=template, batch_size=batch_size))
+
+    generate.main()
+
+    assert called["batch_size"] == 20
+    assert called["template"] == "template"
+
+
+def test_main_no_diy_uses_api_path(monkeypatch, tmp_path):
+    import generate
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "ACC-test-prompt.md").write_text("template")
+    monkeypatch.setattr(generate, "_load_env", lambda: ("k", "m", 10))
+    monkeypatch.setattr("sys.argv", ["generate.py"])
+    monkeypatch.setattr(generate, "_run_batched", lambda *a, **k: [])
+    monkeypatch.setattr(generate, "init_db", lambda conn: None)
+    monkeypatch.setattr(generate, "get_existing_scenarios", lambda conn: [])
+    monkeypatch.setattr(generate, "insert_questions", lambda conn, q: 0)
+
+    generate.main()  # should not raise, should not call diy.run
