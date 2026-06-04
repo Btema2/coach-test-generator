@@ -13,12 +13,10 @@ from gemini_client import generate_questions
 _log = logging.getLogger(__name__)
 
 
-def _load_env() -> tuple[str, str, int]:
-    load_dotenv()
-    missing = [v for v in ("GEMINI_API_KEY", "GEMINI_MODEL", "BATCH_SIZE") if not os.getenv(v, "").strip()]
-    if missing:
-        raise SystemExit(f"Missing required env vars: {', '.join(missing)}")
-    raw_batch = os.environ["BATCH_SIZE"]
+def _load_batch_size_value() -> int:
+    raw_batch = os.getenv("BATCH_SIZE", "").strip()
+    if not raw_batch:
+        raise SystemExit("Missing required env var: BATCH_SIZE")
     try:
         batch_size = int(raw_batch)
     except ValueError:
@@ -27,7 +25,22 @@ def _load_env() -> tuple[str, str, int]:
         raise SystemExit(f"BATCH_SIZE must be >= 1, got: {batch_size}")
     if batch_size % 10 != 0:
         raise SystemExit(f"BATCH_SIZE must be a multiple of 10, got: {batch_size}")
-    return os.environ["GEMINI_API_KEY"], os.environ["GEMINI_MODEL"], batch_size
+    return batch_size
+
+
+def _load_batch_size() -> int:
+    load_dotenv()
+    return _load_batch_size_value()
+
+
+def _load_env() -> tuple[str, str, int]:
+    load_dotenv()
+    missing = [v for v in ("GEMINI_API_KEY", "GEMINI_MODEL") if not os.getenv(v, "").strip()]
+    if missing:
+        raise SystemExit(f"Missing required env vars: {', '.join(missing)}")
+    api_key, model = os.environ["GEMINI_API_KEY"], os.environ["GEMINI_MODEL"]
+    batch_size = _load_batch_size_value()
+    return api_key, model, batch_size
 
 
 def _fill_prompt(template: str, batch_size: int, existing: list[str], start_id: int | None = None) -> str:

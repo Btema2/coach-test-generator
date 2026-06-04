@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from generate import _fill_prompt, _load_env, _run_batched, _save_json
+from generate import _fill_prompt, _load_batch_size, _load_env, _run_batched, _save_json, _load_batch_size_value
 
 
 def _make_question(idx: int) -> dict:
@@ -123,6 +123,33 @@ def test_load_env_raises_on_non_multiple_of_ten_batch_size(monkeypatch):
     with patch("generate.load_dotenv"):
         with pytest.raises(SystemExit, match="multiple of 10"):
             _load_env()
+
+
+def test_load_batch_size_valid(monkeypatch):
+    monkeypatch.setenv("BATCH_SIZE", "20")
+    with patch("generate.load_dotenv"):
+        assert _load_batch_size() == 20
+
+
+def test_load_batch_size_missing(monkeypatch):
+    monkeypatch.delenv("BATCH_SIZE", raising=False)
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="BATCH_SIZE"):
+            _load_batch_size()
+
+
+def test_load_batch_size_not_int(monkeypatch):
+    monkeypatch.setenv("BATCH_SIZE", "abc")
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="integer"):
+            _load_batch_size()
+
+
+def test_load_batch_size_not_multiple_of_10(monkeypatch):
+    monkeypatch.setenv("BATCH_SIZE", "15")
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="multiple of 10"):
+            _load_batch_size()
 
 
 def test_run_batched_single_call_returns_10_questions():
