@@ -23,6 +23,17 @@ The script must:
 4. Parse and validate the returned JSON against the `mock_exam_batch` schema
 5. Persist new questions to the database to prevent future duplicates
 
+## DIY Mode (no API cost)
+
+Run `python generate.py --diy [--port N]` to generate without the paid API:
+1. A local Flask page opens in the browser.
+2. Copy the shown prompt into any free AI chatbot.
+3. Paste the chatbot's JSON response back; it is strictly validated.
+4. Each accepted batch of 10 is saved to the DB immediately and its scenarios
+   feed the next batch's dedup context. Final combined JSON lands in `jsons/`.
+
+DIY mode requires only `BATCH_SIZE` (no `GEMINI_API_KEY`/`GEMINI_MODEL`).
+
 ## JSON Output Schema
 
 ```json
