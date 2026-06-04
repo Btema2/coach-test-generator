@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from generate import _fill_prompt, _load_env, _run_batched, _save_json
+from generate import _fill_prompt, _load_batch_size, _load_env, _run_batched, _save_json, _load_batch_size_value
 
 
 def _make_question(idx: int) -> dict:
@@ -125,6 +125,33 @@ def test_load_env_raises_on_non_multiple_of_ten_batch_size(monkeypatch):
             _load_env()
 
 
+def test_load_batch_size_valid(monkeypatch):
+    monkeypatch.setenv("BATCH_SIZE", "20")
+    with patch("generate.load_dotenv"):
+        assert _load_batch_size() == 20
+
+
+def test_load_batch_size_missing(monkeypatch):
+    monkeypatch.delenv("BATCH_SIZE", raising=False)
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="BATCH_SIZE"):
+            _load_batch_size()
+
+
+def test_load_batch_size_not_int(monkeypatch):
+    monkeypatch.setenv("BATCH_SIZE", "abc")
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="integer"):
+            _load_batch_size()
+
+
+def test_load_batch_size_not_multiple_of_10(monkeypatch):
+    monkeypatch.setenv("BATCH_SIZE", "15")
+    with patch("generate.load_dotenv"):
+        with pytest.raises(SystemExit, match="multiple of 10"):
+            _load_batch_size()
+
+
 def test_run_batched_single_call_returns_10_questions():
     template = "Count: {{NUMBER_OF_QUESTIONS}} Existing: {{EXISTING_QUESTIONS_DB}} Start: {{START_ID}} Next: {{START_ID_PLUS_1}}"
     with patch("generate.generate_questions", return_value=_make_api_response(1)) as mock_gq:
@@ -198,3 +225,35 @@ def test_run_batched_with_non_empty_initial_existing():
     assert "1. DB scenario 1" in captured_prompts[0]
     assert "2. DB scenario 2" in captured_prompts[0]
     assert "Start: 1 " in captured_prompts[0]
+
+
+def test_main_diy_routes_to_diy_run(monkeypatch, tmp_path):
+    import generate
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "ACC-test-prompt.md").write_text("template")
+    monkeypatch.setattr(generate, "_load_batch_size", lambda: 20)
+    monkeypatch.setattr("sys.argv", ["generate.py", "--diy"])
+    called = {}
+    monkeypatch.setattr("diy.run", lambda template, batch_size, port=5000: called.update(
+        template=template, batch_size=batch_size))
+
+    generate.main()
+
+    assert called["batch_size"] == 20
+    assert called["template"] == "template"
+
+
+def test_main_no_diy_uses_api_path(monkeypatch, tmp_path):
+    import generate
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "ACC-test-prompt.md").write_text("template")
+    monkeypatch.setattr(generate, "_load_env", lambda: ("k", "m", 10))
+    monkeypatch.setattr("sys.argv", ["generate.py"])
+    monkeypatch.setattr(generate, "_run_batched", lambda *a, **k: [])
+    monkeypatch.setattr(generate, "init_db", lambda conn: None)
+    monkeypatch.setattr(generate, "get_existing_scenarios", lambda conn: [])
+    monkeypatch.setattr(generate, "insert_questions", lambda conn, q: 0)
+
+    generate.main()  # should not raise, should not call diy.run
