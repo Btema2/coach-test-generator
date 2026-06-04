@@ -1,6 +1,8 @@
 import json
+import sqlite3
 
 from diy import _validate_batch
+from db import init_db
 
 
 def _question(idx: int, correct_count: int = 1) -> dict:
@@ -97,3 +99,81 @@ def test_validate_bad_option_ids():
     batch, err = _validate_batch(json.dumps(payload))
     assert batch is None
     assert "options malformed" in err
+
+
+def _make_state(batch_size: int = 20) -> dict:
+    return {
+        "batch_size": batch_size,
+        "n_calls": batch_size // 10,
+        "current": 0,
+        "existing": [],
+        "completed": [],
+    }
+
+
+def _client(monkeypatch, tmp_path, state, template="N={{NUMBER_OF_QUESTIONS}} S={{START_ID}}"):
+    from diy import create_app
+
+    monkeypatch.chdir(tmp_path)
+    conn = sqlite3.connect(":memory:")
+    init_db(conn)
+    app = create_app(template, conn, state)
+    app.config.update(TESTING=True)
+    return app.test_client(), conn
+
+
+def test_get_root_shows_first_batch(monkeypatch, tmp_path):
+    client, _ = _client(monkeypatch, tmp_path, _make_state())
+    resp = client.get("/")
+    assert resp.status_code == 200
+    body = resp.get_data(as_text=True)
+    assert "Batch 1/2" in body
+    assert "N=10" in body          # _fill_prompt injected batch size 10
+    assert "S=1" in body           # start_id for batch 1
+
+
+def test_submit_good_advances_and_inserts(monkeypatch, tmp_path):
+    state = _make_state()
+    client, conn = _client(monkeypatch, tmp_path, state)
+    resp = client.post("/submit", data={"payload": _good_payload()})
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/"
+    assert state["current"] == 1
+    assert len(state["existing"]) == 10
+    count = conn.execute("SELECT COUNT(*) FROM questions").fetchone()[0]
+    assert count == 10
+
+
+def test_submit_bad_stays_on_batch(monkeypatch, tmp_path):
+    state = _make_state()
+    client, conn = _client(monkeypatch, tmp_path, state)
+    resp = client.post("/submit", data={"payload": "{bad"})
+    body = resp.get_data(as_text=True)
+    assert state["current"] == 0
+    assert "Not valid JSON" in body
+    count = conn.execute("SELECT COUNT(*) FROM questions").fetchone()[0]
+    assert count == 0
+
+
+def test_submit_last_batch_writes_json(monkeypatch, tmp_path):
+    state = _make_state(batch_size=10)   # single batch
+    client, conn = _client(monkeypatch, tmp_path, state)
+    client.post("/submit", data={"payload": _good_payload()})
+    assert state["current"] == 1
+    written = list((tmp_path / "jsons").glob("*.json"))
+    assert len(written) == 1
+    saved = json.loads(written[0].read_text())
+    assert len(saved["mock_exam_batch"]) == 10
+
+
+def test_submit_after_completion_is_noop(monkeypatch, tmp_path):
+    state = _make_state(batch_size=10)   # single batch
+    client, conn = _client(monkeypatch, tmp_path, state)
+    client.post("/submit", data={"payload": _good_payload()})   # completes
+    first = list((tmp_path / "jsons").glob("*.json"))
+    assert len(first) == 1
+    # Resubmit after completion (back button) must not corrupt state or write again
+    resp = client.post("/submit", data={"payload": _good_payload()})
+    assert resp.status_code == 302
+    assert len(state["completed"]) == 10          # not 20
+    assert len(list((tmp_path / "jsons").glob("*.json"))) == 1   # no second file
