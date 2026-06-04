@@ -177,3 +177,28 @@ def test_submit_after_completion_is_noop(monkeypatch, tmp_path):
     assert resp.status_code == 302
     assert len(state["completed"]) == 10          # not 20
     assert len(list((tmp_path / "jsons").glob("*.json"))) == 1   # no second file
+
+
+def test_run_seeds_state_and_starts_server(monkeypatch, tmp_path):
+    import diy
+
+    monkeypatch.chdir(tmp_path)
+    opened = {}
+    captured = {}
+
+    def fake_open(url):
+        opened["url"] = url
+
+    def fake_app_run(app, host, port):
+        captured["host"] = host
+        captured["port"] = port
+
+    monkeypatch.setattr(diy.webbrowser, "open", fake_open)
+    # Patch Flask.run so the server never actually blocks
+    monkeypatch.setattr(diy.Flask, "run", lambda self, host, port: fake_app_run(self, host, port))
+
+    diy.run("template {{NUMBER_OF_QUESTIONS}}", batch_size=20, port=5099)
+
+    assert captured["host"] == "127.0.0.1"
+    assert captured["port"] == 5099
+    assert "127.0.0.1:5099" in opened["url"]

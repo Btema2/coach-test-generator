@@ -1,10 +1,14 @@
 import json
+import logging
 import sqlite3
+import webbrowser
 
 from flask import Flask, redirect, render_template_string, request, url_for
 
-from db import insert_questions
+from db import get_existing_scenarios, init_db, insert_questions
 from generate import _fill_prompt, _save_json
+
+_log = logging.getLogger(__name__)
 
 _REQUIRED_FIELDS = (
     "question_id",
@@ -123,3 +127,20 @@ def create_app(template: str, conn: sqlite3.Connection, state: dict) -> Flask:
         )
 
     return app
+
+
+def run(template: str, batch_size: int, port: int = 5000) -> None:
+    conn = sqlite3.connect("icf_mock_exams.db")
+    init_db(conn)
+    state = {
+        "batch_size": batch_size,
+        "n_calls": batch_size // 10,
+        "current": 0,
+        "existing": get_existing_scenarios(conn),
+        "completed": [],
+    }
+    app = create_app(template, conn, state)
+    url = f"http://127.0.0.1:{port}"
+    _log.info("DIY mode: open %s in your browser", url)
+    webbrowser.open(url)
+    app.run(host="127.0.0.1", port=port)
