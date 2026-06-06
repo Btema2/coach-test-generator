@@ -1,6 +1,8 @@
 import json
 import logging
+import os
 import sqlite3
+import threading
 import webbrowser
 
 from flask import Flask, redirect, render_template_string, request, url_for
@@ -23,6 +25,11 @@ _BATCH_LEN = 10  # Each DIY page always processes exactly one 10-question sub-ba
 
 def _validate_batch(text: str) -> tuple[list[dict] | None, str | None]:
     """Return (batch, None) on success or (None, error_message) on failure."""
+    text = text.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        end = len(lines) - 1 if lines and lines[-1].strip() == "```" else len(lines)
+        text = "\n".join(lines[1:end])
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -82,16 +89,28 @@ _DONE = """
 
 def _render_current(template: str, state: dict, error: str | None = None) -> str:
     n = state["current"]
-    start_id = n * 10 + 1
+    start_id = len(state["existing"]) + 1
     prompt = _fill_prompt(template, 10, state["existing"], start_id)
     return render_template_string(
         _PAGE, n=n + 1, total=state["n_calls"], prompt=prompt, error=error
     )
 
 
-def create_app(template: str, conn: sqlite3.Connection, state: dict) -> Flask:
+def create_app(
+    template: str,
+    conn: sqlite3.Connection,
+    state: dict,
+    _shutdown=None,
+) -> Flask:
     app = Flask(__name__)
     app.config["_json_path"] = None
+    app.config["_shutdown_scheduled"] = False
+
+    def _do_shutdown() -> None:
+        if _shutdown is not None:
+            _shutdown()
+        else:
+            threading.Timer(0.5, lambda: os._exit(0)).start()
 
     @app.route("/")
     def index():
@@ -120,6 +139,9 @@ def create_app(template: str, conn: sqlite3.Connection, state: dict) -> Flask:
     def done():
         if app.config["_json_path"] is None:
             return redirect(url_for("index"))
+        if not app.config["_shutdown_scheduled"]:
+            app.config["_shutdown_scheduled"] = True
+            _do_shutdown()
         return render_template_string(
             _DONE,
             count=len(state["completed"]),
@@ -130,7 +152,7 @@ def create_app(template: str, conn: sqlite3.Connection, state: dict) -> Flask:
 
 
 def run(template: str, batch_size: int, port: int = 5000) -> None:
-    conn = sqlite3.connect("icf_mock_exams.db")
+    conn = sqlite3.connect("icf_mock_exams.db", check_same_thread=False)
     init_db(conn)
     state = {
         "batch_size": batch_size,

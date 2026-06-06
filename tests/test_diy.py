@@ -101,6 +101,20 @@ def test_validate_bad_option_ids():
     assert "options malformed" in err
 
 
+def test_validate_markdown_fenced_json():
+    fenced = f"```json\n{_good_payload()}\n```"
+    batch, err = _validate_batch(fenced)
+    assert err is None
+    assert len(batch) == 10
+
+
+def test_validate_markdown_fenced_no_lang():
+    fenced = f"```\n{_good_payload()}\n```"
+    batch, err = _validate_batch(fenced)
+    assert err is None
+    assert len(batch) == 10
+
+
 def _make_state(batch_size: int = 20) -> dict:
     return {
         "batch_size": batch_size,
@@ -111,13 +125,13 @@ def _make_state(batch_size: int = 20) -> dict:
     }
 
 
-def _client(monkeypatch, tmp_path, state, template="N={{NUMBER_OF_QUESTIONS}} S={{START_ID}}"):
+def _client(monkeypatch, tmp_path, state, template="N={{NUMBER_OF_QUESTIONS}} S={{START_ID}}", _shutdown=None):
     from diy import create_app
 
     monkeypatch.chdir(tmp_path)
     conn = sqlite3.connect(":memory:")
     init_db(conn)
-    app = create_app(template, conn, state)
+    app = create_app(template, conn, state, _shutdown=_shutdown)
     app.config.update(TESTING=True)
     return app.test_client(), conn
 
@@ -177,6 +191,39 @@ def test_submit_after_completion_is_noop(monkeypatch, tmp_path):
     assert resp.status_code == 302
     assert len(state["completed"]) == 10          # not 20
     assert len(list((tmp_path / "jsons").glob("*.json"))) == 1   # no second file
+
+
+def test_start_id_accounts_for_existing_db_questions(monkeypatch, tmp_path):
+    """start_id offsets past pre-existing DB scenarios so question_ids never collide."""
+    state = _make_state()
+    state["existing"] = [f"Scenario {i}" for i in range(20)]  # simulate 20 DB entries
+    client, _ = _client(monkeypatch, tmp_path, state)
+    resp = client.get("/")
+    body = resp.get_data(as_text=True)
+    assert "S=21" in body  # not "S=1"
+
+
+def test_done_triggers_shutdown(monkeypatch, tmp_path):
+    """done page schedules server shutdown after all batches complete."""
+    state = _make_state(batch_size=10)
+    shutdown_calls = []
+    client, _ = _client(monkeypatch, tmp_path, state, _shutdown=lambda: shutdown_calls.append(1))
+
+    client.post("/submit", data={"payload": _good_payload()})  # completes, sets _json_path
+    client.get("/done")
+    assert shutdown_calls == [1]
+
+
+def test_done_shutdown_called_only_once_on_refresh(monkeypatch, tmp_path):
+    """Refreshing the done page does not trigger a second shutdown."""
+    state = _make_state(batch_size=10)
+    shutdown_calls = []
+    client, _ = _client(monkeypatch, tmp_path, state, _shutdown=lambda: shutdown_calls.append(1))
+
+    client.post("/submit", data={"payload": _good_payload()})
+    client.get("/done")
+    client.get("/done")  # refresh
+    assert shutdown_calls == [1]
 
 
 def test_run_seeds_state_and_starts_server(monkeypatch, tmp_path):
