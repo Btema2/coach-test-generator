@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ICF ACC Mock Exam{% endblock %}</title>
+  <style>
+    /* ── Variables ── */
+    :root {
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface-2: #f0eeeb;
+      --border: #e4e2dd;
+      --text: #1a1917;
+      --text-muted: #6b6864;
+      --accent: #4338ca;
+      --accent-dim: #6366f1;
+      --accent-bg: #eef2ff;
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --error: #dc2626;
+      --error-bg: #fef2f2;
+      --warn: #d97706;
+      --warn-bg: #fffbeb;
+      --nav-bg: #1a1917;
+      --nav-text: #f7f6f2;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+      --transition: 200ms ease;
+      --container: 820px;
+    }
+
+    /* ── Reset & base ── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 1rem;
+      }
+    }
+
+    /* ── Nav ── */
+    .topbar {
+      background: var(--nav-bg);
+      color: var(--nav-text);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: var(--container);
+      margin: auto;
+      padding: 0.75rem 1.5rem;
+      gap: 1rem;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--nav-text);
+      text-decoration: none;
+    }
+
+    .brand span {
+      font-weight: 400;
+      opacity: 0.7;
+    }
+
+    .topbar-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .topbar-links a {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.9rem;
+      transition: color var(--transition);
+    }
+
+    .topbar-links a:hover {
+      color: white;
+    }
+
+    .topbar-links a.active {
+      color: white;
+      border-bottom: 2px solid var(--accent-dim);
+      padding-bottom: 2px;
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner {
+        flex-wrap: wrap;
+      }
+
+      .topbar-links {
+        gap: 1rem;
+      }
+
+      .brand {
+        font-size: 1rem;
+      }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      transition: box-shadow var(--transition);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dim);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-danger {
+      background: var(--error);
+      color: white;
+      border-color: var(--error);
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    /* ── Badges / pills ── */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .badge-accent {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .badge-success {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge-error {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .badge-warn {
+      background: var(--warn-bg);
+      color: var(--warn);
+    }
+
+    .badge-muted {
+      background: var(--surface-2);
+      color: var(--text-muted);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.55; }
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state small {
+      font-size: 0.875rem;
+    }
+
+    /* ── Utilities ── */
+    .text-muted  { color: var(--text-muted); }
+    .text-sm     { font-size: 0.875rem; }
+
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+
+    .flex         { display: flex; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  </style>
+  {% block style %}{% endblock %}
+</head>
+<body>
+  {% block nav %}
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <a href="{{ url_for('picker') }}" class="brand">ICF ACC <span>Mock Exam</span></a>
+      <div class="topbar-links">
+        <a href="{{ url_for('picker') }}" class="{{ '' if admin else 'active' }}">Tests</a>
+        <a href="{{ url_for('admin_picker') }}" class="{{ 'active' if admin else '' }}">Admin</a>
+      </div>
+    </div>
+  </nav>
+  {% endblock %}
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
