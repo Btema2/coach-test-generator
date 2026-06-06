@@ -219,6 +219,13 @@
       justify-content: center;
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .question-card { animation: none; }
+    .timer.danger { animation: none; }
+  }
+
+  .q-fieldset { border: none; padding: 0; margin: 0; }
 </style>
 {% endblock %}
 
@@ -231,21 +238,23 @@
         <span class="q-num">{{ loop.index }}</span>
         <span class="badge badge-accent q-competency">{{ q.competency_reference }}</span>
       </div>
-      <p class="q-scenario">{{ q.scenario_question }}</p>
-      <div class="q-options">
-        {% for opt in q.options %}
-        <div class="option">
-          <input type="radio"
-                 id="q{{ q.question_id }}_{{ opt.id }}"
-                 name="q_{{ q.question_id }}"
-                 value="{{ opt.id }}">
-          <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
-            <span class="opt-id">{{ opt.id }}</span>
-            <span class="opt-text">{{ opt.text }}</span>
-          </label>
+      <fieldset class="q-fieldset">
+        <legend class="q-scenario">{{ q.scenario_question }}</legend>
+        <div class="q-options">
+          {% for opt in q.options %}
+          <div class="option">
+            <input type="radio"
+                   id="q{{ q.question_id }}_{{ opt.id }}"
+                   name="q_{{ q.question_id }}"
+                   value="{{ opt.id }}">
+            <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
+              <span class="opt-id">{{ opt.id }}</span>
+              <span class="opt-text">{{ opt.text }}</span>
+            </label>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-      </div>
+      </fieldset>
     </article>
     {% endfor %}
   </div>
@@ -280,7 +289,7 @@
     else if (remaining <= 900) el.className = 'timer warn';
   }
 
-  setInterval(tick, 1000);
+  const timerId = setInterval(tick, 1000);
 
   function countAnswered() {
     return new Set(
@@ -295,13 +304,17 @@
   }
 
   document.querySelectorAll('input[type=radio]').forEach(el => el.addEventListener('change', updateProgress));
+  updateProgress();
 
   function submitExam() {
+    if (submitted) return;
     const unanswered = TOTAL - countAnswered();
     if (unanswered > 0) {
       if (!confirm(unanswered + ' question' + (unanswered > 1 ? 's are' : ' is') + ' unanswered and will be marked incorrect. Submit anyway?')) return;
     }
     submitted = true;
+    clearInterval(timerId);
+    document.querySelectorAll('#examForm button').forEach(b => b.disabled = true);
     document.getElementById('examForm').submit();
   }
 
