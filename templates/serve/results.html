@@ -1,0 +1,286 @@
+{% extends "serve/base.html" %}
+
+{% block title %}Results · ICF ACC Mock Exam{% endblock %}
+
+{% block style %}
+<style>
+  /* ── Score header ── */
+  .score-header {
+    text-align: center;
+    padding: 2.5rem 0 2rem;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .score-ring-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+
+  .score-ring {
+    width: 140px;
+    height: 140px;
+  }
+
+  .ring-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 10;
+  }
+
+  .ring-fill {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+    transform-origin: center;
+    transform: rotate(-90deg);
+    transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1);
+  }
+
+  .ring-pass { stroke: var(--success); }
+  .ring-fail { stroke: var(--error); }
+
+  .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-num {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .score-den {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .score-stats {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+
+  .score-stat { font-size: 0.95rem; }
+  .score-stat.stat-correct   { color: var(--success); }
+  .score-stat.stat-wrong     { color: var(--error); }
+  .score-stat.stat-unanswered { color: var(--text-muted); }
+
+  .score-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+
+  .back-link:hover { text-decoration: underline; }
+
+  /* ── Result cards ── */
+  .breakdown {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .breakdown h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-card {
+    border-left: 4px solid var(--border);
+    animation: slideUp 0.4s ease both;
+    animation-delay: min(calc(var(--i) * 20ms), 600ms);
+  }
+
+  .result-correct    { border-left-color: var(--success); }
+  .result-wrong      { border-left-color: var(--error); }
+  .result-unanswered { border-left-color: var(--text-muted); }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .q-scenario {
+    line-height: 1.65;
+    margin-bottom: 0.75rem;
+  }
+
+  .opt-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.4rem;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+  }
+
+  .opt-correct {
+    background: var(--success-bg);
+    border-color: var(--success);
+    color: var(--success);
+    font-weight: 500;
+  }
+
+  .opt-selected-wrong {
+    background: var(--error-bg);
+    border-color: var(--error);
+    color: var(--error);
+    font-weight: 500;
+  }
+
+  .opt-marker {
+    font-size: 0.78rem;
+    margin-left: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .opt-id-r {
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── Rationale ── */
+  .rationale { margin-top: 0.75rem; }
+
+  .rationale summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent);
+    user-select: none;
+  }
+
+  .rationale summary:hover { text-decoration: underline; }
+  .rationale[open] summary { margin-bottom: 0.5rem; }
+
+  .rationale p {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .result-card { animation: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ── Score header ── -->
+<div class="score-header">
+  <div class="score-ring-wrap">
+    <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="ring-bg" cx="60" cy="60" r="50"/>
+      <circle class="ring-fill {{ 'ring-pass' if passed else 'ring-fail' }}"
+              id="ring"
+              cx="60" cy="60" r="50"
+              stroke-dasharray="0 314.16"
+              data-fill="{{ score_fill }}"/>
+    </svg>
+    <div class="score-text">
+      <span class="score-num">{{ score }}</span>
+      <span class="score-den">/ {{ total }}</span>
+    </div>
+  </div>
+
+  <div>
+    {% if passed %}
+      <span class="badge badge-success">PASSED</span>
+    {% else %}
+      <span class="badge badge-error">FAILED</span>
+    {% endif %}
+  </div>
+
+  <div class="score-stats">
+    <span class="score-stat stat-correct">&#10003; {{ score }} correct</span>
+    <span class="score-stat stat-wrong">&#10007; {{ wrong }} wrong</span>
+    <span class="score-stat stat-unanswered">&#8212; {{ unanswered }} unanswered</span>
+  </div>
+
+  <p class="score-meta">Pass requires {{ pass_score }}/{{ total }} (70%)</p>
+
+  <a href="{{ url_for('picker') }}" class="back-link">&#8592; Back to Tests</a>
+</div>
+
+<!-- ── Per-question breakdown ── -->
+<div class="breakdown">
+  <h2>Question Breakdown</h2>
+
+  {% for q in graded %}
+  <div class="card result-card {{ 'result-correct' if q.ok else ('result-unanswered' if q.unanswered else 'result-wrong') }}"
+       style="--i: {{ loop.index0 }}">
+
+    <div class="result-header">
+      <span class="badge badge-muted">Q{{ loop.index }}</span>
+      {% if q.ok %}
+        <span class="badge badge-success">&#10003; Correct</span>
+      {% elif q.unanswered %}
+        <span class="badge badge-muted">&#8212; Unanswered</span>
+      {% else %}
+        <span class="badge badge-error">&#10007; Wrong</span>
+      {% endif %}
+      <span class="badge badge-accent">{{ q.competency_reference }}</span>
+    </div>
+
+    <p class="q-scenario">{{ q.scenario_question }}</p>
+
+    <div class="options">
+      {% for opt in q.options %}
+      <div class="opt-result
+        {%- if opt.id == q.correct %} opt-correct
+        {%- elif opt.id == q.selected and not q.ok %} opt-selected-wrong
+        {%- endif %}">
+        <span class="opt-id-r">{{ opt.id }}</span>
+        <span class="opt-text-r">{{ opt.text }}</span>
+        {% if opt.id == q.correct %}
+          <span class="opt-marker">(&#10003; Correct)</span>
+        {% elif opt.id == q.selected and not q.ok %}
+          <span class="opt-marker">(&#10007; Your answer)</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <details class="rationale">
+      <summary>Explanation</summary>
+      <p>{{ q.rationale }}</p>
+    </details>
+
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  setTimeout(function() {
+    var ring = document.getElementById('ring');
+    if (ring) {
+      ring.style.strokeDasharray = ring.dataset.fill + ' 314.16';
+    }
+  }, 80);
+</script>
+{% endblock %}
