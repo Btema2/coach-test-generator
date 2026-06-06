@@ -1,0 +1,61 @@
+{% extends "serve/base.html" %}
+
+{% block title %}Admin: Browse · ICF ACC Mock Exam{% endblock %}
+
+{% block style %}
+<style>
+  .admin-header { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 2rem 0 1rem; }
+  .admin-header h1 { font-size: 1.5rem; font-weight: 700; flex: 1; }
+  .admin-meta { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .admin-list { display: flex; flex-direction: column; gap: 1.2rem; padding-bottom: 3rem; }
+  .q-admin-header { display: flex; align-items: flex-start; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .q-admin-scenario { line-height: 1.65; margin-bottom: 0.75rem; }
+  .opt-admin { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: var(--radius-sm); margin-bottom: 0.35rem; font-size: 0.9rem; border: 1px solid transparent; color: var(--text); }
+  .opt-admin-correct { background: var(--success-bg); border-color: var(--success); color: var(--success); font-weight: 500; }
+  .opt-id-a { font-weight: 700; min-width: 1rem; flex-shrink: 0; }
+  .opt-text-a { flex: 1; }
+  .opt-correct-mark { font-weight: 700; flex-shrink: 0; }
+  .admin-rationale { margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 0.875rem; line-height: 1.6; color: var(--text-muted); border-left: 3px solid var(--accent); }
+  .admin-rationale strong { color: var(--text); }
+  .question-card { animation: slideUp 0.4s ease both; animation-delay: min(calc(var(--i) * 15ms), 500ms); }
+  @media (prefers-reduced-motion: reduce) { .question-card { animation: none; } }
+  @media (max-width: 640px) { .admin-header { flex-direction: column; align-items: flex-start; } .admin-header h1 { font-size: 1.25rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <h1>Admin: {{ filename | fmt_filename }}</h1>
+  <a href="{{ url_for('admin_picker') }}" class="btn btn-outline btn-sm">&#8592; All Tests</a>
+</div>
+<p class="admin-meta">{{ questions|length }} questions</p>
+
+<div class="admin-list">
+  {% for q in questions %}
+  <div class="card question-card" style="--i: {{ loop.index0 }}">
+
+    <div class="q-admin-header">
+      <span class="badge badge-muted">Q{{ loop.index }}</span>
+      <span class="badge badge-accent">{{ q.competency_reference }}</span>
+    </div>
+
+    <p class="q-admin-scenario">{{ q.scenario_question }}</p>
+
+    <div class="options">
+      {% for opt in q.options %}
+      <div class="opt-admin {{ 'opt-admin-correct' if opt.is_correct else '' }}">
+        <span class="opt-id-a">{{ opt.id }}</span>
+        <span class="opt-text-a">{{ opt.text }}</span>
+        {% if opt.is_correct %}<span class="opt-correct-mark">&#10003;</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="admin-rationale">
+      <strong>Explanation:</strong> {{ q.ai_rationale.explanation }}
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
