@@ -1,0 +1,314 @@
+{% extends "serve/base.html" %}
+
+{% block title %}ICF ACC Mock Exam — Test{% endblock %}
+
+{% block nav %}
+<!-- sticky exam bar replaces default nav entirely -->
+<div class="exam-bar">
+  <div class="exam-bar-inner">
+    <span class="exam-brand">ICF ACC</span>
+    <span class="exam-progress" id="progress-text">0 / {{ questions|length }} answered</span>
+    <span class="timer" id="timer">90:00</span>
+    <button type="button" class="btn btn-sm btn-outline" onclick="submitExam()">Leave Early</button>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+  /* ── Exam bar ── */
+  .exam-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    color: var(--nav-text);
+  }
+
+  .exam-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .exam-brand {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-right: auto;
+  }
+
+  .exam-progress {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .timer {
+    font-variant-numeric: tabular-nums;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--nav-text);
+    transition: color 0.3s;
+  }
+
+  .timer.warn {
+    color: var(--warn);
+  }
+
+  .timer.danger {
+    color: var(--error);
+    animation: pulse 1s ease infinite;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .progress-fill {
+    height: 4px;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* ── Question list ── */
+  .questions-list {
+    padding: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .question-card {
+    animation: slideUp 0.4s ease both;
+    animation-delay: min(calc(var(--i) * 15ms), 500ms);
+  }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .q-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    background: var(--accent-bg);
+    color: var(--accent);
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .q-competency {
+    font-size: 0.78rem;
+  }
+
+  .q-scenario {
+    line-height: 1.65;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .q-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* ── Radio options (CSS-only checked state) ── */
+  .option {
+    position: relative;
+  }
+
+  .option input[type=radio] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1.5;
+  }
+
+  .option-label:hover {
+    border-color: var(--accent-dim);
+    background: var(--accent-bg);
+  }
+
+  .option input[type=radio]:checked + .option-label {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    font-weight: 500;
+  }
+
+  .option input[type=radio]:focus-visible + .option-label {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .opt-id {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .opt-text {
+    flex: 1;
+  }
+
+  /* ── Form footer ── */
+  .form-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 2rem 0;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    .exam-bar-inner {
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+    }
+
+    .exam-brand {
+      display: none;
+    }
+
+    .timer {
+      font-size: 1.1rem;
+    }
+
+    .form-footer {
+      flex-direction: column;
+    }
+
+    .form-footer .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ url_for('submit', filename=filename) }}" id="examForm">
+  <div class="questions-list">
+    {% for q in questions %}
+    <article class="card question-card" style="--i: {{ loop.index0 }}">
+      <div class="q-header">
+        <span class="q-num">{{ loop.index }}</span>
+        <span class="badge badge-accent q-competency">{{ q.competency_reference }}</span>
+      </div>
+      <p class="q-scenario">{{ q.scenario_question }}</p>
+      <div class="q-options">
+        {% for opt in q.options %}
+        <div class="option">
+          <input type="radio"
+                 id="q{{ q.question_id }}_{{ opt.id }}"
+                 name="q_{{ q.question_id }}"
+                 value="{{ opt.id }}">
+          <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
+            <span class="opt-id">{{ opt.id }}</span>
+            <span class="opt-text">{{ opt.text }}</span>
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <div class="form-footer">
+    <button type="button" class="btn btn-outline" onclick="submitExam()">Leave Early</button>
+    <button type="submit" class="btn btn-primary" onclick="return checkAndSubmit(event)">Submit Test</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const TOTAL = {{ questions|length }};
+  const DURATION = 90 * 60;
+  let remaining = DURATION;
+  let submitted = false;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    remaining--;
+    if (remaining <= 0) {
+      if (!submitted) { submitted = true; document.getElementById('examForm').submit(); }
+      return;
+    }
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    const el = document.getElementById('timer');
+    el.textContent = pad(m) + ':' + pad(s);
+    if (remaining <= 300) el.className = 'timer danger';
+    else if (remaining <= 900) el.className = 'timer warn';
+  }
+
+  setInterval(tick, 1000);
+
+  function countAnswered() {
+    return new Set(
+      Array.from(document.querySelectorAll('input[type=radio]:checked')).map(el => el.name)
+    ).size;
+  }
+
+  function updateProgress() {
+    const answered = countAnswered();
+    document.getElementById('progress-text').textContent = answered + ' / ' + TOTAL + ' answered';
+    document.getElementById('progressBar').style.width = (answered / TOTAL * 100) + '%';
+  }
+
+  document.querySelectorAll('input[type=radio]').forEach(el => el.addEventListener('change', updateProgress));
+
+  function submitExam() {
+    const unanswered = TOTAL - countAnswered();
+    if (unanswered > 0) {
+      if (!confirm(unanswered + ' question' + (unanswered > 1 ? 's are' : ' is') + ' unanswered and will be marked incorrect. Submit anyway?')) return;
+    }
+    submitted = true;
+    document.getElementById('examForm').submit();
+  }
+
+  function checkAndSubmit(e) {
+    e.preventDefault();
+    submitExam();
+    return false;
+  }
+</script>
+{% endblock %}
