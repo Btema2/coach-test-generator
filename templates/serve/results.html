@@ -31,7 +31,7 @@
   .ring-fill {
     fill: none;
     stroke-width: 10;
-    stroke-linecap: round;
+    stroke-linecap: butt;
     transform-origin: center;
     transform: rotate(-90deg);
     transition: stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1);
@@ -183,7 +183,9 @@
 
   /* ── Reduced motion ── */
   @media (prefers-reduced-motion: reduce) {
-    .result-card { animation: none; }
+    .result-card  { animation: none; }
+    .score-header { animation: none; }
+    .ring-fill    { transition: none; }
   }
 </style>
 {% endblock %}
