@@ -1,0 +1,49 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{% if admin %}Admin · {% endif %}ICF ACC Mock Exam{% endblock %}
+
+{% block style %}
+<style>
+  .picker-header { margin: 2rem 0 1.5rem; animation: fadeIn 0.4s ease; }
+  .picker-header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .picker-header p { color: var(--text-muted); }
+  .file-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .file-card { display: flex; flex-direction: column; gap: 1rem; animation: slideUp 0.4s ease both; animation-delay: calc(var(--i) * 80ms); }
+  .file-card-body { flex: 1; }
+  .file-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.25rem; }
+  @media (max-width: 640px) {
+    .file-grid { grid-template-columns: 1fr; }
+    .picker-header h1 { font-size: 1.4rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="picker-header">
+  <h1>{% if admin %}Browse Tests{% else %}Select a Test{% endif %}</h1>
+  <p>{% if admin %}View all questions and answers.{% else %}Choose an exam file to begin a timed session.{% endif %}</p>
+</header>
+
+{% if not files %}
+  <div class="empty-state">
+    <p>No test files found.</p>
+    <small>Run <code>generate.py</code> to create exam files.</small>
+  </div>
+{% else %}
+  <div class="file-grid">
+    {% for file in files %}
+    <div class="card file-card" style="--i: {{ loop.index0 }}">
+      <div class="file-card-body">
+        <div class="file-name">{{ file | fmt_filename }}</div>
+        <div class="text-sm text-muted file-raw">{{ file }}</div>
+      </div>
+      {% if admin %}
+        <a href="{{ url_for('admin_view', filename=file) }}" class="btn btn-outline">Browse</a>
+      {% else %}
+        <a href="{{ url_for('test', filename=file) }}" class="btn btn-primary">Start Test</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
