@@ -41,12 +41,12 @@
 
     <p class="q-admin-scenario">{{ q.scenario_question }}</p>
 
-    <div class="options">
+    <div class="admin-options">
       {% for opt in q.options %}
       <div class="opt-admin {{ 'opt-admin-correct' if opt.is_correct else '' }}">
         <span class="opt-id-a">{{ opt.id }}</span>
         <span class="opt-text-a">{{ opt.text }}</span>
-        {% if opt.is_correct %}<span class="opt-correct-mark">&#10003;</span>{% endif %}
+        {% if opt.is_correct %}<span class="opt-correct-mark" aria-label="correct answer">&#10003;</span>{% endif %}
       </div>
       {% endfor %}
     </div>
