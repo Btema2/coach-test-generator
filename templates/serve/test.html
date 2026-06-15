@@ -3,13 +3,13 @@
 {% block title %}ICF ACC Mock Exam — Test{% endblock %}
 
 {% block nav %}
-<!-- sticky exam bar replaces default nav entirely -->
 <div class="exam-bar">
   <div class="exam-bar-inner">
     <span class="exam-brand">ICF ACC</span>
-    <span class="exam-progress" id="progress-text">0 / {{ questions|length }} answered</span>
-    <span class="timer" id="timer">90:00</span>
-    <button type="button" class="btn btn-sm btn-outline" onclick="submitExam()">Leave Early</button>
+    <span class="exam-section" id="section-label">Section 1</span>
+    <span class="exam-progress" id="progress-text">0 / 30 answered</span>
+    <span class="timer" id="timer">39:00</span>
+    <button type="button" class="btn btn-sm btn-outline" id="btn-leave" onclick="submitExam()">Leave Early</button>
   </div>
   <div class="progress-track">
     <div class="progress-fill" id="progressBar"></div>
@@ -44,6 +44,12 @@
     margin-right: auto;
   }
 
+  .exam-section {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
   .exam-progress {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.7);
@@ -57,9 +63,7 @@
     transition: color 0.3s;
   }
 
-  .timer.warn {
-    color: var(--warn);
-  }
+  .timer.warn { color: var(--warn); }
 
   .timer.danger {
     color: var(--error);
@@ -77,6 +81,10 @@
     width: 0%;
     transition: width 0.3s ease;
   }
+
+  /* ── Stages ── */
+  .stage { display: none; }
+  .stage.active { display: block; }
 
   /* ── Question list ── */
   .questions-list {
@@ -113,10 +121,6 @@
     flex-shrink: 0;
   }
 
-  .q-competency {
-    font-size: 0.78rem;
-  }
-
   .q-scenario {
     line-height: 1.65;
     margin-bottom: 1rem;
@@ -129,10 +133,8 @@
     gap: 0.5rem;
   }
 
-  /* ── Radio options (CSS-only checked state) ── */
-  .option {
-    position: relative;
-  }
+  /* ── Radio options ── */
+  .option { position: relative; }
 
   .option input[type=radio] {
     position: absolute;
@@ -183,9 +185,7 @@
     flex-shrink: 0;
   }
 
-  .opt-text {
-    flex: 1;
-  }
+  .opt-text { flex: 1; }
 
   /* ── Form footer ── */
   .form-footer {
@@ -195,6 +195,53 @@
     padding: 2rem 0;
   }
 
+  .q-fieldset { border: none; padding: 0; margin: 0; }
+
+  /* ── Break screen ── */
+  .break-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 2rem 0;
+  }
+
+  .break-card {
+    text-align: center;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  .break-card h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .break-card p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .break-timer {
+    font-variant-numeric: tabular-nums;
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 2rem;
+  }
+
+  .break-timer.warn { color: var(--warn); }
+  .break-timer.danger {
+    color: var(--error);
+    animation: pulse 1s ease infinite;
+  }
+
+  .break-card .btn {
+    font-size: 1.05rem;
+    padding: 0.75rem 2rem;
+  }
+
   /* ── Mobile ── */
   @media (max-width: 640px) {
     .exam-bar-inner {
@@ -202,126 +249,268 @@
       padding: 0.6rem 1rem;
     }
 
-    .exam-brand {
-      display: none;
-    }
+    .exam-brand { display: none; }
 
-    .timer {
-      font-size: 1.1rem;
-    }
+    .timer { font-size: 1.1rem; }
 
-    .form-footer {
-      flex-direction: column;
-    }
+    .form-footer { flex-direction: column; }
 
     .form-footer .btn {
       width: 100%;
       justify-content: center;
     }
+
+    .break-timer { font-size: 2.2rem; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .question-card { animation: none; }
     .timer.danger { animation: none; }
+    .break-timer.danger { animation: none; }
   }
-
-  .q-fieldset { border: none; padding: 0; margin: 0; }
 </style>
 {% endblock %}
 
 {% block content %}
 <form method="post" action="{{ url_for('submit', filename=filename) }}" id="examForm">
-  <div class="questions-list">
-    {% for q in questions %}
-    <article class="card question-card" style="--i: {{ loop.index0 }}">
-      <div class="q-header">
-        <span class="q-num">{{ loop.index }}</span>
-        <span class="badge badge-accent q-competency">{{ q.competency_reference }}</span>
-      </div>
-      <fieldset class="q-fieldset">
-        <legend class="q-scenario">{{ q.scenario_question }}</legend>
-        <div class="q-options">
-          {% for opt in q.options %}
-          <div class="option">
-            <input type="radio"
-                   id="q{{ q.question_id }}_{{ opt.id }}"
-                   name="q_{{ q.question_id }}"
-                   value="{{ opt.id }}">
-            <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
-              <span class="opt-id">{{ opt.id }}</span>
-              <span class="opt-text">{{ opt.text }}</span>
-            </label>
-          </div>
-          {% endfor %}
+
+  <!-- ═══ Section 1: Q1-Q30 ═══ -->
+  <div class="stage active" id="stage-section1">
+    <div class="questions-list" id="questions-section1">
+      {% for q in questions[:30] %}
+      <article class="card question-card" style="--i: {{ loop.index0 }}">
+        <div class="q-header">
+          <span class="q-num">{{ loop.index }}</span>
         </div>
-      </fieldset>
-    </article>
-    {% endfor %}
+        <fieldset class="q-fieldset">
+          <legend class="q-scenario">{{ q.scenario_question }}</legend>
+          <div class="q-options">
+            {% for opt in q.options %}
+            <div class="option">
+              <input type="radio"
+                     id="q{{ q.question_id }}_{{ opt.id }}"
+                     name="q_{{ q.question_id }}"
+                     value="{{ opt.id }}">
+              <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
+                <span class="opt-id">{{ opt.id }}</span>
+                <span class="opt-text">{{ opt.text }}</span>
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </fieldset>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="form-footer">
+      <button type="button" class="btn btn-outline" onclick="submitExam()">Leave Early</button>
+      <button type="button" class="btn btn-primary" id="btn-section1-next" onclick="goToBreak()">Submit Section</button>
+    </div>
   </div>
 
-  <div class="form-footer">
-    <button type="button" class="btn btn-outline" onclick="submitExam()">Leave Early</button>
-    <button type="submit" class="btn btn-primary" onclick="return checkAndSubmit(event)">Submit Test</button>
+  <!-- ═══ Break ═══ -->
+  <div class="stage" id="stage-break">
+    <div class="break-wrap">
+      <div class="break-card">
+        <h2>Section 1 Complete</h2>
+        <p>Your answers have been saved.</p>
+        <div class="break-timer" id="breakTimer">10:00</div>
+        <button type="button" class="btn btn-primary" onclick="startSection2()">Continue to Section 2 &rarr;</button>
+      </div>
+    </div>
   </div>
+
+  <!-- ═══ Section 2: Q31-Q60 ═══ -->
+  <div class="stage" id="stage-section2">
+    <div class="questions-list" id="questions-section2">
+      {% for q in questions[30:] %}
+      <article class="card question-card" style="--i: {{ loop.index0 }}">
+        <div class="q-header">
+          <span class="q-num">{{ loop.index + 30 }}</span>
+        </div>
+        <fieldset class="q-fieldset">
+          <legend class="q-scenario">{{ q.scenario_question }}</legend>
+          <div class="q-options">
+            {% for opt in q.options %}
+            <div class="option">
+              <input type="radio"
+                     id="q{{ q.question_id }}_{{ opt.id }}"
+                     name="q_{{ q.question_id }}"
+                     value="{{ opt.id }}">
+              <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
+                <span class="opt-id">{{ opt.id }}</span>
+                <span class="opt-text">{{ opt.text }}</span>
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </fieldset>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="form-footer">
+      <button type="button" class="btn btn-outline" onclick="submitExam()">Leave Early</button>
+      <button type="button" class="btn btn-primary" id="btn-section2-submit" onclick="submitExam()">Submit Test</button>
+    </div>
+  </div>
+
 </form>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  const TOTAL = {{ questions|length }};
-  const DURATION = 90 * 60;
-  let remaining = DURATION;
-  let submitted = false;
+  const SECTION_SIZE = 30;
+  const SECTION_DURATION = 39 * 60;
+  const BREAK_DURATION = 10 * 60;
 
+  let stage = 'section1';
+  let remaining = SECTION_DURATION;
+  let breakRemaining = BREAK_DURATION;
+  let submitted = false;
+  let sectionTimerId = null;
+  let breakTimerId = null;
+
+  /* ── Helpers ── */
   function pad(n) { return String(n).padStart(2, '0'); }
 
-  function tick() {
-    remaining--;
-    if (remaining <= 0) {
-      if (!submitted) { submitted = true; document.getElementById('examForm').submit(); }
-      return;
-    }
-    const m = Math.floor(remaining / 60);
-    const s = remaining % 60;
-    const el = document.getElementById('timer');
-    el.textContent = pad(m) + ':' + pad(s);
-    if (remaining <= 300) el.className = 'timer danger';
-    else if (remaining <= 900) el.className = 'timer warn';
+  function formatTime(sec) {
+    return pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
   }
 
-  const timerId = setInterval(tick, 1000);
+  function setTimerClass(el, sec) {
+    if (sec <= 300) el.className = 'timer danger';
+    else if (sec <= 900) el.className = 'timer warn';
+    else el.className = 'timer';
+  }
 
-  function countAnswered() {
-    return new Set(
-      Array.from(document.querySelectorAll('input[type=radio]:checked')).map(el => el.name)
-    ).size;
+  function setBreakTimerClass(el, sec) {
+    if (sec <= 60) el.className = 'break-timer danger';
+    else if (sec <= 180) el.className = 'break-timer warn';
+    else el.className = 'break-timer';
+  }
+
+  /* ── Answer counting (per section) ── */
+  function countSectionAnswered(containerId) {
+    const container = document.getElementById(containerId);
+    const names = new Set();
+    container.querySelectorAll('input[type=radio]:checked').forEach(el => names.add(el.name));
+    return names.size;
   }
 
   function updateProgress() {
-    const answered = countAnswered();
-    document.getElementById('progress-text').textContent = answered + ' / ' + TOTAL + ' answered';
-    document.getElementById('progressBar').style.width = (answered / TOTAL * 100) + '%';
+    const containerId = stage === 'section1' ? 'questions-section1' : 'questions-section2';
+    const answered = countSectionAnswered(containerId);
+    document.getElementById('progress-text').textContent = answered + ' / ' + SECTION_SIZE + ' answered';
+    document.getElementById('progressBar').style.width = (answered / SECTION_SIZE * 100) + '%';
+
+    if (stage === 'section1') {
+      const btn = document.getElementById('btn-section1-next');
+      btn.textContent = answered >= SECTION_SIZE ? 'Next Section \u2192' : 'Submit Section';
+    }
   }
 
-  document.querySelectorAll('input[type=radio]').forEach(el => el.addEventListener('change', updateProgress));
-  updateProgress();
+  /* ── Section timer ── */
+  function tickSection() {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(sectionTimerId);
+      if (stage === 'section1') goToBreak();
+      else submitExam();
+      return;
+    }
+    document.getElementById('timer').textContent = formatTime(remaining);
+    setTimerClass(document.getElementById('timer'), remaining);
+  }
 
+  function startSectionTimer() {
+    remaining = SECTION_DURATION;
+    document.getElementById('timer').textContent = formatTime(remaining);
+    document.getElementById('timer').className = 'timer';
+    clearInterval(sectionTimerId);
+    sectionTimerId = setInterval(tickSection, 1000);
+  }
+
+  /* ── Break timer ── */
+  function tickBreak() {
+    breakRemaining--;
+    if (breakRemaining <= 0) {
+      clearInterval(breakTimerId);
+      startSection2();
+      return;
+    }
+    document.getElementById('breakTimer').textContent = formatTime(breakRemaining);
+    setBreakTimerClass(document.getElementById('breakTimer'), breakRemaining);
+  }
+
+  /* ── Stage transitions ── */
+  function showStage(name) {
+    document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
+    document.getElementById('stage-' + name).classList.add('active');
+    stage = name;
+
+    const label = document.getElementById('section-label');
+    const leaveBtn = document.getElementById('btn-leave');
+
+    if (name === 'break') {
+      label.textContent = 'Break';
+      leaveBtn.style.display = 'none';
+      document.getElementById('timer').textContent = '--:--';
+      document.getElementById('timer').className = 'timer';
+      document.getElementById('progress-text').textContent = 'Break time';
+      document.getElementById('progressBar').style.width = '100%';
+      clearInterval(sectionTimerId);
+    } else {
+      label.textContent = name === 'section1' ? 'Section 1' : 'Section 2';
+      leaveBtn.style.display = '';
+      updateProgress();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToBreak() {
+    if (stage !== 'section1') return;
+    showStage('break');
+    breakRemaining = BREAK_DURATION;
+    document.getElementById('breakTimer').textContent = formatTime(breakRemaining);
+    setBreakTimerClass(document.getElementById('breakTimer'), breakRemaining);
+    breakTimerId = setInterval(tickBreak, 1000);
+  }
+
+  function startSection2() {
+    clearInterval(breakTimerId);
+    showStage('section2');
+    startSectionTimer();
+  }
+
+  /* ── Submit ── */
   function submitExam() {
     if (submitted) return;
-    const unanswered = TOTAL - countAnswered();
+    const allChecked = document.querySelectorAll('input[type=radio]:checked').length;
+    const allInputs = document.querySelectorAll('input[type=radio]').length / 4;
+    const unanswered = allInputs - allChecked;
     if (unanswered > 0) {
       if (!confirm(unanswered + ' question' + (unanswered > 1 ? 's are' : ' is') + ' unanswered and will be marked incorrect. Submit anyway?')) return;
     }
     submitted = true;
-    clearInterval(timerId);
+    clearInterval(sectionTimerId);
+    clearInterval(breakTimerId);
     document.querySelectorAll('#examForm button').forEach(b => b.disabled = true);
     document.getElementById('examForm').submit();
   }
 
-  function checkAndSubmit(e) {
-    e.preventDefault();
-    submitExam();
-    return false;
-  }
+  /* ── Init ── */
+  document.querySelectorAll('input[type=radio]').forEach(el => el.addEventListener('change', updateProgress));
+  updateProgress();
+  startSectionTimer();
+
+  window.addEventListener('beforeunload', function(e) {
+    if (!submitted) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
 </script>
 {% endblock %}

@@ -52,7 +52,6 @@ def test(filename: str):
     safe = [
         {
             "question_id": q["question_id"],
-            "competency_reference": q["competency_reference"],
             "scenario_question": q["scenario_question"],
             "options": [{"id": o["id"], "text": o["text"]} for o in q["options"]],
         }
@@ -100,6 +99,8 @@ def submit(filename: str):
     token = str(uuid.uuid4())
     total = len(questions)
     unanswered = sum(1 for r in graded if r["unanswered"])
+    section1_score = sum(1 for r in graded[:30] if r["ok"])
+    section2_score = sum(1 for r in graded[30:] if r["ok"])
     _results[token] = {
         "filename": filename,
         "score": score,
@@ -110,6 +111,8 @@ def submit(filename: str):
         "pass_score": round(total * 0.70),
         "score_fill": round(score / total * 314.16, 2),
         "score_pct": round(score / total * 100, 1),
+        "section1_score": section1_score,
+        "section2_score": section2_score,
         "graded": graded,
     }
     return redirect(url_for("results", token=token))

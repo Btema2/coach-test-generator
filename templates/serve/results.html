@@ -87,6 +87,40 @@
 
   .back-link:hover { text-decoration: underline; }
 
+  /* ── Section breakdown ── */
+  .score-sections {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .section-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    min-width: 100px;
+  }
+
+  .section-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .section-val {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
   /* ── Result cards ── */
   .breakdown {
     margin-top: 2rem;
@@ -223,6 +257,17 @@
   </div>
 
   <p class="score-meta">Pass requires {{ pass_score }}/{{ total }} (70%)</p>
+
+  <div class="score-sections">
+    <div class="section-score">
+      <span class="section-label">Section 1</span>
+      <span class="section-val">{{ section1_score }}/30</span>
+    </div>
+    <div class="section-score">
+      <span class="section-label">Section 2</span>
+      <span class="section-val">{{ section2_score }}/30</span>
+    </div>
+  </div>
 
   <a href="{{ url_for('picker') }}" class="back-link">&#8592; Back to Tests</a>
 </div>
