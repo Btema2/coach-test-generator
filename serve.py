@@ -38,6 +38,11 @@ def _load_exam(filename: str) -> list[dict]:
         return json.load(f)["mock_exam_batch"]
 
 
+@app.route("/ping")
+def ping():
+    return "", 204
+
+
 @app.route("/")
 def picker():
     return render_template("serve/picker.html", files=_list_jsons(), admin=False)

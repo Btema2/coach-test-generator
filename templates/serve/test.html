@@ -501,6 +501,13 @@
     document.getElementById('examForm').submit();
   }
 
+  /* ── Keep-alive ping ── */
+  setInterval(() => {
+    fetch('/ping')
+      .then(() => console.log('Keep-alive ping sent successfully.'))
+      .catch(err => console.error('Keep-alive ping failed.', err));
+  }, 50 * 1000);
+
   /* ── Init ── */
   document.querySelectorAll('input[type=radio]').forEach(el => el.addEventListener('change', updateProgress));
   updateProgress();
