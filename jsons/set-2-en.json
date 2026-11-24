@@ -1,0 +1,1810 @@
+{
+  "meta": {
+    "title": "ACC Mock Exam — Set 2",
+    "description": "60 new scenarios: ethics, the boundaries of coaching, and all eight Core Competencies.",
+    "language": "en",
+    "order": 2
+  },
+  "mock_exam_batch": [
+    {
+      "question_id": "1",
+      "competency_reference": "Core Competency 3: Establishes and Maintains Agreements",
+      "scenario_question": "A client opens the session by saying they want to talk about improving their morning routine. What is the BEST next step for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Share a simple morning routine that has worked well for other clients.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask the client what makes this topic important to them right now.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Ask the client to describe every step of their current morning routine.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Suggest the client track their mornings for a week before discussing it.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 3 (Establishes and Maintains Agreements) includes exploring what is important or meaningful to the client about what they want to accomplish in the session. Understanding why the topic matters helps the coach and client agree on a meaningful focus before going into detail. Option A is the Consultant Trap, offering a ready-made solution. Option C jumps into details before the session agreement is clear. Option D is directive: the coach assigns a task instead of partnering with the client to define the session."
+      }
+    },
+    {
+      "question_id": "2",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality & Legal",
+      "scenario_question": "During a session, a client says they plan to physically hurt a coworker who embarrassed them. The client sounds serious and mentions a specific day. How MUST the coach respond?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep the statement private because everything said in coaching is confidential.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask the client to describe the embarrassing event in detail to release their anger.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Explain that safety risks are an exception to confidentiality and contact the proper authorities.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Advise the client to file a formal complaint about the coworker with HR instead.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Under the ICF Code of Ethics (Section 2: Confidentiality & Legal), confidentiality has clear limits, including an imminent risk of danger to self or others. These limits should be explained in the coaching agreement, and the coach must act on them when a credible threat appears. Option A is the Violation Trap: it treats confidentiality as absolute and ignores a serious safety risk. Option B is the Therapist Trap, processing anger instead of addressing the danger. Option D is the Consultant Trap, offering advice that does not address the threat."
+      }
+    },
+    {
+      "question_id": "3",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "A client says they feel nervous before big presentations at work. They want to feel more confident when presenting to senior leaders. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Coach the client on their goal by exploring what confidence would look like.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Refer the client to a therapist because nervousness is an anxiety issue.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Teach the client a breathing technique to calm their nerves before presenting.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Reassure the client that most people feel nervous and it will pass.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to know the difference between coaching and therapy. Ordinary nervousness before presentations is a normal, future-focused performance goal that fits coaching well. Exploring what confidence would look like keeps the client in charge of their growth. Option B over-refers: there is no sign of a mental health condition. Option C is the Consultant Trap, teaching a technique instead of coaching. Option D is the Best Friend Trap, offering comfort instead of partnership."
+      }
+    },
+    {
+      "question_id": "4",
+      "competency_reference": "Core Competency 6: Listens Actively",
+      "scenario_question": "A client talks quickly about a missed deadline, a tense meeting, and a tired team. The coach is not sure which issue matters most to the client. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Pick the tense meeting because it seems to be the most urgent issue.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask the client why so many problems are happening at the same time.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Tell the client that the tired team is probably causing the other issues.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Briefly summarize the three issues and ask the client what stands out most.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 6 (Listens Actively) includes reflecting or summarizing what the client communicated to ensure clarity and understanding. A short summary shows the client they were heard and lets them choose what matters most. Option A is directive: the coach chooses the focus. Option B is a \"why\" question that can feel judgmental and moves away from the client's priorities. Option C is the Consultant Trap, offering the coach's own analysis of the problem."
+      }
+    },
+    {
+      "question_id": "5",
+      "competency_reference": "Code of Ethics Section 5: Professional Integrity",
+      "scenario_question": "A coach has finished their training but has not yet received the ICF ACC credential. A prospective client asks, \"Are you ICF-credentialed?\" How MUST the coach respond?",
+      "options": [
+        {
+          "id": "A",
+          "text": "State accurately that they have completed training but are not yet credentialed.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Say yes, because the credential is expected to arrive in a few weeks.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Avoid the question and talk about their many years of business experience.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Say that ICF credentials are not important for good coaching results.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. The ICF Code of Ethics (Section 5: Professional Integrity) requires coaches to accurately identify their coaching qualifications, level of competency, training, and ICF credentials. Honest disclosure builds trust from the very first conversation. Option B is a false claim, even if the credential is expected soon. Option C is misleading because it avoids a direct, fair question. Option D dismisses the client's question and misrepresents the value of professional standards."
+      }
+    },
+    {
+      "question_id": "6",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "During a session, a client quietly says that life does not feel worth living anymore. They mention they have thought about ending their life. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Continue the session and focus on small goals to rebuild the client's hope.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explore the past events that led the client to feel this way.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Share an inspiring story about someone who overcame a very hard time.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Pause the coaching and help the client connect with crisis or emergency support.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to recognize when a client needs support beyond coaching. Thoughts of ending one's life are a safety concern, and a risk of harm to self is also a recognized exception to confidentiality. The client's safety comes first: the coach pauses the coaching and helps the client reach crisis, emergency, or mental health support right away. Option A ignores a serious risk. Option B is the Therapist Trap, exploring the causes of a crisis. Option C is the Best Friend Trap, offering comfort instead of the professional help the client needs."
+      }
+    },
+    {
+      "question_id": "7",
+      "competency_reference": "Core Competency 2: Embodies a Coaching Mindset",
+      "scenario_question": "A client plans to leave a stable job to open a small bakery. The coach privately thinks this is too risky. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Share the coach's concerns so the client can make a safer decision.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask questions that gently guide the client toward keeping the stable job.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Notice their own opinion and stay curious about the client's thinking.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Suggest the client keep the job and run the bakery on weekends first.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 2 (Embodies a Coaching Mindset) asks the coach to stay open, curious, and client-centered, and to accept that clients are responsible for their own choices. The coach notices their own opinion and sets it aside so it does not shape the session. Option A puts the coach's judgment in place of the client's. Option B is subtle steering: leading questions are still directive. Option D is the Consultant Trap, offering the coach's solution."
+      }
+    },
+    {
+      "question_id": "8",
+      "competency_reference": "Code of Ethics Section 1: Agreements",
+      "scenario_question": "A new client is eager to start and asks to skip discussing the coaching agreement. They say they trust the coach completely. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Start coaching now and send the agreement by email after the session.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Review the key terms of the agreement together before the coaching begins.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Skip the agreement because the client's trust is enough to begin.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask the client to sign the agreement without reading it to save time.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. The ICF Code of Ethics (Section 1: Agreements) requires the coach to make sure the client understands the nature of coaching, confidentiality and its limits, fees, and other terms before or at the start of the work. Trust does not replace a clear agreement. Option A begins coaching without a shared understanding. Option C ignores the coach's ethical duty. Option D creates a signature without real understanding or consent."
+      }
+    },
+    {
+      "question_id": "9",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Consulting",
+      "scenario_question": "A coach used to work as a lawyer. A client asks the coach whether their employment contract allows them to work for a competitor. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Read the contract and give the client a clear legal opinion.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Share what usually happened in similar cases from the coach's legal career.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Clarify the coaching role and suggest the client consult a qualified lawyer.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Tell the client it is safer not to work for a competitor at all.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to keep clear distinctions between coaching, consulting, and other professions. Even with a legal background, the coach was hired as a coach, so legal questions belong with a qualified lawyer. The coach can still coach the client on how they want to handle the situation. Option A is the Consultant Trap, acting as a legal advisor. Option B is still advice, based on the coach's past career. Option D tells the client what to do."
+      }
+    },
+    {
+      "question_id": "10",
+      "competency_reference": "Core Competency 7: Evokes Awareness",
+      "scenario_question": "A client says they have been avoiding a difficult conversation with their business partner for weeks. Which question would BEST evoke the client's awareness?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"What is getting in the way of having this conversation?\"",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "\"Did you try talking to your partner about it yet?\"",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "\"Why haven't you just talked to your partner already?\"",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "\"Have you thought about sending your partner an email first?\"",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 7 (Evokes Awareness) uses powerful, open-ended questions that help the client explore their own thinking. This question invites the client to discover what is holding them back. Option B is a closed yes/no question that limits exploration. Option C is a \"why\" question with a judgmental tone that can make the client defensive. Option D is advice disguised as a question (the Consultant Trap)."
+      }
+    },
+    {
+      "question_id": "11",
+      "competency_reference": "Code of Ethics Section 3: Professional Conduct & Conflicts of Interest",
+      "scenario_question": "After several sessions, a client tells the coach they have romantic feelings for them. The client invites the coach to dinner. How MUST the coach respond?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Accept the invitation but keep the dinner focused on the coaching goals.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Accept the invitation for a date after the current contract has ended.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ignore the comment and continue the session as if nothing was said.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Kindly decline and clearly restate the professional boundaries of the relationship.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. The ICF Code of Ethics (Section 3: Professional Conduct & Conflicts of Interest) prohibits romantic or sexual relationships with clients and sponsors. The coach is responsible for setting clear, respectful boundaries. Option A blurs the professional relationship. Option B agrees to a romantic relationship while the coaching is still active, which already compromises the work. Option C avoids the issue and leaves the boundary unclear."
+      }
+    },
+    {
+      "question_id": "12",
+      "competency_reference": "Core Competency 4: Cultivates Trust and Safety",
+      "scenario_question": "A client mentions they are the first person in their family to work in an office. They often feel out of place among their colleagues. What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tell the client that many successful people come from similar backgrounds.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask what being the first in their family means to them.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Suggest the client copy the habits of their most confident colleagues.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Move the conversation back to the client's original goal for the session.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 4 (Cultivates Trust and Safety) asks the coach to understand the client within their context, including identity, environment, experiences, and values. Inviting the client to share what this means to them shows respect and builds trust. Option A is the Best Friend Trap, offering reassurance instead of curiosity. Option C is the Consultant Trap, giving advice. Option D dismisses something important the client chose to share."
+      }
+    },
+    {
+      "question_id": "13",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Friendship",
+      "scenario_question": "A client has started spending the first half of each session chatting about weekend plans. They have also invited the coach to a party. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Kindly name the pattern and invite the client back to their coaching goals.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Enjoy the friendly chats, because a warm personal relationship helps the coaching work better.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Accept the party invitation to strengthen trust with the client.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "End the coaching relationship because it is no longer professional.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 1 (Demonstrates Ethical Practice) includes keeping the distinction between coaching and other relationships, such as friendship. Naming the pattern respectfully and returning to the client's goals protects the value of the coaching. Option B is the Best Friend Trap: warmth is good, but the sessions are losing their purpose. Option C blurs professional boundaries. Option D is too extreme; the issue can be addressed through an honest conversation."
+      }
+    },
+    {
+      "question_id": "14",
+      "competency_reference": "Core Competency 5: Maintains Presence",
+      "scenario_question": "A coach prepared several questions about the client's career goals. Early in the session, the client starts talking about something else that clearly matters to them. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Gently bring the client back to the career questions that were prepared.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask the prepared questions quickly and then follow the client's new topic.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Tell the client the new topic can wait until the next session.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Set the prepared questions aside and stay with what the client brings.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 5 (Maintains Presence) asks the coach to remain focused, observant, and responsive to the client, and to be comfortable working without a fixed plan. Following the client's lead keeps the session client-centered; the coach can then confirm the new focus with the client as part of the session agreement. Option A puts the coach's plan ahead of the client. Option B rushes the client through the coach's agenda. Option C is directive and dismisses what the client wants to explore."
+      }
+    },
+    {
+      "question_id": "15",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality",
+      "scenario_question": "A coach wants to post a client's success story on the coach's website. The story would include the client's job title and company name. What MUST the coach do first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Post the story, since it shows the client in a very positive way.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask the client's sponsor for approval because they paid for the coaching.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Get the client's clear permission before sharing any part of their story.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Wait until the coaching ends and then post the story without asking.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. The ICF Code of Ethics (Section 2: Confidentiality) requires strict confidentiality about client information. Sharing a client's story, especially with identifying details, requires the client's explicit permission. Option A is the Violation Trap: a positive story is still confidential. Option B asks the wrong person, because the information belongs to the client. Option D is also a violation: confidentiality continues after the engagement ends."
+      }
+    },
+    {
+      "question_id": "16",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "A client asks the coach to hold a joint session with their spouse. They want the coach to help them resolve years of arguments in their marriage. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Agree to the joint session and help the couple decide who is right.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explain that resolving marriage conflict is outside coaching and suggest a couples therapist.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Agree to the session but only discuss the couple's future plans.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask the client to list their spouse's faults so the coach can understand.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to recognize when a request belongs to another profession. Working through long-standing conflict between partners is the work of a couples or family therapist. Option A is both the Therapist Trap and a judging role. Option C avoids the real request and still steps into therapy territory. Option D is the Best Friend Trap, taking sides against a person who is not present."
+      }
+    },
+    {
+      "question_id": "17",
+      "competency_reference": "Core Competency 8: Facilitates Client Growth",
+      "scenario_question": "After a long pause, a client says, \"I just realized I have been waiting for permission that nobody is going to give me.\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Agree with the client and say they should stop waiting for permission.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Move on to the next topic because the client has found the answer.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ask the client what this realization means for how they move forward.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Share a story about a time the coach also waited for permission.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 8 (Facilitates Client Growth) asks the coach to work with the client to integrate new awareness into their worldview and actions. Inviting the client to explore what the insight means helps turn awareness into action. Option A is directive and takes ownership of the insight away from the client. Option B misses the chance to deepen and use the learning. Option D is the Best Friend Trap, shifting the focus to the coach."
+      }
+    },
+    {
+      "question_id": "18",
+      "competency_reference": "Code of Ethics Section 3: Professional Conduct & Conflicts of Interest",
+      "scenario_question": "An internal coach is asked by HR to coach an employee who reports directly to the coach. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Raise the conflict of interest with HR and suggest a different coach.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Accept the request and keep the coaching separate from performance reviews.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Accept the request because the coach already knows the employee's work well.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Coach the employee but avoid discussing any topics related to their job.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. The ICF Code of Ethics (Section 3: Professional Conduct & Conflicts of Interest) requires coaches to recognize and manage conflicts of interest, including multiple roles with the same person. A manager has power over a direct report's job, which makes open, safe coaching very hard. Option B underestimates the conflict: the two roles cannot realistically be kept apart. Option C treats a conflict as an advantage. Option D limits the coaching but does not remove the conflict."
+      }
+    },
+    {
+      "question_id": "19",
+      "competency_reference": "Core Competency 3: Establishes and Maintains Agreements",
+      "scenario_question": "A client was sent to coaching by their manager. In the first session they say, \"Honestly, I don't know why I'm here.\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Explain the goals that the manager has already set for the coaching.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Tell the client that coaching only works when the client is fully committed.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Suggest ending the session early and trying again when the client is ready.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask what the client might want to gain from the coaching for themselves.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 3 (Establishes and Maintains Agreements) asks the coach to partner with the client to identify what they want to accomplish. Even when a sponsor started the coaching, the client needs their own reason to engage. Option A puts the sponsor's agenda ahead of the client's voice. Option B pressures the client and may damage trust. Option C gives up on the partnership before exploring what could make the coaching useful."
+      }
+    },
+    {
+      "question_id": "20",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Consulting",
+      "scenario_question": "A sponsor asks the coach to assess whether the client is ready for promotion. The sponsor wants the coach's recommendation by the end of the month. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Observe the client in sessions and give the sponsor an honest recommendation.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explain that judging the client's readiness for promotion is not the coach's role.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Ask the client for permission and then send the sponsor a full assessment.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Give the sponsor a short recommendation without sharing any session details.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 1 (Demonstrates Ethical Practice) asks the coach to keep coaching distinct from other services, such as assessment or consulting. If the coach judges the client for promotion, the client can no longer speak openly, and trust is lost. Option A turns the coach into an evaluator and breaks the trust the coaching depends on. Option C still changes the coach's role from partner to judge. Option D is the Violation Trap: even a short opinion is based on confidential sessions."
+      }
+    },
+    {
+      "question_id": "21",
+      "competency_reference": "Core Competency 6: Listens Actively",
+      "scenario_question": "While describing their week, a client says, \"I should call my parents more, I should exercise, and I should ask for a raise.\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Point out the repeated word \"should\" and ask what it means to them.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Help the client make a schedule that includes all three of these tasks.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ask the client which of the three tasks is the most urgent one.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Tell the client that using the word \"should\" creates unnecessary pressure.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 6 (Listens Actively) includes noticing the client's words and patterns, and exploring them with the client. Reflecting the repeated word invites the client to examine the pressure or expectations behind it. Option B is the Consultant Trap, jumping to a solution. Option C misses the pattern in the client's language. Option D is directive: the coach interprets the word instead of letting the client explore it."
+      }
+    },
+    {
+      "question_id": "22",
+      "competency_reference": "Code of Ethics Section 4: Delivering Consistent Value",
+      "scenario_question": "A coach has been ill for weeks and is too tired to focus during sessions. They have several clients booked for the coming month. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Continue all sessions as planned so clients are not disappointed.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Shorten the sessions quietly, without telling clients the real reason for the change.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Tell clients openly and pause or reschedule until the coach can work well.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Ask clients to lead the sessions themselves while the coach mostly listens.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. The ICF Code of Ethics (Section 4: Delivering Consistent Value) asks coaches to recognize personal limitations that could affect their coaching and to take action, such as pausing the work. Being open with clients protects the quality of the coaching. Option A ignores the coach's limitation and gives clients less value. Option B changes the agreement without transparency. Option D shifts responsibility to the clients instead of addressing the problem."
+      }
+    },
+    {
+      "question_id": "23",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Medical Advice",
+      "scenario_question": "A client says they often feel chest pain and dizziness during busy work periods. They ask the coach for tips to manage stress better. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Give the client stress management tips that have helped other clients.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explore which work tasks seem to cause the chest pain most often.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Tell the client the symptoms are normal signs of stress and will pass.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Encourage the client to see a doctor about these physical symptoms first.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to recognize when a client needs another professional. Chest pain and dizziness may be medical issues that a doctor must check. Coaching on stress can continue, but not instead of medical care. Option A is the Consultant Trap and ignores the physical symptoms. Option B treats a possible medical problem as a coaching topic. Option C is a medical judgment the coach is not qualified to make."
+      }
+    },
+    {
+      "question_id": "24",
+      "competency_reference": "Core Competency 7: Evokes Awareness",
+      "scenario_question": "A client dislikes their job but keeps saying, \"Leaving would be irresponsible.\" The client repeats this every time the topic comes up. What is the BEST question for the coach to ask?",
+      "options": [
+        {
+          "id": "A",
+          "text": "\"Have you started looking at other job openings yet?\"",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "\"What does being responsible mean to you in this situation?\"",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "\"Why do you stay in a job you clearly dislike?\"",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "\"Wouldn't staying in a job you dislike be irresponsible too?\"",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 7 (Evokes Awareness) includes asking questions about the client's beliefs and ways of thinking to help them see beyond their current view. Exploring what \"responsible\" means invites the client to examine the belief that is keeping them stuck. Option A is a closed question that pushes toward an action. Option C is a \"why\" question that may sound judgmental. Option D is a leading question that pushes the coach's opinion."
+      }
+    },
+    {
+      "question_id": "25",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality",
+      "scenario_question": "A coach keeps session notes in an open folder on the family laptop. Other family members also use this laptop. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep the notes there because family members are unlikely to read them.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Delete all notes after each session so there is nothing to protect.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ask family members to promise they will not open the coaching folder.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Move the notes to secure, password-protected storage that only the coach can access.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. The ICF Code of Ethics (Section 2: Confidentiality) requires coaches to store and manage client records in a way that protects confidentiality, security, and privacy. Notes on a shared device without protection are at risk. Option A relies on luck instead of protection. Option B is not required and may conflict with agreements or legal requirements for keeping records. Option C depends on promises instead of real security."
+      }
+    },
+    {
+      "question_id": "26",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Mentoring",
+      "scenario_question": "A client admires the coach's career. They ask the coach to spend their sessions explaining, step by step, how the coach became successful. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Agree and share the full career story, since the client asked for it.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Refuse, because a coach should never share personal experience with clients.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Clarify the difference between coaching and mentoring and agree on what the client needs.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Share the story briefly and then return to the questions the coach had planned.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 1 (Demonstrates Ethical Practice) asks the coach to keep clear distinctions between coaching and related services such as mentoring. The client may actually want mentoring, so the coach explains the difference and partners with the client to agree on the service. Option A changes the service without a clear agreement. Option B is too rigid and does not explore what the client really wants. Option D ignores the client's request and keeps the coach's plan in charge."
+      }
+    },
+    {
+      "question_id": "27",
+      "competency_reference": "Core Competency 4: Cultivates Trust and Safety",
+      "scenario_question": "In a session, the coach mentions the client's \"new manager.\" The client looks confused and says they never mentioned a new manager. What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Openly admit the mistake and invite the client to correct the coach's understanding.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Move on quickly so the client does not lose confidence in the coach.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Explain that the coach is very busy and works with many clients.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Insist politely that the client did mention a new manager last time.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 4 (Cultivates Trust and Safety) includes showing openness and transparency, which can mean showing vulnerability to build trust. Admitting a small mistake honestly shows respect for the client. Option B hides the mistake and may create doubt. Option C shifts attention to the coach and sounds like an excuse. Option D damages trust by putting the coach's memory above the client's experience."
+      }
+    },
+    {
+      "question_id": "28",
+      "competency_reference": "Code of Ethics Section 5: Professional Integrity",
+      "scenario_question": "A coach wants to write on their website: \"Guaranteed promotion within three months of coaching.\" What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use the claim, because several past clients were promoted after coaching.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Describe the possible value of coaching honestly, without promising specific results.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Use the claim but add a small note that results may vary.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Use the claim only for clients who complete all their sessions.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. The ICF Code of Ethics (Section 5: Professional Integrity) requires coaches to make true and accurate statements about what they offer and the potential value of coaching. A promotion depends on many factors outside the coach's control. Option A turns a few past successes into a false promise. Option C keeps a misleading headline and hides the truth in small print. Option D still makes a guarantee the coach cannot honestly give."
+      }
+    },
+    {
+      "question_id": "29",
+      "competency_reference": "Core Competency 8: Facilitates Client Growth",
+      "scenario_question": "A client proudly reports that they finally spoke up in a team meeting, something they had avoided for months. What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quickly move on to the client's next goal to keep up the momentum.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Tell the client the coach knew all along that they could do it.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Suggest the client now speak up in every meeting from now on.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Celebrate the progress and ask what the client learned from the experience.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 8 (Facilitates Client Growth) includes celebrating the client's progress and successes and working with the client to reflect on their learning. This helps the client own the change and build on it. Option A skips an important moment of learning. Option B shifts the credit toward the coach. Option C is directive: the coach sets the next action for the client."
+      }
+    },
+    {
+      "question_id": "30",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "A client is also seeing a therapist. They tell the coach about an exercise the therapist suggested and ask, \"Do you think my therapist is right?\" What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Avoid judging the therapy and suggest the client raise it with their therapist.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Share the coach's honest opinion about whether the exercise will work.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Offer a different exercise that the coach believes would work much better for them.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask the client to describe their therapy sessions in more detail.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to respect the boundaries between coaching and therapy. The coach is not qualified to evaluate therapy and should not interfere with treatment. Encouraging the client to talk with the therapist respects both professionals' roles. Options B and C step into the therapist's role (the Therapist Trap). Option D pulls the coaching into therapeutic territory."
+      }
+    },
+    {
+      "question_id": "31",
+      "competency_reference": "Code of Ethics Section 1: Agreements",
+      "scenario_question": "A sponsor sends the coach a list of goals for the client's coaching. The client has not seen the list or discussed it. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Start the coaching with the sponsor's list because the sponsor is paying.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ignore the list and let the client choose all goals without the sponsor.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Arrange a three-way conversation so the client and sponsor can agree on goals.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Send the list to the client and ask them to accept it before starting.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. The ICF Code of Ethics (Section 1: Agreements) asks the coach to create clear agreements on roles, responsibilities, and goals with both the client and the sponsor. A three-way conversation lets everyone align while the client keeps a real voice. Option A ignores the client's role in shaping the work. Option B ignores the sponsor's legitimate role in the agreement. Option D presents the goals as a done deal instead of an agreement."
+      }
+    },
+    {
+      "question_id": "32",
+      "competency_reference": "Core Competency 2: Embodies a Coaching Mindset",
+      "scenario_question": "A coach often joins sessions straight from back-to-back meetings. They notice it takes them several minutes to focus on the client. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use the first few minutes of each session for casual, friendly small talk.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Plan a few minutes before each session to prepare and clear their mind.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Ask clients to start each session by summarizing the previous one.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Shorten each session slightly and offer clients a lower fee.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 2 (Embodies a Coaching Mindset) includes preparing mentally and emotionally for sessions. Taking time to prepare helps the coach be fully available to the client from the first minute. Option A uses the client's time to cover the coach's lack of focus. Option C shifts the coach's responsibility to the client. Option D does not solve the problem and changes the agreement for the wrong reason."
+      }
+    },
+    {
+      "question_id": "33",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Advocacy",
+      "scenario_question": "A client wants a raise but feels nervous about asking. They ask the coach to call their manager and make the case for them. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Call the manager, since the coach can speak more calmly than the client.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Write an email to the manager that the client can send under their name.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Agree to join the meeting with the manager to support the client.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Explain the coaching role and explore how the client wants to approach the conversation.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 1 (Demonstrates Ethical Practice) asks the coach to keep coaching distinct from other roles. Speaking or writing for the client takes away their ownership and is not coaching. Exploring how the client wants to approach the conversation builds their own ability and confidence. Options A and B are the Consultant Trap, doing the work for the client. Option C steps outside the coaching relationship and changes the coach's role."
+      }
+    },
+    {
+      "question_id": "34",
+      "competency_reference": "Core Competency 5: Maintains Presence",
+      "scenario_question": "A client becomes very angry while talking about a colleague and starts raising their voice. The coach feels uncomfortable. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stay calm and present, and acknowledge the strength of the client's feelings.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Ask the client to calm down before the session can continue.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Quickly change the topic to something less upsetting for the client.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Agree that the colleague behaved badly to help the client feel heard.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 5 (Maintains Presence) includes being confident working with strong client emotions and staying focused on the client while managing the coach's own reactions. Staying calm and acknowledging the feeling gives the client space to express it safely. Option B tries to control the client's emotion. Option C avoids the client's feelings to ease the coach's discomfort. Option D is the Best Friend Trap, taking sides against the colleague."
+      }
+    },
+    {
+      "question_id": "35",
+      "competency_reference": "Code of Ethics Section 3: Professional Conduct & Conflicts of Interest",
+      "scenario_question": "A coach notices they feel impatient with a client who is much older. The coach catches themselves assuming the client will resist change. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Keep the sessions short since the client may not want to change much.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Recognize the bias and reflect on it, with a supervisor or mentor if needed.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Tell the client about the coach's feelings so the client can adjust.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Refer the client to a coach who is closer to the client's age.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. The ICF Code of Ethics (Section 3: Professional Conduct) asks coaches to be aware of their own biases and to treat every client fairly and equally. Noticing the bias and reflecting on it, with support if needed, protects the client from unfair treatment. Option A acts on the bias. Option C burdens the client with the coach's issue. Option D avoids the coach's responsibility to manage their own bias."
+      }
+    },
+    {
+      "question_id": "36",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "A client wants coaching to lose weight. They mention they often skip meals for days and feel guilty whenever they eat. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Help the client set a weekly weight-loss target and track their progress.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Share a healthy meal plan that the coach has personally found very useful.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Gently share the concern and suggest the client speak with a health professional.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Explore with the client where their guilt about food first came from.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to recognize signs that a client may need support beyond coaching. Skipping meals for days and feeling guilty about eating may be signs of an eating problem that needs a medical or mental health professional. Option A could make a possible health problem worse. Option B is the Consultant Trap and outside the coach's expertise. Option D is the Therapist Trap, exploring the roots of the issue."
+      }
+    },
+    {
+      "question_id": "37",
+      "competency_reference": "Core Competency 7: Evokes Awareness",
+      "scenario_question": "A client's project proposal was rejected. They say, \"This proves I'm not good enough for this job.\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Assure the client that they are definitely good enough for their job.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Suggest the client ask for detailed feedback on the rejected proposal.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ask the client to list every mistake they made in the proposal.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask the client what else this experience could be showing them.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 7 (Evokes Awareness) includes helping the client reframe their perspective to create new learning. Asking what else the experience could show invites the client to look beyond one painful conclusion. Option A is the Best Friend Trap, offering reassurance instead of exploration. Option B is the Consultant Trap, giving advice. Option C focuses only on failure and reinforces the client's limiting view."
+      }
+    },
+    {
+      "question_id": "38",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality",
+      "scenario_question": "A coach works with a team and also coaches each member one-on-one. One member asks what a teammate said in their private session. How MUST the coach respond?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Explain that individual session content stays confidential and cannot be shared.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Share a general summary that does not include any sensitive details.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Share the information if it will help the team work better together.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Suggest the member ask the teammate directly, and share a small part of it.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. The ICF Code of Ethics (Section 2: Confidentiality) requires coaches to keep information confidential with all parties, as agreed. In team settings, the coach must be clear about what stays private in individual sessions. Option B still shares private content. Option C is the Violation Trap: a good intention does not justify a breach. Option D still discloses part of a private conversation."
+      }
+    },
+    {
+      "question_id": "39",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Management",
+      "scenario_question": "An HR manager asks the coach to tell the client that they will lose their job if their performance does not improve. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Deliver the message gently during the next coaching session.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explain that delivering performance warnings belongs to the manager, not the coach.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Deliver the message, but only after the client agrees to hear it.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Hint at the warning by asking the client questions about job security.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 1 (Demonstrates Ethical Practice) asks the coach to keep coaching distinct from other roles. Performance warnings belong to the client's manager or HR. If the coach delivers them, the client may stop seeing the coach as a safe, neutral partner. Options A and C put the coach in a management role. Option D is manipulative: it hides the sponsor's message inside coaching questions."
+      }
+    },
+    {
+      "question_id": "40",
+      "competency_reference": "Core Competency 3: Establishes and Maintains Agreements",
+      "scenario_question": "There are five minutes left in the session. The client is still exploring different options and has not reached any conclusion. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Let the client keep exploring until the time runs out.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Choose the best option for the client so they leave with a plan.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ask the client where they are now in relation to today's goal.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Extend the session by thirty minutes without asking the client.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 3 (Establishes and Maintains Agreements) includes partnering with the client to close the session and checking progress against what the client wanted to achieve. This helps the client see what they have gained and what is still open. Option A ends the session without closure. Option B is the Consultant Trap, deciding for the client. Option D changes the agreement without the client's consent."
+      }
+    },
+    {
+      "question_id": "41",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality & Legal",
+      "scenario_question": "A coach receives a valid court order requesting notes from a client's coaching sessions. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Refuse the order because coaching conversations are always confidential.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Delete the notes quickly so there is nothing to hand over.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Send the notes to the client's employer so they can respond to the court.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Comply with the order and share only what is legally required.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. The ICF Code of Ethics (Section 2: Confidentiality & Legal) recognizes legal exceptions to confidentiality, such as a valid court order. These limits should be explained to the client in the coaching agreement. The coach shares only what the law requires and, where allowed, informs the client. Option A puts the coach in conflict with the law. Option B destroys records to avoid a legal duty, which is dishonest and may be illegal. Option C is the Violation Trap, sharing client information with a third party."
+      }
+    },
+    {
+      "question_id": "42",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "A client's parent died two months ago. The client says they are sad but coping, and they want coaching on returning to work smoothly. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Acknowledge the loss and coach the client on their goal, staying alert to changes.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Refer the client to a grief therapist before any further coaching sessions can continue.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Spend the session exploring the client's memories of their parent.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Avoid mentioning the loss and focus strictly on the return-to-work plan.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to tell the difference between normal life challenges and situations that need therapy. Sadness after a loss is normal; the client is coping and has a clear, future-focused goal. The coach stays alert in case the client later needs more support. Option B over-refers without any sign of a clinical need. Option C is the Therapist Trap. Option D ignores an important part of the client's context."
+      }
+    },
+    {
+      "question_id": "43",
+      "competency_reference": "Core Competency 6: Listens Actively",
+      "scenario_question": "A client speaks in a flat voice about their job. When they mention a small side project, their voice suddenly becomes lively and fast. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ask the client to return to the main topic of their job.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Name the shift in energy and invite the client to explore it.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Tell the client they should turn the side project into a business.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask the client how much time the side project takes each week.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 6 (Listens Actively) includes noticing, acknowledging, and exploring the client's emotions, energy shifts, and non-verbal cues. Naming the change without interpreting it invites the client to discover what it means. Option A ignores an important cue. Option C is the Consultant Trap, telling the client what to do. Option D asks for facts and misses the energy shift."
+      }
+    },
+    {
+      "question_id": "44",
+      "competency_reference": "Code of Ethics Section 4: Delivering Consistent Value",
+      "scenario_question": "A coach is much older and more senior than a young client. The client agrees with everything the coach says and never pushes back. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Continue as usual, since the client's agreement shows the coaching is working.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Give the client more direction, since they clearly value the coach's experience.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Invite the client to share openly, including when they disagree with the coach.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Refer the client to a younger coach who is closer to their age.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. The ICF Code of Ethics (Section 4: Delivering Consistent Value) asks coaches to be aware of and actively manage power or status differences between themselves and the client. Openly inviting disagreement helps balance the relationship and keeps the client in charge. Option A misreads constant agreement as success. Option B increases the power imbalance and falls into the Consultant Trap. Option D avoids the issue instead of managing it."
+      }
+    },
+    {
+      "question_id": "45",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Training",
+      "scenario_question": "A sponsor asks the coach to use the client's sessions to teach a full course on presentation skills. The coaching agreement does not include training. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Teach the full course, since the sponsor is paying for these coaching sessions.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Mix short lessons into each session without telling the client.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Refuse and stop working with the sponsor's organization.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Clarify the difference between coaching and training and agree on the service together.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to keep clear distinctions between coaching and related services such as training. Teaching a course is a different service, so all parties need to agree on what is being provided. Option A changes the service without a clear agreement. Option B is not transparent with the client. Option C is too extreme; the situation can be resolved through clear contracting."
+      }
+    },
+    {
+      "question_id": "46",
+      "competency_reference": "Core Competency 4: Cultivates Trust and Safety",
+      "scenario_question": "While talking about a missed promotion, a client's eyes fill with tears. They say, \"Sorry, I didn't expect to get emotional.\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quickly offer the client a plan to get promoted next time.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Suggest taking a break until the client feels more composed.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Let the client know their feelings are welcome and give them space.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Tell the client it is better to stay calm when discussing work.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 4 (Cultivates Trust and Safety) includes showing support, empathy, and concern, and supporting the client's expression of feelings. Letting the client know emotions are welcome creates a safe space. Option A is the Consultant Trap and rushes past the client's feelings. Option B signals that emotions are a problem. Option D judges the client's emotional expression."
+      }
+    },
+    {
+      "question_id": "47",
+      "competency_reference": "Code of Ethics Section 5: Professional Integrity",
+      "scenario_question": "A coach finds a useful worksheet created by another coach. They want to include it in their own coaching program. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ask the creator for permission and give them clear credit for the work.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Use the worksheet freely in the program, since it was already shared publicly online.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Change the design slightly and present it as the coach's own tool.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Use it only with clients who are unlikely to recognize the source.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. The ICF Code of Ethics (Section 5: Professional Integrity) asks coaches to recognize and honor the contributions and intellectual property of others, claiming ownership only of their own material. Option B ignores the creator's rights. Option C is dishonest: small changes do not make the work the coach's own. Option D shows the coach knows the use is wrong and hopes to avoid detection."
+      }
+    },
+    {
+      "question_id": "48",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Consulting",
+      "scenario_question": "A business owner asks their coach to interview employees and report what is wrong with the company culture. This was not part of the coaching agreement. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Interview the employees, since it will give the coaching useful information.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explain that this is a consulting service, separate from the coaching agreement.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Interview the employees but keep their names out of the report.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Suggest the owner run an online survey and analyze the results together.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 1 (Demonstrates Ethical Practice) asks the coach to keep clear distinctions between coaching and consulting. Diagnosing an organization's culture is consulting work. If both sides wish, it can be agreed as a separate service, but it should not quietly replace the coaching. Options A and C mix consulting into the coaching without a new agreement. Option D is the Consultant Trap, offering the coach's solution."
+      }
+    },
+    {
+      "question_id": "49",
+      "competency_reference": "Core Competency 8: Facilitates Client Growth",
+      "scenario_question": "Last session, a client agreed to talk with their team about a new schedule, but they did not do it. They seem embarrassed when the coach asks about it. What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Explore without judgment what got in the way and what the client learned.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Remind the client that they promised to complete the task this week.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Offer to write the message to the team for the client right now.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Skip the topic so the client does not feel embarrassed.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 8 (Facilitates Client Growth) asks the coach to partner with the client on moving forward, including exploring obstacles, and to support the client's learning and autonomy. Curious, non-judgmental exploration turns an unfinished task into useful learning. Option B is directive and may increase shame. Option C is the Consultant Trap, doing the work for the client. Option D avoids a useful learning opportunity."
+      }
+    },
+    {
+      "question_id": "50",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality",
+      "scenario_question": "A coach accidentally sends a client's session summary to the wrong email address. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Say nothing, since the person who received it probably will not read it.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Wait to see whether the client finds out before deciding what to do.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Send a quick note to the recipient and consider the matter closed.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Inform the client promptly and take steps to limit the impact of the error.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. The ICF Code of Ethics (Section 2: Confidentiality) requires coaches to protect client information and act with honesty. When a breach happens, the coach tells the client and takes reasonable steps to reduce harm, such as asking the recipient to delete the email. Options A and B hide the breach from the client. Option C deals with the recipient but leaves the client uninformed."
+      }
+    },
+    {
+      "question_id": "51",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "A coach suggested the client see a mental health professional after the client described months of deep hopelessness. The client refuses and asks the coach to keep coaching instead. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Continue coaching as usual, since the client has every right to choose for themselves.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Start using therapy techniques, since the client will not see a therapist.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Explain that coaching cannot replace the support they need, and discuss next steps.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "End the coaching relationship immediately, without any further discussion with the client.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 1 (Demonstrates Ethical Practice) requires the coach to recognize the limits of coaching. The client has the right to choose, but coaching cannot replace mental health care. The coach explains this honestly and partners with the client on whether, and how, coaching can continue alongside proper support. Option A ignores the limits of coaching. Option B is the Therapist Trap. Option D is abrupt and does not support the client."
+      }
+    },
+    {
+      "question_id": "52",
+      "competency_reference": "Core Competency 2: Embodies a Coaching Mindset",
+      "scenario_question": "After a session, a coach feels it went poorly. They noticed they talked too much and gave advice several times. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Forget about it and focus on doing better in the next session.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Apologize to the client by email and offer a free session.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Decide to use a fixed list of questions in every future session.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Reflect on what happened and seek feedback or supervision to keep learning.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. Core Competency 2 (Embodies a Coaching Mindset) includes ongoing learning, reflective practice, and seeking help from outside sources when needed. Reflecting and getting feedback turns a difficult session into professional growth. Option A misses the chance to learn. Option B is an overreaction that does not address the coach's development. Option C replaces presence and curiosity with a rigid script."
+      }
+    },
+    {
+      "question_id": "53",
+      "competency_reference": "Code of Ethics Section 1: Agreements",
+      "scenario_question": "Halfway through a six-month engagement, a private client asks to switch from weekly 60-minute sessions to 30-minute sessions. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Refuse, because the original agreement cannot be changed once signed.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Discuss the change with the client and update the agreement together.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Agree verbally and keep the written agreement as it is.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Make the change and simply charge the same fee as before.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. The ICF Code of Ethics (Section 1: Agreements) asks coaches to create and maintain clear agreements with clients. An agreement can change when both parties discuss and update it openly, including the fee and schedule. Option A is too rigid. Option C leaves the written agreement out of date and unclear. Option D changes the terms without a fair, shared agreement."
+      }
+    },
+    {
+      "question_id": "54",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Consulting",
+      "scenario_question": "A client describes a new business idea and asks, \"Be honest with me — is this a good idea?\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ask the client how they will judge whether the idea is good.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Give an honest opinion of the idea based on the coach's experience.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Tell the client the idea is great to boost their confidence.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Suggest the client hire a business consultant to rate the idea.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 1 (Demonstrates Ethical Practice) asks the coach to keep coaching distinct from consulting. Rather than acting as an expert judge, the coach helps the client build their own criteria for evaluating the idea. Option B is the Consultant Trap. Option C is the Best Friend Trap and is not honest. Option D sends the client elsewhere without first exploring their own thinking."
+      }
+    },
+    {
+      "question_id": "55",
+      "competency_reference": "Core Competency 7: Evokes Awareness",
+      "scenario_question": "A client is unhappy at work and says, \"I only have two options: stay and suffer, or quit with no plan.\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Help the client list the pros and cons of staying and quitting.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Advise the client to stay until they have found a new job.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ask the client what other options might exist beyond these two.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Agree that both options are hard and the choice is difficult.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 7 (Evokes Awareness) includes asking questions that help the client explore beyond their current thinking. The client sees only two options; an open question can reveal new possibilities. Option A keeps the client inside the same narrow choice. Option B is the Consultant Trap. Option D is the Best Friend Trap, agreeing instead of expanding the client's view."
+      }
+    },
+    {
+      "question_id": "56",
+      "competency_reference": "Code of Ethics Section 3: Professional Conduct & Conflicts of Interest",
+      "scenario_question": "A sponsor privately asks the coach to persuade the client to accept a move to another city. The client has not decided yet. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use coaching questions that gently lead the client toward accepting the move.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Agree with the sponsor, since the move is likely good for the client.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Tell the client that the sponsor really wants them to accept the move.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Decline to steer the client and clarify the coach's role with the sponsor.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct. The ICF Code of Ethics (Section 3: Professional Conduct & Conflicts of Interest) requires coaches to manage conflicts of interest openly and to respect the client's right to make their own decisions. Secretly steering the client would serve the sponsor's agenda over the client's. Option A is manipulation hidden inside coaching. Option B gives up the coach's neutral role. Option C shares a private sponsor conversation and adds pressure on the client."
+      }
+    },
+    {
+      "question_id": "57",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Consulting",
+      "scenario_question": "In the second session, a client says, \"I'm paying you as an expert, so I expect you to give me the answers.\" What is the BEST response for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Give the client answers to meet their expectations and keep them satisfied.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explain how coaching works and agree together on how they will work.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Tell the client they have misunderstood coaching and should find a consultant.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Give answers this time, then slowly move toward asking questions.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 1 (Demonstrates Ethical Practice) and Core Competency 3 (Establishes and Maintains Agreements) ask the coach to explain what coaching is and is not, and to agree on the relationship with the client. Clarifying expectations openly lets the client choose with full understanding. Option A is the Consultant Trap. Option C is dismissive and ends the conversation too quickly. Option D avoids an honest discussion and starts with consulting."
+      }
+    },
+    {
+      "question_id": "58",
+      "competency_reference": "Core Competency 5: Maintains Presence",
+      "scenario_question": "A client describes a situation the coach has lived through personally. The coach feels sure they already know exactly how the client feels. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Stay curious and ask the client what this experience is like for them.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Tell the client the coach knows exactly how they feel from experience.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Share what helped the coach when they were in the same situation.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Skip questions about feelings, since the coach already understands them.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct. Core Competency 5 (Maintains Presence) includes staying curious during the coaching process and remaining focused on the client rather than on the coach's own experience. Every client's experience is unique, even when it looks familiar. Option B assumes the coach's experience is the client's. Option C is the Best Friend Trap and also offers advice. Option D replaces exploration with the coach's assumptions."
+      }
+    },
+    {
+      "question_id": "59",
+      "competency_reference": "Core Competency 3: Establishes and Maintains Agreements",
+      "scenario_question": "In the first session of a new engagement, a client says their goal is simply \"to be happier.\" What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Accept the goal as stated and begin coaching right away.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explore what \"happier\" would look like so they can define success together.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Suggest a more specific goal, such as improving their work-life balance.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Explain that happiness is too vague to be a coaching goal.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct. Core Competency 3 (Establishes and Maintains Agreements) includes partnering with the client to define what they want to achieve in the engagement and how success will be measured. Exploring what \"happier\" means turns a broad wish into a clear, shared goal. Option A leaves the goal unclear. Option C is the Consultant Trap, choosing the goal for the client. Option D dismisses the client's wish instead of exploring it."
+      }
+    },
+    {
+      "question_id": "60",
+      "competency_reference": "Core Competency 8: Facilitates Client Growth",
+      "scenario_question": "At the end of a session, a client commits to five big actions for next week, on top of a busy workload. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tell the client to choose only one action so they do not fail.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Praise the client's ambition and close the session on a positive note.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Ask the client what might get in the way and what support they need.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Offer to send daily reminders to help the client finish all five actions.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct. Core Competency 8 (Facilitates Client Growth) asks the coach to partner with the client to consider how to move forward, including resources, support, and potential barriers. This helps the client create a realistic plan they own. Option A is directive. Option B misses the chance to test the plan. Option D makes the coach responsible for the client's accountability."
+      }
+    }
+  ]
+}
