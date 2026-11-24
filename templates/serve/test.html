@@ -1,15 +1,15 @@
 {% extends "serve/base.html" %}
 
-{% block title %}ICF ACC Mock Exam — Test{% endblock %}
+{% block title %}{{ exam.title }} · {{ t.site_title }}{% endblock %}
 
 {% block nav %}
 <div class="exam-bar">
   <div class="exam-bar-inner">
     <span class="exam-brand">ICF ACC</span>
-    <span class="exam-section" id="section-label">Section 1</span>
-    <span class="exam-progress" id="progress-text">0 / 30 answered</span>
+    <span class="exam-section" id="section-label">{{ fmt('part', n=1) }}</span>
+    <span class="exam-progress" id="progress-text">{{ fmt('progress', a=0, total=30) }}</span>
     <span class="timer" id="timer">39:00</span>
-    <button type="button" class="btn btn-sm btn-outline" id="btn-leave" onclick="submitExam()">Leave Early</button>
+    <button type="button" class="btn btn-sm btn-outline" id="btn-leave" onclick="submitExam()">{{ t.leave_early }}</button>
   </div>
   <div class="progress-track">
     <div class="progress-fill" id="progressBar"></div>
@@ -61,6 +61,17 @@
     font-weight: 700;
     color: var(--nav-text);
     transition: color 0.3s;
+  }
+
+  .exam-bar .btn-outline {
+    color: var(--nav-text);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .exam-bar .btn-outline:hover {
+    color: var(--nav-bg);
+    background: var(--nav-text);
+    border-color: var(--nav-text);
   }
 
   .timer.warn { color: var(--warn); }
@@ -304,8 +315,8 @@
     </div>
 
     <div class="form-footer">
-      <button type="button" class="btn btn-outline" onclick="submitExam()">Leave Early</button>
-      <button type="button" class="btn btn-primary" id="btn-section1-next" onclick="goToBreak()">Submit Section</button>
+      <button type="button" class="btn btn-outline" onclick="submitExam()">{{ t.leave_early }}</button>
+      <button type="button" class="btn btn-primary" id="btn-section1-next" onclick="goToBreak()">{{ t.submit_section }}</button>
     </div>
   </div>
 
@@ -313,10 +324,10 @@
   <div class="stage" id="stage-break">
     <div class="break-wrap">
       <div class="break-card">
-        <h2>Section 1 Complete</h2>
-        <p>Your answers have been saved.</p>
+        <h2>{{ t.section1_complete }}</h2>
+        <p>{{ t.answers_saved }}</p>
         <div class="break-timer" id="breakTimer">10:00</div>
-        <button type="button" class="btn btn-primary" onclick="startSection2()">Continue to Section 2 &rarr;</button>
+        <button type="button" class="btn btn-primary" onclick="startSection2()">{{ t.continue_s2 }}</button>
       </div>
     </div>
   </div>
@@ -351,8 +362,8 @@
     </div>
 
     <div class="form-footer">
-      <button type="button" class="btn btn-outline" onclick="submitExam()">Leave Early</button>
-      <button type="button" class="btn btn-primary" id="btn-section2-submit" onclick="submitExam()">Submit Test</button>
+      <button type="button" class="btn btn-outline" onclick="submitExam()">{{ t.leave_early }}</button>
+      <button type="button" class="btn btn-primary" id="btn-section2-submit" onclick="submitExam()">{{ t.submit_test }}</button>
     </div>
   </div>
 
@@ -361,6 +372,7 @@
 
 {% block scripts %}
 <script>
+  const T = {{ t_js | tojson }};
   const SECTION_SIZE = 30;
   const SECTION_DURATION = 39 * 60;
   const BREAK_DURATION = 10 * 60;
@@ -374,6 +386,10 @@
 
   /* ── Helpers ── */
   function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tr(key, vars) {
+    return T[key].replace(/\{(\w+)\}/g, (m, name) => (name in vars ? vars[name] : m));
+  }
 
   function formatTime(sec) {
     return pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
@@ -402,12 +418,12 @@
   function updateProgress() {
     const containerId = stage === 'section1' ? 'questions-section1' : 'questions-section2';
     const answered = countSectionAnswered(containerId);
-    document.getElementById('progress-text').textContent = answered + ' / ' + SECTION_SIZE + ' answered';
+    document.getElementById('progress-text').textContent = tr('progress', { a: answered, total: SECTION_SIZE });
     document.getElementById('progressBar').style.width = (answered / SECTION_SIZE * 100) + '%';
 
     if (stage === 'section1') {
       const btn = document.getElementById('btn-section1-next');
-      btn.textContent = answered >= SECTION_SIZE ? 'Next Section \u2192' : 'Submit Section';
+      btn.textContent = answered >= SECTION_SIZE ? T.next_section : T.submit_section;
     }
   }
 
@@ -454,15 +470,15 @@
     const leaveBtn = document.getElementById('btn-leave');
 
     if (name === 'break') {
-      label.textContent = 'Break';
+      label.textContent = T.break;
       leaveBtn.style.display = 'none';
       document.getElementById('timer').textContent = '--:--';
       document.getElementById('timer').className = 'timer';
-      document.getElementById('progress-text').textContent = 'Break time';
+      document.getElementById('progress-text').textContent = T.break_time;
       document.getElementById('progressBar').style.width = '100%';
       clearInterval(sectionTimerId);
     } else {
-      label.textContent = name === 'section1' ? 'Section 1' : 'Section 2';
+      label.textContent = tr('part', { n: name === 'section1' ? 1 : 2 });
       leaveBtn.style.display = '';
       updateProgress();
     }
@@ -492,7 +508,8 @@
     const allInputs = document.querySelectorAll('input[type=radio]').length / 4;
     const unanswered = allInputs - allChecked;
     if (unanswered > 0) {
-      if (!confirm(unanswered + ' question' + (unanswered > 1 ? 's are' : ' is') + ' unanswered and will be marked incorrect. Submit anyway?')) return;
+      const msg = unanswered === 1 ? T.confirm_one : tr('confirm_many', { n: unanswered });
+      if (!confirm(msg)) return;
     }
     submitted = true;
     clearInterval(sectionTimerId);

@@ -1,6 +1,6 @@
 {% extends "serve/base.html" %}
 
-{% block title %}Results · ICF ACC Mock Exam{% endblock %}
+{% block title %}{{ t.results_title }} · {{ exam.title }}{% endblock %}
 
 {% block style %}
 <style>
@@ -244,37 +244,37 @@
 
   <div>
     {% if passed %}
-      <span class="badge badge-success">PASSED</span>
+      <span class="badge badge-success">{{ t.passed }}</span>
     {% else %}
-      <span class="badge badge-error">FAILED</span>
+      <span class="badge badge-error">{{ t.failed }}</span>
     {% endif %}
   </div>
 
   <div class="score-stats">
-    <span class="score-stat stat-correct">&#10003; {{ score }} correct</span>
-    <span class="score-stat stat-wrong">&#10007; {{ wrong }} wrong</span>
-    <span class="score-stat stat-unanswered">&#8212; {{ unanswered }} unanswered</span>
+    <span class="score-stat stat-correct">&#10003; {{ fmt('stat_correct', n=score) }}</span>
+    <span class="score-stat stat-wrong">&#10007; {{ fmt('stat_wrong', n=wrong) }}</span>
+    <span class="score-stat stat-unanswered">&#8212; {{ fmt('stat_unanswered', n=unanswered) }}</span>
   </div>
 
-  <p class="score-meta">Pass requires {{ pass_score }}/{{ total }} (70%)</p>
+  <p class="score-meta">{{ exam.title }} · {{ fmt('pass_requires', p=pass_score, total=total) }}</p>
 
   <div class="score-sections">
     <div class="section-score">
-      <span class="section-label">Section 1</span>
+      <span class="section-label">{{ fmt('part', n=1) }}</span>
       <span class="section-val">{{ section1_score }}/30</span>
     </div>
     <div class="section-score">
-      <span class="section-label">Section 2</span>
+      <span class="section-label">{{ fmt('part', n=2) }}</span>
       <span class="section-val">{{ section2_score }}/30</span>
     </div>
   </div>
 
-  <a href="{{ url_for('picker') }}" class="back-link">&#8592; Back to Tests</a>
+  <a href="{{ url_for('picker', lang=lang) }}" class="back-link">{{ t.back }}</a>
 </div>
 
 <!-- ── Per-question breakdown ── -->
 <div class="breakdown">
-  <h2>Question Breakdown</h2>
+  <h2>{{ t.breakdown }}</h2>
 
   {% for q in graded %}
   <div class="card result-card {{ 'result-correct' if q.ok else ('result-unanswered' if q.unanswered else 'result-wrong') }}"
@@ -283,11 +283,11 @@
     <div class="result-header">
       <span class="badge badge-muted">Q{{ loop.index }}</span>
       {% if q.ok %}
-        <span class="badge badge-success">&#10003; Correct</span>
+        <span class="badge badge-success">&#10003; {{ t.q_correct }}</span>
       {% elif q.unanswered %}
-        <span class="badge badge-muted">&#8212; Unanswered</span>
+        <span class="badge badge-muted">&#8212; {{ t.q_unanswered }}</span>
       {% else %}
-        <span class="badge badge-error">&#10007; Wrong</span>
+        <span class="badge badge-error">&#10007; {{ t.q_wrong }}</span>
       {% endif %}
       <span class="badge badge-accent">{{ q.competency_reference }}</span>
     </div>
@@ -303,16 +303,16 @@
         <span class="opt-id-r">{{ opt.id }}</span>
         <span class="opt-text-r">{{ opt.text }}</span>
         {% if opt.id == q.correct %}
-          <span class="opt-marker">(&#10003; Correct)</span>
+          <span class="opt-marker">(&#10003; {{ t.marker_correct }})</span>
         {% elif opt.id == q.selected and not q.ok %}
-          <span class="opt-marker">(&#10007; Your answer)</span>
+          <span class="opt-marker">(&#10007; {{ t.marker_yours }})</span>
         {% endif %}
       </div>
       {% endfor %}
     </div>
 
     <details class="rationale">
-      <summary>Explanation</summary>
+      <summary>{{ t.explanation }}</summary>
       <p>{{ q.rationale }}</p>
     </details>
 

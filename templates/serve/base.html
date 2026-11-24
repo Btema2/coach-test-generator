@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang|default('en') }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}ICF ACC Mock Exam{% endblock %}</title>
+  <title>{% block title %}{{ t.site_title }}{% endblock %}</title>
   <style>
     /* ── Variables ── */
     :root {
@@ -126,12 +126,46 @@
       padding-bottom: 2px;
     }
 
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      overflow: hidden;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .lang-switch a {
+      padding: 0.2rem 0.7rem;
+      color: rgba(255, 255, 255, 0.7);
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .lang-switch a:hover { color: white; }
+
+    .lang-switch a[aria-current="true"] {
+      background: var(--nav-text);
+      color: var(--nav-bg);
+    }
+
+    .lang-switch a:focus-visible {
+      outline: 2px solid var(--accent-dim);
+      outline-offset: -2px;
+    }
+
     @media (max-width: 640px) {
       .topbar-inner {
         flex-wrap: wrap;
       }
 
-      .topbar-links {
+      .topbar-links,
+      .topbar-right {
         gap: 1rem;
       }
 
@@ -161,6 +195,7 @@
       gap: 0.5rem;
       padding: 0.6rem 1.25rem;
       border-radius: var(--radius-sm);
+      font-family: inherit;
       font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
@@ -310,10 +345,18 @@
   {% block nav %}
   <nav class="topbar">
     <div class="topbar-inner">
-      <a href="{{ url_for('picker') }}" class="brand">ICF ACC <span>Mock Exam</span></a>
-      <div class="topbar-links">
-        <a href="{{ url_for('picker') }}" class="{{ '' if admin else 'active' }}">Tests</a>
-        <a href="{{ url_for('admin_picker') }}" class="{{ 'active' if admin else '' }}">Admin</a>
+      <a href="{{ url_for('picker') }}" class="brand">ICF ACC <span>{{ t.brand_sub }}</span></a>
+      <div class="topbar-right">
+        <div class="topbar-links">
+          <a href="{{ url_for('picker') }}" class="{{ '' if admin else 'active' }}">{{ t.nav_tests }}</a>
+          <a href="{{ url_for('admin_picker') }}" class="{{ 'active' if admin else '' }}">{{ t.nav_admin }}</a>
+        </div>
+        {% if lang_switch %}
+        <nav class="lang-switch" aria-label="Language / Мова">
+          <a href="{{ url_for(request.endpoint, lang='en') }}" lang="en" {% if lang == 'en' %}aria-current="true"{% endif %}>EN</a>
+          <a href="{{ url_for(request.endpoint, lang='uk') }}" lang="uk" {% if lang == 'uk' %}aria-current="true"{% endif %}>UA</a>
+        </nav>
+        {% endif %}
       </div>
     </div>
   </nav>

@@ -1,6 +1,6 @@
 {% extends "serve/base.html" %}
 
-{% block title %}Admin: Browse · ICF ACC Mock Exam{% endblock %}
+{% block title %}{{ t.admin_prefix }} · {{ exam.title }}{% endblock %}
 
 {% block style %}
 <style>
@@ -25,10 +25,10 @@
 
 {% block content %}
 <div class="admin-header">
-  <h1>Admin: {{ filename | fmt_filename }}</h1>
-  <a href="{{ url_for('admin_picker') }}" class="btn btn-outline btn-sm">&#8592; All Tests</a>
+  <h1>{{ t.admin_prefix }}: {{ exam.title }}</h1>
+  <a href="{{ url_for('admin_picker') }}" class="btn btn-outline btn-sm">{{ t.all_tests }}</a>
 </div>
-<p class="admin-meta">{{ questions|length }} questions</p>
+<p class="admin-meta">{{ fmt('n_questions', n=questions|length) }}</p>
 
 <div class="admin-list">
   {% for q in questions %}
@@ -46,13 +46,13 @@
       <div class="opt-admin {{ 'opt-admin-correct' if opt.is_correct else '' }}">
         <span class="opt-id-a">{{ opt.id }}</span>
         <span class="opt-text-a">{{ opt.text }}</span>
-        {% if opt.is_correct %}<span class="opt-correct-mark" aria-label="correct answer">&#10003;</span>{% endif %}
+        {% if opt.is_correct %}<span class="opt-correct-mark" aria-label="{{ t.marker_correct }}">&#10003;</span>{% endif %}
       </div>
       {% endfor %}
     </div>
 
     <div class="admin-rationale">
-      <strong>Explanation:</strong> {{ q.ai_rationale.explanation }}
+      <strong>{{ t.explanation }}:</strong> {{ q.ai_rationale.explanation }}
     </div>
 
   </div>
