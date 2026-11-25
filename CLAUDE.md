@@ -1,34 +1,40 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+User-facing setup and usage are in `README.md`.
 
 ## Project Purpose
 
-Python CLI that generates unique ICF ACC (Associate Certified Coach) mock exam questions using an AI model. Questions follow ICF Core Competencies (2019) and ICF Code of Ethics (2025/2026) and are output as structured JSON.
+Two parts in one repo:
+- **Generator** (`generate.py`): CLI that writes ICF ACC (Associate Certified Coach) mock exam
+  questions with the Gemini API (or a free chatbot in DIY mode), following the ICF Core Competencies
+  (2019) and the ICF Code of Ethics (2025/2026). Output is JSON in `jsons/`.
+- **Exam site** (`serve.py`): public bilingual (EN/UK) Flask site where people take those exams.
 
-## Key File
+## Commands
 
-**`ACC-test-prompt.md`** — The AI system prompt. Contains:
-- `{{NUMBER_OF_QUESTIONS}}` — template variable for batch size
-- `{{EXISTING_QUESTIONS_DB}}` — template variable injected with already-generated question IDs/topics to prevent duplication
-- Psychometric rules, ICF knowledge bases, few-shot examples
-- Output JSON schema (`mock_exam_batch` array)
+- Tests: `.venv/bin/python -m pytest` (Python 3.13; deps in `requirements.txt`).
+- Site: `python serve.py [--port N] [--no-browser]` (default port 5001). Production: `gunicorn serve:app`.
+- Generator: `python generate.py` (API) or `python generate.py --diy [--port N]`.
 
-## Architecture (to be built)
+## Generator
 
-The script must:
-1. Load and fill the prompt template (`ACC-test-prompt.md`) with real values
-2. Maintain a local database of existing questions (to inject into `{{EXISTING_QUESTIONS_DB}}`)
-3. Call an AI API (Anthropic Claude recommended) with the filled prompt
-4. Parse and validate the returned JSON against the `mock_exam_batch` schema
-5. Persist new questions to the database to prevent future duplicates
+- `ACC-test-prompt.md`: the prompt template. Variables filled by `generate._fill_prompt`:
+  `{{NUMBER_OF_QUESTIONS}}`, `{{EXISTING_QUESTIONS_DB}}` (scenarios already written, for dedup),
+  `{{START_ID}}` and `{{START_ID_PLUS_1}}` (question IDs are sequential numbers as strings, from 1 per run).
+- `gemini_client.py`: one Gemini call with a JSON response schema; retries 503s (after 60 s, then 300 s).
+- `db.py`: SQLite `icf_mock_exams.db` of past questions. Its scenarios feed the dedup context.
+- `BATCH_SIZE` must be a multiple of 10. Runs go 10 questions per call, and each call's scenarios
+  are added to the next call's dedup context. Output goes to `jsons/<timestamp>.json`.
+- Each batch should be about 30% ethics (Code of Ethics Sections 1–5), 30% boundaries (coaching vs.
+  therapy vs. consulting) and 40% Core Competencies.
 
-## DIY Mode (no API cost)
+### DIY Mode (no API cost)
 
-Run `python generate.py --diy [--port N]` to generate without the paid API:
+`python generate.py --diy [--port N]`:
 1. A local Flask page opens in the browser.
 2. Copy the shown prompt into any free AI chatbot.
-3. Paste the chatbot's JSON response back; it is strictly validated.
+3. Paste the chatbot's JSON response back; it is strictly validated (`diy._validate_batch`).
 4. Each accepted batch of 10 is saved to the DB immediately and its scenarios
    feed the next batch's dedup context. Final combined JSON lands in `jsons/`.
 
@@ -36,32 +42,42 @@ DIY mode requires only `BATCH_SIZE` (no `GEMINI_API_KEY`/`GEMINI_MODEL`).
 
 ## Web App (`serve.py`)
 
-`python serve.py [--port N]` runs the public exam site; production runs `gunicorn serve:app`.
-
-- `i18n.py` — every interface string, EN + UK (same keys and placeholders in both; tests enforce it).
-- `store.py` — SQLAlchemy Core: users (username + password hash), exam attempts. `DATABASE_URL`
-  (Postgres in production; local SQLite at `data/app.db` by default). The Neon project is linked
-  in `.neon`; `neon env pull` writes its `DATABASE_URL` (pooled) to `.env.local`, which `serve.py`
-  loads before `.env` — so a local run then uses the Neon `production` branch.
+- `i18n.py`: every interface string, EN + UK (same keys and placeholders in both; tests enforce it).
+- `store.py`: SQLAlchemy Core: users (username + password hash), exam attempts, app settings.
+  `DATABASE_URL` (Postgres in production; local SQLite at `data/app.db` by default). The Neon project is
+  linked in `.neon` / `neon.ts`; `neon env pull` writes its `DATABASE_URL` (pooled) to `.env.local`, which
+  `serve.py` loads before `.env`, so a local run then uses the Neon `production` branch.
 - Accounts are username + password (Werkzeug scrypt hashes). No email is collected or sent, so there
   is no password reset.
-- `templates/serve/` + `static/` — pages, `app.css`, and per-page scripts (`exam.js` keeps the
-  in-progress exam in localStorage with wall-clock deadlines; `practice.js` checks answers via
-  `/api/check/...`).
+- `templates/serve/` + `static/`: pages, `app.css`, and per-page scripts (`exam.js` keeps the
+  in-progress exam in localStorage with wall-clock deadlines and pings `/ping` to keep Render awake;
+  `practice.js` checks answers via `/api/check/...`).
 - `/admin` (answer key) is off unless `ADMIN_PASSWORD` is set, and is never linked publicly.
 - Guests finish `GUEST_FREE_EXAMS` exams (default 1; -1 = no limit) before being asked to sign in;
   their results move to the account when they sign in or register.
 - Flask caches templates when not in debug mode: restart the server after editing them.
+- The exam is two timed sections of 30 questions (39 min each) with a 10-minute break.
 
 See `.env.example` for all settings.
 
-## JSON Output Schema
+## Exam Sets (`jsons/`)
+
+- The site lists, and `tests/test_serve.py` validates, **every** `jsons/*.json`. Generator output is
+  gitignored, so a stray local file can still fail tests or show up on a local site.
+- Published sets are force-added (`git add -f`), have exactly 60 questions, and carry a `meta` block.
+  Translations keep the source's order and answer key; pairs are listed in
+  `test_translations_match_their_source_answer_keys`.
+- Attempts store the exam **file name**, so don't rename a published set (this is why Set 1 EN is
+  still `2026-06-15T19-30-29.json`).
+
+## JSON Schema
 
 ```json
 {
+  "meta": { "title": "...", "description": "...", "language": "en", "order": 1 },
   "mock_exam_batch": [
     {
-      "question_id": "8-char alphanumeric",
+      "question_id": "1",
       "competency_reference": "e.g. 'Core Competency 7: Evokes Awareness'",
       "scenario_question": "3-5 sentence scenario + question prompt",
       "options": [
@@ -76,11 +92,7 @@ See `.env.example` for all settings.
 }
 ```
 
-Exactly one option per question has `is_correct: true`. No "All/None of the above".
-
-## Question Mix Requirement
-
-Per the prompt's execution instructions, each batch must contain:
-- ~30% Ethics questions (Code of Ethics Sections 1–5)
-- ~30% Boundary questions (Coaching vs. Therapy vs. Consulting)
-- ~40% Core Competency questions (Listening, Questioning, Agreements, etc.)
+`meta` is added by hand when publishing (the generator doesn't write it). Exactly one option per
+question has `is_correct: true`. No "All/None of the above". Score areas come from the number after
+`Core Competency` / `Ключова компетенція` in `competency_reference`; references mentioning ethics
+group as Ethics.

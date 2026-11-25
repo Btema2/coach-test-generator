@@ -1,11 +1,23 @@
+# Secrets and local settings
 .env
+.env.local
+.neon
+
+# Local databases (generator DB; the site's SQLite file lives in data/)
 icf_mock_exams.db
+data/
+
+# Generator output. Exam sets the site serves are committed on purpose:
+#   git add -f jsons/<file>.json
 jsons/*.json
+
+# Python
 __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
-data/
-.neon
+# pyproject.toml only configures pytest; requirements.txt holds the dependencies
+uv.lock
+
+# Node (Neon CLI config only)
 node_modules/
-.env.local
