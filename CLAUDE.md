@@ -49,14 +49,25 @@ DIY mode requires only `BATCH_SIZE` (no `GEMINI_API_KEY`/`GEMINI_MODEL`).
   `serve.py` loads before `.env`, so a local run then uses the Neon `production` branch.
 - Accounts are username + password (Werkzeug scrypt hashes). No email is collected or sent, so there
   is no password reset.
+- `/` is the exam list (one click to an exam or to sign in); `/exams` 301s there. It should read as a
+  self-built practice utility, not a product: home icon instead of a brand, no footer, no marketing
+  hero, FAQ or sample question. The "not affiliated with ICF" line lives in the home intro.
+- Look: every page uses the frame of the Pearson VUE test driver (blue title bar, light-blue tool
+  bar, white page, Arial, square buttons, bordered panels), always light. Colors and their contrast
+  are at the top of `app.css`.
+- The timed exam (`test.html`, `exam.js`, `.cbt-*` styles) copies the Pearson VUE test driver the real
+  ACC exam runs in, and is always light: title bar with Time Remaining (HH:MM:SS) and "N of 30",
+  Flag for Review, Previous/Next, then an Item Review Screen (Review All / Incomplete / Flagged).
+  End Review closes the section for good, as in ICF's ACC candidate guide.
 - `templates/serve/` + `static/`: pages, `app.css`, and per-page scripts (`exam.js` keeps the
   in-progress exam in localStorage with wall-clock deadlines and pings `/ping` to keep Render awake;
   `practice.js` checks answers via `/api/check/...`).
 - `/admin` (answer key) is off unless `ADMIN_PASSWORD` is set, and is never linked publicly.
-- Guests finish `GUEST_FREE_EXAMS` exams (default 1; -1 = no limit) before being asked to sign in;
-  their results move to the account when they sign in or register.
+- Accounts are optional: guests can take every exam. A guest's results move to the account when
+  they sign in or register.
 - Flask caches templates when not in debug mode: restart the server after editing them.
-- The exam is two timed sections of 30 questions (39 min each) with a 10-minute break.
+- The exam is two timed sections of 30 questions (39 min each) with a 10-minute break, matching
+  the real ACC exam.
 
 See `.env.example` for all settings.
 

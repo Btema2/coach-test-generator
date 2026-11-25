@@ -2,11 +2,12 @@
 
 {% block title %}{{ t.not_found_title }}: {{ brand }}{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block bar_title %}{{ t.not_found_title }}{% endblock %}
 
 {% block content %}
-<div class="narrow">
-  <h1>{{ t.not_found_title }}</h1>
-  <p>{{ t.not_found_text }}</p>
-  <p><a class="btn btn-primary" href="{{ url_for('exams') }}">{{ t.nav_exams }}</a></p>
+<div class="page page-narrow">
+  <h1 class="page-title">{{ t.not_found_title }}</h1>
+  <p class="lead">{{ t.not_found_text }}</p>
+  <p><a class="btn btn-primary" href="{{ url_for('exams') }}">{{ t.back_to_exams }}</a></p>
 </div>
 {% endblock %}

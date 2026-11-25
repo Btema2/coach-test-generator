@@ -22,34 +22,33 @@
   </div>
 {% endmacro %}
 
+{% block bar_title %}{{ heading }}{% endblock %}
+
 {% block content %}
-<div class="narrow">
-  <h1>{{ heading }}</h1>
-  {% if gate %}<p class="notice">{{ t.login_gate }}</p>{% endif %}
-  {% if register %}<p>{{ t.register_text }}</p>{% endif %}
-
-  <form class="panel" method="post" action="{{ url_for(mode, lang=lang) }}" novalidate>
-    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
-    {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
-    {% if register %}
-      {{ field('username', t.username_label, autocomplete='username', hint=t.username_hint, value=username, autofocus=not username or 'username' in errors) }}
-      {{ field('password', t.password_label, type='password', autocomplete='new-password', hint=t.password_hint, autofocus=username and 'username' not in errors) }}
-      {{ field('password2', t.password2_label, type='password', autocomplete='new-password') }}
-      <p class="field-hint">{{ t.register_note }}</p>
-      <button class="btn btn-primary btn-block" type="submit">{{ t.register_btn }}</button>
-    {% else %}
-      {{ field('username', t.username_label, autocomplete='username', value=username, autofocus=not username) }}
-      {{ field('password', t.password_label, type='password', autocomplete='current-password', autofocus=username) }}
-      <button class="btn btn-primary btn-block" type="submit">{{ t.login_btn }}</button>
-    {% endif %}
-  </form>
-
-  <p class="auth-switch">
-    {% if register %}
-      {{ t.register_have_account }} <a href="{{ url_for('login', next=next_url, lang=lang) }}">{{ t.register_login_link }}</a>
-    {% else %}
-      {{ t.login_no_account }} <a href="{{ url_for('register', next=next_url, lang=lang) }}">{{ t.login_register_link }}</a>
-    {% endif %}
-  </p>
+<div class="page page-narrow">
+  <h1 class="visually-hidden">{{ heading }}</h1>
+  <section class="panel">
+    <nav class="panel-tabs" aria-label="{{ heading }}">
+      <a href="{{ url_for('login', next=next_url, lang=lang) }}" {% if not register %}aria-current="page"{% endif %}>{{ t.login_btn }}</a>
+      <a href="{{ url_for('register', next=next_url, lang=lang) }}" {% if register %}aria-current="page"{% endif %}>{{ t.register_btn }}</a>
+    </nav>
+    <form class="panel-body form" method="post" action="{{ url_for(mode, lang=lang) }}" novalidate>
+      {% if register %}<p>{{ t.register_text }}</p>{% endif %}
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+      {% if register %}
+        {{ field('username', t.username_label, autocomplete='username', hint=t.username_hint, value=username, autofocus=not username or 'username' in errors) }}
+        {{ field('password', t.password_label, type='password', autocomplete='new-password', hint=t.password_hint, autofocus=username and 'username' not in errors) }}
+        {{ field('password2', t.password2_label, type='password', autocomplete='new-password') }}
+        <p class="field-hint">{{ t.register_note }}</p>
+        <div><button class="btn btn-primary" type="submit">{{ t.register_btn }}</button></div>
+      {% else %}
+        {{ field('username', t.username_label, autocomplete='username', value=username, autofocus=not username) }}
+        {{ field('password', t.password_label, type='password', autocomplete='current-password', autofocus=username) }}
+        <div><button class="btn btn-primary" type="submit">{{ t.login_btn }}</button></div>
+      {% endif %}
+    </form>
+  </section>
+  <p class="fine-print"><a href="{{ url_for('privacy') }}">{{ t.footer_privacy }}</a> · <a href="{{ url_for('terms') }}">{{ t.footer_terms }}</a></p>
 </div>
 {% endblock %}

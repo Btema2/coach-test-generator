@@ -253,25 +253,6 @@ def _ensure_guest_id() -> str:
     return session["guest_id"]
 
 
-def _guest_free_exams() -> int | None:
-    raw = os.getenv("GUEST_FREE_EXAMS", "1").strip()
-    try:
-        n = int(raw)
-    except ValueError:
-        return 1
-    return None if n < 0 else n
-
-
-def _guest_gated() -> bool:
-    """Guests must sign in after their free exams."""
-    if g.user:
-        return False
-    limit = _guest_free_exams()
-    if limit is None:
-        return False
-    return _store().count_attempts(guest_id=session.get("guest_id")) >= limit
-
-
 def _safe_next(target: str | None) -> str | None:
     if target and target.startswith("/") and not target.startswith("//") and "\\" not in target:
         return target
@@ -326,7 +307,7 @@ def _load_request_state():
         expected = session.get("csrf") or ""
         if not expected or not hmac.compare_digest(sent, expected):
             flash(UI[_ui_lang()]["csrf_failed"])
-            target = _CSRF_FALLBACK.get(request.endpoint or "", "landing")
+            target = _CSRF_FALLBACK.get(request.endpoint or "", "exams")
             return redirect(url_for(target))
 
 
@@ -366,19 +347,6 @@ def _globals():
 
 # ── Pages ──
 
-def _sample_question(lang: str) -> tuple[dict, dict] | None:
-    """A mid-length question from the first exam in this language, for the landing page."""
-    for info in _list_exams(lang):
-        loaded = _load_exam(info["filename"])
-        if not loaded:
-            continue
-        _, questions = loaded
-        fitting = [q for q in questions if 280 <= len(q["scenario_question"]) <= 520]
-        q = (fitting or questions)[0]
-        return info, _public_question(q)
-    return None
-
-
 @app.route("/ping")
 def ping():
     return "", 204
@@ -390,20 +358,6 @@ def robots():
         f"Disallow: {p}\n" for p in ("/admin", "/results/", "/test/", "/login", "/register", "/account")
     )
     return body, 200, {"Content-Type": "text/plain; charset=utf-8"}
-
-
-@app.route("/")
-def landing():
-    lang = _ui_lang()
-    exams = _list_exams(lang)
-    sample = _sample_question(lang)
-    return _render(
-        "serve/landing.html", lang,
-        exams=exams,
-        sample_exam=sample[0] if sample else None,
-        sample=sample[1] if sample else None,
-        lang_switch=True,
-    )
 
 
 def _exam_stats(history: list[dict]) -> dict[str, dict]:
@@ -447,6 +401,12 @@ def _progress_chart(history: list[dict], lang: str) -> dict | None:
 
 
 @app.route("/exams")
+def exams_legacy():
+    """The exam list used to live here; it is the home page now."""
+    return redirect(url_for("exams", **request.args), 301)
+
+
+@app.route("/")
 def exams():
     lang = _ui_lang()
     exam_list = _list_exams(lang)
@@ -468,8 +428,6 @@ def test(filename: str):
     loaded = _load_exam(filename)
     if not loaded:
         return redirect(url_for("exams"))
-    if _guest_gated():
-        return redirect(url_for("login", next=request.path, reason="gate"))
     info, questions = loaded
     lang = info["lang"]
     public = [_public_question(q) for q in questions]
@@ -568,8 +526,6 @@ def results(token: str):
         pass_score=pass_score,
         short_by=max(0, pass_score - score),
         score_pct=round(score / total * 100) if total else 0,
-        section1_score=sum(r["ok"] for r in graded[:SECTION_SIZE]),
-        section2_score=sum(r["ok"] for r in graded[SECTION_SIZE:]),
         minutes=max(1, round(elapsed / 60)) if elapsed else None,
         areas=areas,
         weak_area=weak,
@@ -658,7 +614,6 @@ def login():
         errors={"password": error} if error else {},
         username=username,
         next_url=next_url,
-        gate=request.args.get("reason") == "gate",
         lang_switch=True,
     )
 
@@ -694,7 +649,6 @@ def register():
         errors=errors,
         username=username,
         next_url=next_url,
-        gate=False,
         lang_switch=True,
     )
 
@@ -703,7 +657,7 @@ def register():
 def logout():
     session.pop("user_id", None)
     flash(UI[_ui_lang()]["signed_out"])
-    return redirect(url_for("landing"))
+    return redirect(url_for("exams"))
 
 
 @app.route("/account")
@@ -723,7 +677,7 @@ def account_delete():
     _store().delete_user(g.user["id"])
     session.clear()
     flash(UI[lang]["deleted"])
-    return redirect(url_for("landing"))
+    return redirect(url_for("exams"))
 
 
 # ── Legal ──
@@ -768,7 +722,7 @@ def admin_login():
 @app.route("/admin/logout", methods=["POST"])
 def admin_logout():
     session.pop("admin", None)
-    return redirect(url_for("landing"))
+    return redirect(url_for("exams"))
 
 
 @app.route("/admin")

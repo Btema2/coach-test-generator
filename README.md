@@ -104,16 +104,16 @@ All settings are environment variables. See [`.env.example`](.env.example).
 | --- | --- | --- |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | generator (API mode) | Gemini credentials and model |
 | `BATCH_SIZE` | generator | Questions per run (a multiple of 10) |
-| `BRAND_NAME` | site | Name in the header and page titles |
+| `BRAND_NAME` | site | Name in page titles |
 | `DATABASE_URL` | site | Postgres URL. Empty means SQLite at `data/app.db` |
 | `SECRET_KEY` | site | Signs session cookies. Empty means one is generated and kept in the database |
 | `ADMIN_PASSWORD` | site | Turns on the answer key at `/admin`, which nothing on the site links to |
-| `CONTACT_EMAIL` | site | Shown in the footer and on the privacy page |
+| `CONTACT_EMAIL` | site | Shown on the privacy page |
 | `PUBLIC_URL` | site | Public https address. Turns on secure cookies |
-| `GUEST_FREE_EXAMS` | site | Exams a guest can finish before signing in (default 1, `-1` = no limit) |
 
 Accounts are a username and a password (Werkzeug scrypt hashes). No email is collected, so there is
-no password reset. When a guest signs in or registers, their results move to the account.
+no password reset. An account is optional: guests can take every exam. When a guest signs in or
+registers, their results move to the account.
 
 ## Deployment
 

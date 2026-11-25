@@ -19,7 +19,7 @@ def db_url(tmp_path):
 
 @pytest.fixture
 def client(db_url, monkeypatch):
-    for var in ("DATABASE_URL", "ADMIN_PASSWORD", "PUBLIC_URL", "RENDER_EXTERNAL_URL", "GUEST_FREE_EXAMS"):
+    for var in ("DATABASE_URL", "ADMIN_PASSWORD", "PUBLIC_URL", "RENDER_EXTERNAL_URL"):
         monkeypatch.delenv(var, raising=False)
     app.config.update(TESTING=True, MAIL_CONSOLE=False)
     serve.init_store(db_url)
@@ -138,22 +138,22 @@ def test_english_strings_have_no_cyrillic():
 
 
 def test_exam_list_filters_by_lang_param(client):
-    uk = client.get("/exams?lang=uk").get_data(as_text=True)
+    uk = client.get("/?lang=uk").get_data(as_text=True)
     assert "Пробні іспити" in uk
     for f in _by_lang("uk"):
         assert f in uk
     for f in _by_lang("en"):
         assert f not in uk
 
-    en = client.get("/exams?lang=en").get_data(as_text=True)
-    assert "Practice exams" in en
+    en = client.get("/?lang=en").get_data(as_text=True)
+    assert "ICF ACC practice exams" in en
     for f in _by_lang("uk"):
         assert f not in en
 
 
 def test_lang_choice_is_remembered_in_cookie(client):
     client.get("/?lang=uk")
-    assert '<html lang="uk">' in client.get("/exams").get_data(as_text=True)
+    assert '<html lang="uk">' in client.get("/").get_data(as_text=True)
 
 
 def test_uses_browser_language(client):
@@ -163,17 +163,24 @@ def test_uses_browser_language(client):
 
 # ── Landing ──
 
-def test_landing_has_sample_question_without_answers(client):
+def test_home_lists_exams_without_answers(client):
     html = client.get("/?lang=en").get_data(as_text=True)
-    assert "Try a question" in html
+    for f in _by_lang("en"):
+        assert f"/test/{f}" in html and f"/practice/{f}" in html
     assert "is_correct" not in html
     assert "not affiliated with" in html
     assert "/admin" not in html
 
 
+def test_old_exam_list_url_redirects_home(client):
+    resp = client.get("/exams?lang=uk")
+    assert resp.status_code == 301
+    assert resp.headers["Location"].endswith("/?lang=uk")
+
+
 def test_empty_state_has_no_developer_instructions(tmp_path, monkeypatch, client):
     monkeypatch.setattr(serve, "JSONS_DIR", tmp_path)
-    html = client.get("/exams?lang=en").get_data(as_text=True)
+    html = client.get("/?lang=en").get_data(as_text=True)
     assert "There are no exams in this language yet." in html
     assert "generate.py" not in html
 
@@ -182,7 +189,7 @@ def test_exam_without_meta_falls_back_to_filename_and_english(tmp_path, monkeypa
     q = _exam("set-2-en.json")["mock_exam_batch"]
     (tmp_path / "2026-01-02T03-04-05.json").write_text(json.dumps({"mock_exam_batch": q}))
     monkeypatch.setattr(serve, "JSONS_DIR", tmp_path)
-    html = client.get("/exams?lang=en").get_data(as_text=True)
+    html = client.get("/?lang=en").get_data(as_text=True)
     assert "Jan 2, 2026, 03:04" in html
 
 
@@ -192,8 +199,8 @@ def test_ukrainian_exam_page_is_localized_and_hides_answers(client):
     filename = "set-2-uk.json"
     html = client.get(f"/test/{filename}").get_data(as_text=True)
     assert '<html lang="uk">' in html
-    assert "Завершити іспит зараз" in html
-    assert "End the exam now" not in html
+    assert "Завершити перегляд" in html
+    assert "End Review" not in html
     assert "is_correct" not in html
     first = _exam(filename)["mock_exam_batch"][0]
     assert first["ai_rationale"]["explanation"][:40] not in html
@@ -202,7 +209,7 @@ def test_ukrainian_exam_page_is_localized_and_hides_answers(client):
 def test_english_exam_keeps_english_ui(client):
     html = client.get("/test/set-2-en.json").get_data(as_text=True)
     assert '<html lang="en">' in html
-    assert "End the exam now" in html
+    assert "End Review" in html and "Item Review Screen" in html
 
 
 def test_unknown_exam_redirects(client):
@@ -312,28 +319,21 @@ def test_answer_key_needs_the_password(client, monkeypatch):
 
 def test_no_admin_link_in_public_nav(client, monkeypatch):
     monkeypatch.setenv("ADMIN_PASSWORD", "s3cret")
-    html = client.get("/exams?lang=en").get_data(as_text=True)
+    html = client.get("/?lang=en").get_data(as_text=True)
     assert "/admin" not in html
 
 
 # ── Accounts ──
 
 def test_sign_in_link_in_nav_for_guests(client):
-    assert ">Sign in<" in client.get("/exams?lang=en").get_data(as_text=True)
+    assert ">Sign in<" in client.get("/?lang=en").get_data(as_text=True)
 
 
-def test_guests_get_one_free_exam_then_sign_in(client):
-    assert client.get("/test/set-2-en.json").status_code == 200
+def test_guests_can_take_every_exam_without_an_account(client):
     _submit(client, "set-2-en.json", 10)
-    resp = client.get("/test/2026-06-15T19-30-29.json")
-    assert resp.status_code == 302
-    assert "/login" in resp.headers["Location"] and "reason=gate" in resp.headers["Location"]
-
-
-def test_guest_limit_can_be_turned_off(client, monkeypatch):
-    monkeypatch.setenv("GUEST_FREE_EXAMS", "-1")
-    _submit(client, "set-2-en.json", 10)
+    _submit(client, "set-2-uk.json", 10)
     assert client.get("/test/2026-06-15T19-30-29.json").status_code == 200
+    assert client.get("/test/set-1-uk.json").status_code == 200
 
 
 def test_register_claims_guest_results(client):
@@ -341,8 +341,8 @@ def test_register_claims_guest_results(client):
     resp = _register(client, username="Coach.Anna", next_url=location)
     assert resp.status_code == 302 and resp.headers["Location"].endswith(location)
 
-    html = client.get("/exams?lang=en").get_data(as_text=True)
-    assert "Your exams" in html
+    html = client.get("/?lang=en").get_data(as_text=True)
+    assert "coach.anna" in html  # signed in: the header shows the username
     assert "Best score 83%" in html
     user = serve._store().get_user_by_username("coach.anna")  # usernames are case-insensitive
     assert serve._store().count_attempts(user_id=user["id"]) == 1
@@ -361,7 +361,7 @@ def test_sign_in_with_password(client):
     assert "That username and password don't match." in html_lib.unescape(unknown.get_data(as_text=True))
 
     ok = _login(client, username="COACH")
-    assert ok.status_code == 302 and ok.headers["Location"].endswith("/exams")
+    assert ok.status_code == 302 and ok.headers["Location"].endswith("/")
     assert "Signed in as coach" in client.get("/account?lang=en").get_data(as_text=True)
 
 
@@ -401,7 +401,8 @@ def test_sign_in_needs_csrf_token(client):
 
 def test_sign_in_ignores_offsite_next(client):
     resp = _register(client, next_url="//evil.example/steal")
-    assert resp.headers["Location"].endswith("/exams")
+    assert resp.headers["Location"].endswith("/")
+    assert "evil.example" not in resp.headers["Location"]
 
 
 def test_delete_account_removes_results(client):

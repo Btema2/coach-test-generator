@@ -1,7 +1,11 @@
-/* Timed exam: one question per screen, two sections with a break.
- * Answers, flags and deadlines are saved to localStorage after every change,
- * so a reload or a closed tab resumes where the person left off. Deadlines are
- * wall-clock times, so the timer keeps running while the page is closed. */
+/* Timed exam, laid out like the Pearson VUE test driver used for the real ACC exam.
+ *
+ * Two sections of 30 items with a break between them. Inside a section people can
+ * go back, flag items and use the Item Review Screen; End Review closes the section
+ * for good, as on the real exam. Answers, flags and deadlines are saved to
+ * localStorage after every change, so a reload or a closed tab resumes where the
+ * person left off. Deadlines are wall-clock times, so the timer keeps running while
+ * the page is closed. */
 (() => {
   const cfg = JSON.parse(document.getElementById('exam-config').textContent);
   const T = cfg.t;
@@ -13,18 +17,20 @@
   const $ = (id) => document.getElementById(id);
   const form = $('exam-form');
   const questions = Array.from(document.querySelectorAll('.q'));
-  const navButtons = Array.from(document.querySelectorAll('.nav-btn'));
+  const cells = Array.from(document.querySelectorAll('[data-cell]'));
   const total = questions.length;
 
   const tr = (key, vars = {}) => T[key].replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
   const pad = (n) => String(n).padStart(2, '0');
   const formatTime = (ms) => {
     const s = Math.max(0, Math.ceil(ms / 1000));
-    return pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+    return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor((s % 3600) / 60)) + ':' + pad(s % 60);
   };
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const rangeOf = (section) => (section === 1 ? [0, Math.min(SIZE, total)] : [SIZE, total]);
   const currentSection = () => (state.stage === 's2' ? 2 : 1);
+  const qidAt = (i) => questions[i].dataset.qid;
+  const isAnswered = (i) => Boolean(state.answers[qidAt(i)]);
+  const isFlagged = (i) => state.flags.includes(qidAt(i));
 
   /* ── State ── */
   let state;
@@ -36,7 +42,15 @@
       v: 1, stage: 's1', index: 0, answers: {}, flags: [],
       s1Start: now, s1End: now + SECTION_MS, s1Used: null, s1Auto: false,
       breakEnd: null, s2Start: null, s2End: null, submitted: false,
+      view: 'item', reviewed: false, walk: null,
     };
+  }
+
+  /* A new section starts on its first item, with no review history. */
+  function resetSectionView(s) {
+    s.view = 'item';
+    s.reviewed = false;
+    s.walk = null;
   }
 
   function deadlineOf(s) {
@@ -53,116 +67,141 @@
   function loadSaved() {
     try {
       const s = JSON.parse(localStorage.getItem(cfg.storageKey));
-      if (s && s.v === 1 && ['s1', 'break', 's2'].includes(s.stage) && !s.submitted) return s;
+      if (s && s.v === 1 && ['s1', 'break', 's2'].includes(s.stage) && !s.submitted) {
+        if (!['item', 'review'].includes(s.view)) resetSectionView(s);
+        return s;
+      }
     } catch (e) { /* ignore */ }
     return null;
   }
 
   /* ── Rendering ── */
-  function answeredIn(section) {
-    const [a, b] = rangeOf(section);
-    let n = 0;
-    for (let i = a; i < b; i++) if (state.answers[questions[i].dataset.qid]) n++;
-    return n;
+  function sectionIndexes(filter) {
+    const [a, b] = rangeOf(currentSection());
+    const out = [];
+    for (let i = a; i < b; i++) if (!filter || filter(i)) out.push(i);
+    return out;
   }
 
-  function updateProgress() {
-    if (state.stage === 'break') {
-      $('answered-label').textContent = '';
-      $('progress-fill').style.width = '100%';
-      return;
-    }
+  function show(el, on) { el.hidden = !on; }
+
+  function renderItem() {
+    const [a, b] = rangeOf(currentSection());
+    if (state.index < a || state.index >= b) state.index = a;
+    questions.forEach((q, i) => { q.hidden = i !== state.index; });
+    $('item-count').textContent = tr('item_of', { i: state.index - a + 1, total: b - a });
+    $('btn-flag').setAttribute('aria-pressed', String(isFlagged(state.index)));
+
+    const walk = state.walk;
+    const pos = walk ? walk.indexOf(state.index) : -1;
+    $('btn-prev').disabled = walk ? pos <= 0 : state.index === a;
+  }
+
+  function renderReview() {
     const section = currentSection();
-    const [a, b] = rangeOf(section);
-    const answered = answeredIn(section);
-    $('answered-label').textContent = tr('progress', { a: answered, total: b - a });
-    $('progress-fill').style.width = (answered / (b - a)) * 100 + '%';
-  }
-
-  function updateNav() {
-    navButtons.forEach((btn) => {
-      const i = Number(btn.dataset.goto);
-      const qid = questions[i].dataset.qid;
-      const answered = Boolean(state.answers[qid]);
-      const flagged = state.flags.includes(qid);
-      btn.classList.toggle('is-answered', answered);
-      btn.classList.toggle('is-flagged', flagged);
-      if (i === state.index) btn.setAttribute('aria-current', 'true');
-      else btn.removeAttribute('aria-current');
-      const parts = [btn.dataset.label];
-      if (answered) parts.push(T.legend_answered);
-      if (flagged) parts.push(T.legend_flagged);
-      btn.setAttribute('aria-label', parts.join(', '));
+    let incomplete = 0;
+    cells.forEach((cell) => {
+      const i = Number(cell.dataset.cell);
+      const inSection = Number(cell.dataset.section) === section;
+      cell.hidden = !inSection;
+      if (!inSection) return;
+      const answered = isAnswered(i);
+      if (!answered) incomplete++;
+      cell.querySelector('[data-cell-incomplete]').hidden = answered;
+      cell.querySelector('[data-cell-flag]').setAttribute('aria-pressed', String(isFlagged(i)));
     });
-  }
-
-  function updateFlagButton() {
-    const q = questions[state.index];
-    const btn = q.querySelector('[data-flag]');
-    const on = state.flags.includes(q.dataset.qid);
-    btn.setAttribute('aria-pressed', String(on));
-    btn.querySelector('[data-flag-text]').textContent = on ? T.flagged : T.flag;
+    $('review-section-head').textContent = tr('section_of', { n: section });
+    $('review-count').textContent = '(' + tr('review_incomplete_count', { n: incomplete }) + ')';
+    $('btn-review-incomplete').disabled = incomplete === 0;
+    $('btn-review-flagged').disabled = sectionIndexes(isFlagged).length === 0;
   }
 
   function render() {
     const onBreak = state.stage === 'break';
-    $('stage-questions').hidden = onBreak;
-    $('stage-break').hidden = !onBreak;
-    $('break-timeup').hidden = !(onBreak && state.s1Auto);
-    const section = currentSection();
-    $('section-label').textContent = onBreak ? T.break : tr('section_of', { n: section });
-    document.querySelectorAll('[data-nav-section]').forEach((ol) => {
-      ol.hidden = Number(ol.dataset.navSection) !== section;
-    });
+    const view = onBreak ? 'break' : state.view;
 
-    if (!onBreak) {
-      const [a, b] = rangeOf(section);
-      if (state.index < a || state.index >= b) state.index = a;
-      questions.forEach((q, i) => { q.hidden = i !== state.index; });
-      $('btn-prev').disabled = state.index === a;
-      const last = state.index === b - 1;
-      $('btn-next').textContent = last ? (section === 1 ? T.review_section : T.review_exam) : T.next;
-      $('btn-review').textContent = section === 1 ? T.review_section : T.review_exam;
-      updateFlagButton();
-    }
-    updateProgress();
-    updateNav();
+    show($('stage-item'), view === 'item');
+    show($('stage-review'), view === 'review');
+    show($('stage-break'), view === 'break');
+    show($('break-timeup'), onBreak && state.s1Auto);
+    show($('item-count'), view === 'item');
+    show($('btn-flag'), view === 'item');
+    $('section-label').textContent = onBreak ? T.break : tr('section_of', { n: currentSection() });
+
+    show($('btn-prev'), view === 'item');
+    show($('btn-next'), view === 'item');
+    show($('btn-review-screen'), view === 'item' && state.reviewed);
+    ['btn-end-review', 'btn-review-all', 'btn-review-incomplete', 'btn-review-flagged'].forEach((id) => show($(id), view === 'review'));
+    show($('bottom-bar'), !onBreak);
+
+    if (view === 'item') renderItem();
+    if (view === 'review') renderReview();
     tick();
   }
 
-  function setTimer(ms, warnMs, dangerMs) {
-    const el = $('timer');
+  function setTimer(ms) {
     $('timer-value').textContent = formatTime(ms);
-    el.classList.toggle('is-danger', ms <= dangerMs);
-    el.classList.toggle('is-warn', ms > dangerMs && ms <= warnMs);
+    $('timer').classList.toggle('is-danger', ms <= 5 * 60e3);
   }
 
   /* ── Navigation ── */
-  function go(i, focus) {
+  function showItem(i, focus) {
     const [a, b] = rangeOf(currentSection());
     state.index = Math.min(Math.max(i, a), b - 1);
+    state.view = 'item';
     save();
     render();
-    const pane = $('stage-questions');
-    const top = pane.getBoundingClientRect().top;
-    if (top < 0) window.scrollTo({ top: window.scrollY + top - 80, behavior: reducedMotion ? 'auto' : 'smooth' });
+    window.scrollTo({ top: 0 });
     if (focus) questions[state.index].focus({ preventScroll: true });
   }
 
-  function next() {
-    const [, b] = rangeOf(currentSection());
-    if (state.index >= b - 1) openReview();
-    else go(state.index + 1);
+  function openReview() {
+    state.view = 'review';
+    state.reviewed = true;
+    state.walk = null;
+    save();
+    render();
+    window.scrollTo({ top: 0 });
+    $('stage-review').focus({ preventScroll: true });
   }
 
-  function prev() { go(state.index - 1); }
+  function next() {
+    const walk = state.walk;
+    if (walk) {
+      const pos = walk.indexOf(state.index);
+      if (pos >= 0 && pos < walk.length - 1) showItem(walk[pos + 1]);
+      else openReview();
+      return;
+    }
+    const [, b] = rangeOf(currentSection());
+    if (state.index >= b - 1) openReview();
+    else showItem(state.index + 1);
+  }
 
-  function toggleFlag() {
-    const qid = questions[state.index].dataset.qid;
+  function prev() {
+    const walk = state.walk;
+    if (walk) {
+      const pos = walk.indexOf(state.index);
+      if (pos > 0) showItem(walk[pos - 1]);
+      return;
+    }
+    if (state.index > rangeOf(currentSection())[0]) showItem(state.index - 1);
+  }
+
+  /* Review All / Incomplete / Flagged: step through a fixed list of items, then come back. */
+  function startWalk(filter) {
+    const list = sectionIndexes(filter);
+    if (!list.length) return;
+    state.walk = filter ? list : null;
+    showItem(list[0], true);
+  }
+
+  function toggleFlagAt(i) {
+    const qid = qidAt(i);
     state.flags = state.flags.includes(qid) ? state.flags.filter((f) => f !== qid) : state.flags.concat(qid);
     save();
-    updateFlagButton();
-    updateNav();
+    if (state.view === 'review') renderReview();
+    else $('btn-flag').setAttribute('aria-pressed', String(isFlagged(state.index)));
   }
 
   /* ── Stage changes ── */
@@ -172,6 +211,7 @@
     state.s1Auto = auto;
     state.stage = 'break';
     state.breakEnd = (auto ? state.s1End : now) + BREAK_MS;
+    resetSectionView(state);
     save();
     render();
     window.scrollTo({ top: 0 });
@@ -183,6 +223,7 @@
     state.s2Start = at;
     state.s2End = at + SECTION_MS;
     state.index = SIZE;
+    resetSectionView(state);
   }
 
   function startSection2Now() {
@@ -214,6 +255,7 @@
       state.s1Used = SECTION_MS;
       state.s1Auto = true;
       state.breakEnd = state.s1End + BREAK_MS;
+      resetSectionView(state);
     }
     if (state.stage === 'break' && now >= state.breakEnd) startSection2(state.breakEnd);
     return state.stage === 's2' && now >= state.s2End;
@@ -225,7 +267,7 @@
     if (state.stage === 's1') {
       const left = state.s1End - now;
       if (left <= 0) return endSection1(true);
-      setTimer(left, 15 * 60e3, 5 * 60e3);
+      setTimer(left);
     } else if (state.stage === 'break') {
       const left = state.breakEnd - now;
       if (left <= 0) {
@@ -233,60 +275,13 @@
         save();
         return render();
       }
-      setTimer(left, 3 * 60e3, 60e3);
+      setTimer(left);
       $('break-timer').textContent = formatTime(left);
     } else {
       const left = state.s2End - now;
       if (left <= 0) return submitExam();
-      setTimer(left, 15 * 60e3, 5 * 60e3);
+      setTimer(left);
     }
-  }
-
-  /* ── Dialogs ── */
-  function fillChips(listId, groupId, indexes) {
-    const list = $(listId);
-    list.replaceChildren();
-    indexes.forEach((i) => {
-      const li = document.createElement('li');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'chip';
-      btn.textContent = String((i % SIZE) + 1);
-      btn.setAttribute('aria-label', navButtons[i].dataset.label);
-      btn.addEventListener('click', () => {
-        $('review-dialog').close();
-        go(i, true);
-      });
-      li.appendChild(btn);
-      list.appendChild(li);
-    });
-    $(groupId).hidden = indexes.length === 0;
-  }
-
-  function openReview() {
-    const section = currentSection();
-    const [a, b] = rangeOf(section);
-    const unanswered = [];
-    const flagged = [];
-    for (let i = a; i < b; i++) {
-      const qid = questions[i].dataset.qid;
-      if (!state.answers[qid]) unanswered.push(i);
-      if (state.flags.includes(qid)) flagged.push(i);
-    }
-    $('review-title').textContent = section === 1 ? tr('review_title', { n: 1 }) : T.review_title_exam;
-    $('review-answered').textContent = unanswered.length
-      ? tr('review_answered', { a: b - a - unanswered.length, total: b - a })
-      : T.review_all_done;
-    fillChips('review-unanswered', 'review-unanswered-group', unanswered);
-    fillChips('review-flagged', 'review-flagged-group', flagged);
-    $('review-note').textContent = section === 1 ? T.review_note_s1 : T.review_note_s2;
-    $('review-confirm').textContent = section === 1 ? T.submit_section : T.submit_test;
-    $('review-dialog').showModal();
-  }
-
-  function openEnd() {
-    $('end-body').textContent = state.stage === 's1' ? T.end_body_s1 : T.end_body_s2;
-    $('end-dialog').showModal();
   }
 
   /* ── Events ── */
@@ -294,23 +289,34 @@
     if (e.target.type !== 'radio') return;
     state.answers[e.target.name.slice(2)] = e.target.value;
     save();
-    updateProgress();
-    updateNav();
   });
 
-  questions.forEach((q) => q.querySelector('[data-flag]').addEventListener('click', toggleFlag));
-  navButtons.forEach((btn) => btn.addEventListener('click', () => go(Number(btn.dataset.goto), true)));
+  $('btn-flag').addEventListener('click', () => toggleFlagAt(state.index));
   $('btn-next').addEventListener('click', next);
   $('btn-prev').addEventListener('click', prev);
-  $('btn-review').addEventListener('click', openReview);
-  $('btn-end').addEventListener('click', openEnd);
+  $('btn-review-screen').addEventListener('click', openReview);
+  $('btn-review-all').addEventListener('click', () => startWalk(null));
+  $('btn-review-incomplete').addEventListener('click', () => startWalk((i) => !isAnswered(i)));
+  $('btn-review-flagged').addEventListener('click', () => startWalk(isFlagged));
   $('btn-start-s2').addEventListener('click', startSection2Now);
-  $('review-confirm').addEventListener('click', () => {
-    $('review-dialog').close();
+  cells.forEach((cell) => {
+    const i = Number(cell.dataset.cell);
+    cell.querySelector('[data-cell-go]').addEventListener('click', () => {
+      state.walk = null;
+      showItem(i, true);
+    });
+    cell.querySelector('[data-cell-flag]').addEventListener('click', () => toggleFlagAt(i));
+  });
+
+  $('btn-end-review').addEventListener('click', () => {
+    $('end-body').textContent = currentSection() === 1 ? T.end_review_s1 : T.end_review_s2;
+    $('end-dialog').showModal();
+  });
+  $('end-yes').addEventListener('click', () => {
+    $('end-dialog').close();
     if (currentSection() === 1) endSection1(false);
     else submitExam();
   });
-  $('end-confirm').addEventListener('click', submitExam);
   document.querySelectorAll('dialog [data-close]').forEach((btn) => {
     btn.addEventListener('click', () => btn.closest('dialog').close());
   });
@@ -322,15 +328,20 @@
   };
 
   document.addEventListener('keydown', (e) => {
-    if (submitted || state.stage === 'break') return;
-    if (e.altKey || e.ctrlKey || e.metaKey || e.repeat) return;
+    if (submitted || state.stage === 'break' || state.view !== 'item') return;
+    if (e.ctrlKey || e.metaKey || e.repeat) return;
     if (document.querySelector('dialog[open]')) return;
     const target = e.target;
     if (target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && target.type !== 'radio')) return;
 
+    // Alt+N / Alt+P move, as in the real test driver.
+    if (e.altKey) {
+      if (e.code === 'KeyN') { e.preventDefault(); next(); }
+      else if (e.code === 'KeyP') { e.preventDefault(); prev(); }
+      return;
+    }
     if (e.code in KEY_OPTIONS) {
-      const inputs = questions[state.index].querySelectorAll('input[type=radio]');
-      const input = inputs[KEY_OPTIONS[e.code]];
+      const input = questions[state.index].querySelectorAll('input[type=radio]')[KEY_OPTIONS[e.code]];
       if (input) {
         e.preventDefault();
         input.checked = true;
@@ -341,10 +352,10 @@
       next();
     } else if (e.code === 'ArrowLeft') {
       e.preventDefault();
-      if (state.index > rangeOf(currentSection())[0]) prev();
+      prev();
     } else if (e.code === 'KeyF') {
       e.preventDefault();
-      toggleFlag();
+      toggleFlagAt(state.index);
     }
   });
 

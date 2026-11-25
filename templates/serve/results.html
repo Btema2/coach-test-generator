@@ -1,134 +1,99 @@
 {% extends "serve/base.html" %}
-{% from "serve/_macros.html" import icon %}
+{% from "serve/_macros.html" import icon, static_option %}
 
 {% block title %}{{ t.results_title }}: {{ exam.title }}{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block bar_title %}{{ exam.title }}{% endblock %}
+{% block toolbar %}{{ t.results_title }}{% endblock %}
 
 {% block content %}
-{% set circumference = 326.73 %}
-<div class="wrap">
-  <section class="result-head" aria-labelledby="result-title">
-    <div>
-      <p class="result-exam">{{ exam.title }}</p>
-      <h1 id="result-title">{{ t.passed_title if passed else t.failed_title }}</h1>
+<div class="page">
+  <section class="panel" aria-labelledby="result-title">
+    <div class="panel-head"><span>{{ t.results_title }}</span><span>{{ score_pct }}%</span></div>
+    <div class="panel-body result-body">
+      <h1 id="result-title" class="result-verdict {{ 'is-pass' if passed else 'is-fail' }}">{{ icon('check' if passed else 'cross') }}{{ t.passed_title if passed else t.failed_title }}</h1>
       <p class="result-lead">
         {% if passed %}{{ fmt('passed_text', score=score, total=total, p=pass_score) }}
         {% else %}{{ fmt('failed_text', score=score, total=total, p=pass_score, k=short_by) }}{% endif %}
       </p>
+      <div class="score-bar" aria-hidden="true"><span class="score-fill {{ 'is-pass' if passed else 'is-fail' }}" style="width: {{ score_pct }}%"></span><span class="score-pass"></span></div>
       <dl class="result-stats">
         <div><dt>{{ t.q_correct }}</dt><dd>{{ score }}</dd></div>
         <div><dt>{{ t.q_wrong }}</dt><dd>{{ wrong }}</dd></div>
         <div><dt>{{ t.q_unanswered }}</dt><dd>{{ unanswered }}</dd></div>
-        <div><dt>{{ fmt('part', n=1) }}</dt><dd>{{ fmt('section_score', s=section1_score) }}</dd></div>
-        <div><dt>{{ fmt('part', n=2) }}</dt><dd>{{ fmt('section_score', s=section2_score) }}</dd></div>
         {% if minutes %}<div><dt>{{ t.time_taken }}</dt><dd>{{ fmt('minutes_short', m=minutes) }}</dd></div>{% endif %}
       </dl>
     </div>
-    <div class="ring" role="img" aria-label="{{ score_pct }}%">
-      <svg viewBox="0 0 120 120" aria-hidden="true">
-        <circle class="ring-track" cx="60" cy="60" r="52"/>
-        <circle class="ring-fill {{ 'is-pass' if passed else 'is-fail' }}" cx="60" cy="60" r="52"
-                stroke-dasharray="{{ circumference }}" stroke-dashoffset="{{ circumference }}"
-                data-target="{{ (circumference * (1 - score_pct / 100))|round(2) }}"/>
-        <line class="ring-pass-tick" x1="46.1" y1="17.2" x2="41.8" y2="3.9"/>
-      </svg>
-      <div class="ring-label">
-        <span class="ring-pct">{{ score_pct }}%</span>
-        <span class="ring-sub">{{ score }} / {{ total }}</span>
-      </div>
-    </div>
   </section>
 
-  <div class="results-grid">
-    <section aria-labelledby="areas-title">
-      <div class="section-head">
-        <h2 id="areas-title">{{ t.areas_title }}</h2>
-        <p>{{ t.areas_sub }}</p>
-      </div>
-      <ul class="areas">
-        {% for a in areas %}
-        <li class="area">
-          <span class="area-name">{{ a.name }}{% if a.group %}<span class="area-group">{{ a.group }}</span>{% endif %}</span>
-          <span class="area-value">{{ a.pct }}%<span>{{ a.correct }}/{{ a.total }}</span></span>
-          <span class="area-track" aria-hidden="true"><span class="area-fill" style="width: {{ a.pct }}%"></span><span class="area-pass"></span></span>
-          {% if a.pct < 70 %}
-          <a class="area-action" href="{{ url_for('practice', filename=filename, area=a.key) }}">{{ t.area_practice }}<span class="visually-hidden">: {{ a.name }}</span></a>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-    </section>
-
-    <aside class="side-stack" aria-labelledby="next-title">
-      <h2 id="next-title">{{ t.next_title }}</h2>
-      <div class="next-steps">
-        {% if weak_area %}
-        <a class="btn btn-primary" href="{{ url_for('practice', filename=filename, area=weak_area.key) }}">{{ t.next_practice_weak }}: {{ weak_area.name }}</a>
-        {% else %}
-        <a class="btn btn-primary" href="{{ url_for('practice', filename=filename) }}">{{ t.next_practice_all }}</a>
-        {% endif %}
-        <a class="btn btn-secondary" href="{{ url_for('test', filename=filename) }}">{{ t.next_retake }}</a>
-        {% if next_exam %}
-        <a class="btn btn-secondary" href="{{ url_for('test', filename=next_exam.filename) }}">{{ fmt('next_other', title=next_exam.title) }}</a>
-        {% endif %}
-      </div>
-
-      {% if show_save %}
-      <div class="save-panel">
-        <h3>{{ t.save_title }}</h3>
-        <p>{{ t.save_text }}</p>
-        <div class="btn-row">
-          <a class="btn btn-primary" href="{{ url_for('register', next=url_for('results', token=token), lang=lang) }}">{{ t.save_create }}</a>
-          <a class="btn btn-quiet" href="{{ url_for('login', next=url_for('results', token=token), lang=lang) }}">{{ t.save_signin }}</a>
-        </div>
-      </div>
-      {% endif %}
-    </aside>
+  <div class="btn-row result-actions">
+    {% if weak_area %}
+    <a class="btn btn-primary" href="{{ url_for('practice', filename=filename, area=weak_area.key) }}">{{ t.next_practice_weak }}: {{ weak_area.name }}</a>
+    {% else %}
+    <a class="btn btn-primary" href="{{ url_for('practice', filename=filename) }}">{{ t.next_practice_all }}</a>
+    {% endif %}
+    <a class="btn btn-secondary" href="{{ url_for('test', filename=filename) }}">{{ t.next_retake }}</a>
+    {% if next_exam %}
+    <a class="btn btn-secondary" href="{{ url_for('test', filename=next_exam.filename) }}">{{ fmt('next_other', title=next_exam.title) }}</a>
+    {% endif %}
   </div>
 
-  <section class="review" aria-labelledby="review-title">
-    <h2 id="review-title">{{ t.breakdown }}</h2>
-    <div class="filters" role="group" aria-label="{{ t.filter_label }}">
-      <span class="filters-label" aria-hidden="true">{{ t.filter_label }}</span>
-      <button type="button" class="filter" data-filter="all" aria-pressed="true">{{ fmt('filter_all', n=total) }}</button>
-      {% if wrong %}<button type="button" class="filter" data-filter="wrong" aria-pressed="false">{{ fmt('filter_wrong', n=wrong) }}</button>{% endif %}
-      {% if unanswered %}<button type="button" class="filter" data-filter="unanswered" aria-pressed="false">{{ fmt('filter_unanswered', n=unanswered) }}</button>{% endif %}
-      {% if score %}<button type="button" class="filter" data-filter="correct" aria-pressed="false">{{ fmt('filter_correct', n=score) }}</button>{% endif %}
-    </div>
+  {% if show_save %}
+  <p class="save-line">{{ t.save_text }}
+    <a href="{{ url_for('register', next=url_for('results', token=token), lang=lang) }}">{{ t.save_create }}</a> ·
+    <a href="{{ url_for('login', next=url_for('results', token=token), lang=lang) }}">{{ t.save_signin }}</a>
+  </p>
+  {% endif %}
 
-    <ol class="review-list">
-      {% for q in graded %}
-      {% set qstate = 'correct' if q.ok else ('unanswered' if q.unanswered else 'wrong') %}
-      <li class="review-item" data-state="{{ qstate }}">
-        <div class="review-meta">
-          <span class="review-num">{{ fmt('q_label', n=loop.index) }}</span>
-          {% if qstate == 'correct' %}<span class="status status-good">{{ icon('check') }}{{ t.q_correct }}</span>
-          {% elif qstate == 'wrong' %}<span class="status status-bad">{{ icon('cross') }}{{ t.q_wrong }}</span>
-          {% else %}<span class="status status-none">{{ icon('dash') }}{{ t.q_unanswered }}</span>{% endif %}
-          <span class="review-ref">{{ q.competency_reference }}</span>
-        </div>
-        <p class="scenario">{{ q.scenario_question }}</p>
-        <div class="options">
-          {% for opt in q.options %}
-          {% set is_correct = opt.id == q.correct %}
-          {% set is_mine = opt.id == q.selected %}
-          <div class="option-label {{ 'is-correct' if is_correct else ('is-wrong' if is_mine else '') }}">
-            <span class="option-key" aria-hidden="true">{{ opt.id }}</span>
-            <span class="option-text"><span class="visually-hidden">{{ opt.id }}. </span>{{ opt.text }}
-              {% if is_mine %}<span class="option-tag">{{ t.marker_yours }}</span>
-              {% elif is_correct %}<span class="option-tag">{{ t.marker_correct }}</span>{% endif %}
-            </span>
+  <section class="panel" aria-labelledby="areas-title">
+    <h2 class="panel-head" id="areas-title">{{ t.areas_title }}</h2>
+    <p class="panel-body muted">{{ t.areas_sub }}</p>
+    <table class="table areas">
+      <tbody>
+        {% for a in areas %}
+        <tr>
+          <td><span class="area-name">{{ a.name }}</span>{% if a.group %}<span class="area-group">{{ a.group }}</span>{% endif %}</td>
+          <td class="num"><span class="area-value">{{ a.pct }}%<span>{{ a.correct }}/{{ a.total }}</span></span></td>
+          <td class="area-bar"><span class="area-track" aria-hidden="true"><span class="area-fill {{ 'is-pass' if a.pct >= 70 else '' }}" style="width: {{ a.pct }}%"></span><span class="area-pass"></span></span></td>
+          <td class="num">{% if a.pct < 70 %}<a href="{{ url_for('practice', filename=filename, area=a.key) }}">{{ t.area_practice }}<span class="visually-hidden">: {{ a.name }}</span></a>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel review" aria-labelledby="review-title">
+    <h2 class="panel-head" id="review-title">{{ t.breakdown }}</h2>
+    <div class="panel-body">
+      <div class="filters" role="group" aria-label="{{ t.filter_label }}">
+        <button type="button" data-filter="all" aria-pressed="true">{{ fmt('filter_all', n=total) }}</button>
+        {% if wrong %}<button type="button" data-filter="wrong" aria-pressed="false">{{ fmt('filter_wrong', n=wrong) }}</button>{% endif %}
+        {% if unanswered %}<button type="button" data-filter="unanswered" aria-pressed="false">{{ fmt('filter_unanswered', n=unanswered) }}</button>{% endif %}
+        {% if score %}<button type="button" data-filter="correct" aria-pressed="false">{{ fmt('filter_correct', n=score) }}</button>{% endif %}
+      </div>
+
+      <ol class="review-list">
+        {% for q in graded %}
+        {% set qstate = 'correct' if q.ok else ('unanswered' if q.unanswered else 'wrong') %}
+        <li class="review-item" data-state="{{ qstate }}">
+          <div class="review-meta">
+            <span class="review-num">{{ fmt('q_label', n=loop.index) }}</span>
+            {% if qstate == 'correct' %}<span class="status status-good">{{ icon('check') }}{{ t.q_correct }}</span>
+            {% elif qstate == 'wrong' %}<span class="status status-bad">{{ icon('cross') }}{{ t.q_wrong }}</span>
+            {% else %}<span class="status">{{ icon('dash') }}{{ t.q_unanswered }}</span>{% endif %}
+            <span class="review-ref">{{ q.competency_reference }}</span>
           </div>
-          {% endfor %}
-        </div>
-        <details class="explain">
-          <summary>{{ t.explanation }}</summary>
-          <p>{{ q.rationale }}</p>
-        </details>
-      </li>
-      {% endfor %}
-    </ol>
-    <p class="muted" id="filter-empty" hidden>{{ t.filter_empty }}</p>
+          <p class="cbt-stem">{{ q.scenario_question }}</p>
+          {% for opt in q.options %}{{ static_option(opt, opt.id == q.correct, opt.id == q.selected, t) }}{% endfor %}
+          <details class="explain">
+            <summary>{{ t.explanation }}</summary>
+            <p>{{ q.rationale }}</p>
+          </details>
+        </li>
+        {% endfor %}
+      </ol>
+      <p class="muted" id="filter-empty" hidden>{{ t.filter_empty }}</p>
+    </div>
   </section>
 </div>
 {% endblock %}

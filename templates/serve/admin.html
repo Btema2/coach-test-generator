@@ -1,33 +1,26 @@
 {% extends "serve/base.html" %}
+{% from "serve/_macros.html" import icon, static_option %}
 
 {% block title %}{{ t.admin_prefix }}: {{ exam.title }}{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
 
+{% block toolbar %}<a href="{{ url_for('admin_picker') }}">{{ icon('back') }}{{ t.all_tests }}</a>{% endblock %}
+
 {% block content %}
-<div class="wrap">
-  <header class="page-head">
-    <h1>{{ exam.title }}</h1>
-    <p>{{ t.admin_prefix }}. {{ fmt('n_questions', n=questions|length) }}.</p>
-    <p><a href="{{ url_for('admin_picker') }}">{{ t.all_tests }}</a></p>
-  </header>
+<div class="page">
+  <h1 class="page-title">{{ exam.title }}</h1>
+  <p class="lead">{{ t.admin_prefix }}. {{ fmt('n_questions', n=questions|length) }}.</p>
 
   <ol class="review-list">
     {% for q in questions %}
-    <li class="key-item">
+    <li class="panel panel-body review-item">
       <div class="review-meta">
         <span class="review-num">{{ fmt('q_label', n=loop.index) }}</span>
         <span class="review-ref">{{ q.competency_reference }}</span>
       </div>
       <p class="scenario">{{ q.scenario_question }}</p>
       <div class="options">
-        {% for opt in q.options %}
-        <div class="option-label {{ 'is-correct' if opt.is_correct else '' }}">
-          <span class="option-key" aria-hidden="true">{{ opt.id }}</span>
-          <span class="option-text"><span class="visually-hidden">{{ opt.id }}. </span>{{ opt.text }}
-            {% if opt.is_correct %}<span class="option-tag">{{ t.marker_correct }}</span>{% endif %}
-          </span>
-        </div>
-        {% endfor %}
+        {% for opt in q.options %}{{ static_option(opt, opt.is_correct, False, t) }}{% endfor %}
       </div>
       <div class="explain">
         <p><strong>{{ t.explanation }}:</strong> {{ q.ai_rationale.explanation }}</p>

@@ -4,10 +4,10 @@
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
 
 {% block content %}
-<div class="narrow">
-  <h1>{{ t.admin_login_title }}</h1>
-  <p>{{ t.admin_login_text }}</p>
-  <form class="panel" method="post" action="{{ url_for('admin_login') }}">
+<div class="page page-narrow">
+  <h1 class="page-title">{{ t.admin_login_title }}</h1>
+  <p class="lead">{{ t.admin_login_text }}</p>
+  <form class="panel panel-body form" method="post" action="{{ url_for('admin_login') }}">
     <input type="hidden" name="csrf" value="{{ csrf_token() }}">
     {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
     <div class="field">
@@ -16,7 +16,7 @@
              {% if error %}aria-invalid="true" aria-describedby="password-error"{% endif %}>
       {% if error %}<p class="field-error" id="password-error">{{ error }}</p>{% endif %}
     </div>
-    <button class="btn btn-primary btn-block" type="submit">{{ t.admin_signin }}</button>
+    <div><button class="btn btn-primary" type="submit">{{ t.admin_signin }}</button></div>
   </form>
 </div>
 {% endblock %}

@@ -4,16 +4,16 @@
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
 
 {% block content %}
-<div class="wrap">
+<div class="page">
   <header class="page-head">
-    <h1>{{ t.admin_picker_title }}</h1>
-    <p>{{ t.admin_picker_sub }}</p>
+    <h1 class="page-title">{{ t.admin_picker_title }}</h1>
+    <p class="lead">{{ t.admin_picker_sub }}</p>
     <form method="post" action="{{ url_for('admin_logout') }}">
       <input type="hidden" name="csrf" value="{{ csrf_token() }}">
-      <button class="btn btn-quiet" type="submit">{{ t.admin_signout }}</button>
+      <button class="btn btn-secondary" type="submit">{{ t.admin_signout }}</button>
     </form>
   </header>
-  <ul class="exam-list">
+  <ul class="panel exam-list">
     {% for exam in exams %}
     {% set et = ui[exam.lang] %}
     <li class="exam-row" lang="{{ exam.lang }}">

@@ -1,46 +1,49 @@
-{% from "serve/_macros.html" import brand_mark, lang_switcher with context %}<!DOCTYPE html>
+{% from "serve/_macros.html" import icon, lang_switcher with context %}<!DOCTYPE html>
 <html lang="{{ lang|default('en') }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{{ brand }}: {{ t.tagline }}{% endblock %}</title>
+  <title>{% block title %}{{ t.tagline }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ t.meta_description }}{% endblock %}">
   {% block robots %}{% endblock %}
-  <meta property="og:site_name" content="{{ brand }}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="{{ self.title() }}">
   <meta property="og:description" content="{{ self.description() }}">
   <meta property="og:locale" content="{{ 'uk_UA' if lang == 'uk' else 'en_US' }}">
   {% if public_base %}<meta property="og:url" content="{{ public_base }}{{ request.path }}">{% endif %}
   <meta name="twitter:card" content="summary">
-  <meta name="theme-color" content="#1f5a61">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#1565a8">
   <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-  <link rel="preload" href="{{ url_for('static', filename='fonts/onest-' ~ ('cyrillic' if lang == 'uk' else 'latin') ~ '-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
   <a class="skip-link" href="#main">{{ t.skip_link }}</a>
 
+  {# Every page uses the frame of the exam software: a blue title bar and a light tool bar. #}
   {% block header %}
-  <header class="site-header">
-    <div class="wrap site-header-inner">
-      <a href="{{ url_for('landing') }}" class="brand">{{ brand_mark() }}<span class="brand-name">{{ brand }}</span></a>
-      <div class="site-nav">
-        <a href="{{ url_for('exams') }}" {% if request.endpoint == 'exams' %}aria-current="page"{% endif %}>{{ t.nav_exams }}</a>
-        {% if user %}
-          <a href="{{ url_for('account') }}" {% if request.endpoint == 'account' %}aria-current="page"{% endif %}>{{ t.nav_account }}</a>
-        {% else %}
-          <a href="{{ url_for('login') }}" {% if request.endpoint in ('login', 'register') %}aria-current="page"{% endif %}>{{ t.nav_signin }}</a>
-        {% endif %}
-        {% if lang_switch %}{{ lang_switcher(lang, t) }}{% endif %}
+  <header class="cbt-top">
+    <div class="cbt-titlebar">
+      <div class="cbt-titlebar-left">
+        <a href="{{ url_for('exams') }}" class="home-link" aria-label="{{ t.nav_home }}" {% if request.endpoint == 'exams' %}aria-current="page"{% endif %}>{{ icon('home') }}</a>
+        <span class="cbt-title">{% block bar_title %}{{ t.exams_title }}{% endblock %}</span>
       </div>
+      {% if user %}
+        <a class="bar-link" href="{{ url_for('account') }}" {% if request.endpoint == 'account' %}aria-current="page"{% endif %}>{{ icon('person') }}<span class="visually-hidden">{{ t.nav_account }}: </span><span class="bar-user">{{ user.username }}</span></a>
+      {% elif request.endpoint not in ('login', 'register') %}
+        <a class="bar-link" href="{{ url_for('login') }}">{{ t.nav_signin }}</a>
+      {% endif %}
+    </div>
+    <div class="cbt-toolbar">
+      <div class="cbt-toolbar-left">{% block toolbar %}{% endblock %}</div>
+      {% if lang_switch %}{{ lang_switcher(lang, t) }}{% endif %}
     </div>
   </header>
   {% endblock %}
 
   {% with messages = get_flashed_messages() %}
   {% if messages %}
-  <div class="wrap notices" role="status">
+  <div class="page notices" role="status">
     {% for message in messages %}<p class="notice">{{ message }}</p>{% endfor %}
   </div>
   {% endif %}
@@ -49,22 +52,6 @@
   <main id="main" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
-
-  {% block footer %}
-  <footer class="site-footer">
-    <div class="wrap site-footer-inner">
-      <nav class="footer-links" aria-label="{{ brand }}">
-        <a href="{{ url_for('exams') }}">{{ t.nav_exams }}</a>
-        <a href="{{ url_for('privacy') }}">{{ t.footer_privacy }}</a>
-        <a href="{{ url_for('terms') }}">{{ t.footer_terms }}</a>
-        {% if contact_email %}<a href="mailto:{{ contact_email }}">{{ t.footer_contact }}</a>{% endif %}
-        {% if is_admin %}<a href="{{ url_for('admin_picker') }}">{{ t.footer_admin }}</a>{% endif %}
-      </nav>
-      <p class="footer-disclaimer">{{ fmt('footer_disclaimer') }}</p>
-      <p>© {{ year }} {{ brand }}</p>
-    </div>
-  </footer>
-  {% endblock %}
 
   {% block scripts %}{% endblock %}
 </body>

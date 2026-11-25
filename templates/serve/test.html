@@ -1,113 +1,110 @@
 {% extends "serve/base.html" %}
-{% from "serve/_macros.html" import brand_mark, icon, option_input %}
+{% from "serve/_macros.html" import icon %}
 
 {% block title %}{{ exam.title }}: {{ brand }}{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block body_class %}has-bottom-bar{% endblock %}
+
+{# Laid out like the Pearson VUE test driver the real ACC exam runs in: a title bar with the
+   timer and item counter, a tool bar with Flag for Review, plain radio options, Previous/Next
+   at the bottom, and an Item Review Screen that closes the section with End Review. #}
 
 {% block header %}
-<header class="exam-bar">
-  <div class="wrap exam-bar-inner">
-    {{ brand_mark() }}
-    <span class="exam-bar-title">{{ exam.title }}</span>
-    <span class="exam-bar-section" id="section-label">{{ fmt('section_of', n=1) }}</span>
-    <span class="exam-bar-answered" id="answered-label">{{ fmt('progress', a=0, total=section_size) }}</span>
-    <span class="timer" id="timer"><span class="timer-label">{{ t.timer_label }}</span><span class="timer-value" id="timer-value">39:00</span></span>
+<header class="cbt-top">
+  <div class="cbt-titlebar">
+    <span class="cbt-title">{{ exam.title }}{% if user %} – {{ user.username }}{% endif %}</span>
+    <div class="cbt-status">
+      <span class="cbt-timer" id="timer">{{ icon('clock') }}<span>{{ t.time_remaining }}</span> <span id="timer-value">00:39:00</span></span>
+      <span class="cbt-count" id="item-count">{{ fmt('item_of', i=1, total=section_size) }}</span>
+    </div>
   </div>
-  <div class="exam-progress" aria-hidden="true"><div class="exam-progress-fill" id="progress-fill"></div></div>
+  <div class="cbt-toolbar">
+    <span id="section-label">{{ fmt('section_of', n=1) }}</span>
+    <button type="button" class="cbt-tool" id="btn-flag" aria-pressed="false">{{ icon('flag') }}<span>{{ t.flag }}</span></button>
+  </div>
 </header>
 {% endblock %}
 
-{% block footer %}{% endblock %}
-
 {% block content %}
-<form method="post" action="{{ url_for('submit', filename=filename) }}" id="exam-form" class="wrap" autocomplete="off">
+<form method="post" action="{{ url_for('submit', filename=filename) }}" id="exam-form" autocomplete="off">
   <input type="hidden" name="elapsed_seconds" id="elapsed" value="">
 
-  <div class="exam-layout" id="stage-questions">
-    <div class="q-pane">
-      <p class="notice resume-note" id="resume-note" role="status" hidden>{{ t.restored }}</p>
-
-      {% for q in questions %}
-      {% set num = loop.index0 % section_size + 1 %}
-      <article class="q" id="q-{{ loop.index0 }}" data-qid="{{ q.question_id }}" tabindex="-1" {% if not loop.first %}hidden{% endif %}>
-        <div class="q-head">
-          <span class="q-count">{{ fmt('question_of', i=num, total=section_size) }}</span>
-          <button type="button" class="flag-btn" data-flag aria-pressed="false">{{ icon('flag') }}<span data-flag-text>{{ t.flag }}</span></button>
-        </div>
-        <fieldset class="q-fieldset">
-          <legend class="scenario">{{ q.scenario_question }}</legend>
-          <div class="options">
-            {% for opt in q.options %}{{ option_input('q_' ~ q.question_id, 'q' ~ q.question_id ~ '_' ~ opt.id, opt) }}{% endfor %}
-          </div>
-        </fieldset>
-      </article>
+  <div class="cbt-body" id="stage-item">
+    <p class="cbt-note" id="resume-note" role="status" hidden>{{ t.restored }}</p>
+    {% for q in questions %}
+    <fieldset class="q cbt-q" id="q-{{ loop.index0 }}" data-qid="{{ q.question_id }}" tabindex="-1" {% if not loop.first %}hidden{% endif %}>
+      <legend class="cbt-stem">{{ q.scenario_question }}</legend>
+      {% for opt in q.options %}
+      <label class="cbt-option">
+        <input type="radio" name="q_{{ q.question_id }}" value="{{ opt.id }}">
+        <span class="cbt-letter">{{ opt.id }}.</span>
+        <span>{{ opt.text }}</span>
+      </label>
       {% endfor %}
-
-      <div class="q-nav">
-        <button type="button" class="btn btn-secondary" id="btn-prev">{{ t.prev }}</button>
-        <button type="button" class="btn btn-primary" id="btn-next">{{ t.next }}</button>
-      </div>
-      <p class="keys-hint">{{ t.keys_hint }}</p>
-    </div>
-
-    <aside class="navigator" aria-labelledby="nav-title">
-      <h2 id="nav-title">{{ t.nav_title }}</h2>
-      {% for section in (1, 2) %}
-      <ol class="nav-grid" data-nav-section="{{ section }}" {% if section == 2 %}hidden{% endif %}>
-        {% for q in questions %}
-        {% if (1 if loop.index0 < section_size else 2) == section %}
-        <li><button type="button" class="nav-btn" data-goto="{{ loop.index0 }}" data-label="{{ fmt('question_of', i=loop.index0 % section_size + 1, total=section_size) }}">{{ loop.index0 % section_size + 1 }}</button></li>
-        {% endif %}
-        {% endfor %}
-      </ol>
-      {% endfor %}
-      <div class="legend" aria-hidden="true">
-        <span><i class="l-answered"></i>{{ t.legend_answered }}</span>
-        <span><i class="l-flagged"></i>{{ t.legend_flagged }}</span>
-        <span><i class="l-current"></i>{{ t.legend_current }}</span>
-      </div>
-      <button type="button" class="btn btn-primary btn-block" id="btn-review">{{ t.review_section }}</button>
-      <button type="button" class="btn btn-quiet" id="btn-end">{{ t.end_exam }}</button>
-    </aside>
+    </fieldset>
+    {% endfor %}
   </div>
 
-  <section class="break-panel" id="stage-break" aria-labelledby="break-title" tabindex="-1" hidden>
+  <section class="cbt-body cbt-review" id="stage-review" aria-labelledby="review-title" tabindex="-1" hidden>
+    <h1 id="review-title">{{ t.review_screen_title }}</h1>
+    <details class="cbt-panel" open>
+      <summary>{{ t.review_instructions }}</summary>
+      <div class="cbt-panel-body">
+        <p>{{ t.review_intro }}</p>
+        <ol>
+          <li>{{ t.review_way_all }}</li>
+          <li>{{ t.review_way_incomplete }}</li>
+          <li>{{ t.review_way_flagged }}</li>
+        </ol>
+        <p>{{ t.review_jump }}</p>
+        <p><strong>{{ t.review_lock }}</strong></p>
+        <p class="cbt-keys">{{ t.keys_hint }}</p>
+      </div>
+    </details>
+    <div class="cbt-panel">
+      <div class="cbt-panel-head"><span id="review-section-head"></span><span id="review-count"></span></div>
+      <ul class="cbt-grid">
+        {% for q in questions %}
+        {% set n = loop.index0 % section_size + 1 %}
+        <li class="cbt-cell" data-cell="{{ loop.index0 }}" data-section="{{ 1 if loop.index0 < section_size else 2 }}">
+          <button type="button" class="cbt-cell-flag" data-cell-flag aria-pressed="false" aria-label="{{ fmt('q_label', n=n) }}: {{ t.flag }}">{{ icon('flag') }}</button>
+          <button type="button" class="cbt-cell-go" data-cell-go>{{ fmt('q_label', n=n) }}</button>
+          <span class="cbt-incomplete" data-cell-incomplete>{{ t.incomplete }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <section class="cbt-body cbt-break" id="stage-break" aria-labelledby="break-title" tabindex="-1" hidden>
     <h1 id="break-title">{{ t.break_title }}</h1>
-    <p class="notice notice-warn" id="break-timeup" hidden>{{ t.break_timeup }}</p>
+    <p class="cbt-note" id="break-timeup" hidden>{{ t.break_timeup }}</p>
     <p>{{ t.break_text }}</p>
-    <div class="break-timer" id="break-timer">10:00</div>
-    <button type="button" class="btn btn-primary" id="btn-start-s2">{{ t.break_start }}</button>
+    <div class="break-timer" id="break-timer">00:10:00</div>
+    <button type="button" class="cbt-action" id="btn-start-s2">{{ t.break_start }}</button>
   </section>
 </form>
 
-<dialog class="dialog" id="review-dialog" aria-labelledby="review-title">
-  <div class="dialog-body">
-    <h2 id="review-title"></h2>
-    <p id="review-answered"></p>
-    <div class="dialog-group" id="review-unanswered-group">
-      <h3>{{ t.review_unanswered }}</h3>
-      <ul class="chip-list" id="review-unanswered"></ul>
-    </div>
-    <div class="dialog-group" id="review-flagged-group">
-      <h3>{{ t.review_flagged }}</h3>
-      <ul class="chip-list" id="review-flagged"></ul>
-    </div>
-    <p class="dialog-note" id="review-note"></p>
-    <div class="dialog-actions">
-      <button type="button" class="btn btn-secondary" data-close>{{ t.keep_working }}</button>
-      <button type="button" class="btn btn-primary" id="review-confirm"></button>
-    </div>
+<div class="cbt-bottom" id="bottom-bar">
+  <div class="cbt-bottom-group">
+    <button type="button" class="cbt-btn cbt-btn-end" id="btn-end-review" hidden>{{ t.end_review }}</button>
+    <button type="button" class="cbt-btn" id="btn-review-screen" hidden>{{ t.review_screen }}</button>
   </div>
-</dialog>
+  <div class="cbt-bottom-group cbt-bottom-right">
+    <button type="button" class="cbt-btn" id="btn-review-all" hidden>{{ t.review_all }}</button>
+    <button type="button" class="cbt-btn" id="btn-review-incomplete" hidden>{{ t.review_incomplete }}</button>
+    <button type="button" class="cbt-btn" id="btn-review-flagged" hidden>{{ t.review_flagged }}</button>
+    <button type="button" class="cbt-btn" id="btn-prev">← {{ t.prev }}</button>
+    <button type="button" class="cbt-btn" id="btn-next">{{ t.next }} →</button>
+  </div>
+</div>
 
-<dialog class="dialog" id="end-dialog" aria-labelledby="end-title">
-  <div class="dialog-body">
-    <h2 id="end-title">{{ t.end_title }}</h2>
-    <p id="end-body"></p>
-    <div class="dialog-actions">
-      <button type="button" class="btn btn-secondary" data-close>{{ t.keep_working }}</button>
-      <button type="button" class="btn btn-danger" id="end-confirm">{{ t.end_confirm }}</button>
-    </div>
+<dialog class="cbt-dialog" id="end-dialog" aria-labelledby="end-title">
+  <h2 class="cbt-dialog-title" id="end-title">{{ t.end_review_title }}</h2>
+  <p id="end-body"></p>
+  <div class="cbt-dialog-actions">
+    <button type="button" class="is-primary" id="end-yes">{{ t.yes }}</button>
+    <button type="button" data-close>{{ t.no }}</button>
   </div>
 </dialog>
 

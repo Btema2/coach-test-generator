@@ -2,12 +2,12 @@
 
 {% block title %}{{ t.privacy_title if page == 'privacy' else t.terms_title }}: {{ brand }}{% endblock %}
 
+{% block bar_title %}{{ t.privacy_title if page == 'privacy' else t.terms_title }}{% endblock %}
+{% block toolbar %}{{ fmt('legal_updated', date=updated) }}{% endblock %}
+
 {% block content %}
-<div class="wrap">
-  <header class="page-head">
-    <h1>{{ t.privacy_title if page == 'privacy' else t.terms_title }}</h1>
-    <p>{{ fmt('legal_updated', date=updated) }}</p>
-  </header>
+<div class="page">
+  <h1 class="page-title">{{ t.privacy_title if page == 'privacy' else t.terms_title }}</h1>
 
   <div class="prose">
   {% if page == 'privacy' and lang == 'uk' %}

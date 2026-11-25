@@ -1,14 +1,14 @@
-/* Untimed practice: check each answer against the server and show the explanation.
- * Used on the practice page (many questions, one at a time) and for the
- * landing page's sample question (one question). */
+/* Untimed practice: check each answer against the server and show the explanation,
+ * one question at a time. */
 (() => {
   document.querySelectorAll('[data-practice]').forEach((root) => {
     const cfg = JSON.parse(root.querySelector('script[data-config]').textContent);
     const T = cfg.t;
     const tr = (key, vars = {}) => T[key].replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
     const items = Array.from(root.querySelectorAll('.pq'));
-    const counter = root.querySelector('[data-counter]');
-    const score = root.querySelector('[data-score]');
+    // The counter and score sit in the page's title bar, outside the practice block.
+    const counter = document.querySelector('[data-counter]');
+    const score = document.querySelector('[data-score]');
     const done = root.querySelector('[data-done]');
     const results = new Map();
     let index = 0;
@@ -27,8 +27,7 @@
       if (done) done.hidden = true;
       updateBar();
       items[i].focus({ preventScroll: true });
-      const top = root.getBoundingClientRect().top;
-      if (top < 0) window.scrollTo({ top: window.scrollY + top - 24 });
+      window.scrollTo({ top: 0 });
     }
 
     function tag(label, text) {
@@ -40,7 +39,7 @@
 
     function reveal(item, chosen, data) {
       item.querySelectorAll('input').forEach((input) => { input.disabled = true; });
-      item.querySelectorAll('.option-label').forEach((label) => {
+      item.querySelectorAll('[data-option]').forEach((label) => {
         const id = label.dataset.option;
         if (id === data.correct) {
           label.classList.add('is-correct');
@@ -62,7 +61,7 @@
       fb.hidden = false;
 
       item.querySelector('[data-check]').hidden = true;
-      const after = item.querySelector('[data-next], [data-after]');
+      const after = item.querySelector('[data-next]');
       if (after) after.hidden = false;
       results.set(item.dataset.qid, data.ok);
       updateBar();
@@ -122,29 +121,26 @@
       }
     });
 
-    /* Keyboard: A–D or 1–4 choose, Enter checks or moves on. Only when this
-     * practice block is the page's main content (not the landing sample). */
-    if (root.dataset.mode !== 'sample') {
-      const KEYS = { KeyA: 0, KeyB: 1, KeyC: 2, KeyD: 3, Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3 };
-      document.addEventListener('keydown', (e) => {
-        if (e.altKey || e.ctrlKey || e.metaKey || e.repeat) return;
-        const item = items[index];
-        if (!item || item.hidden) return;
-        if (e.code in KEYS) {
-          const input = item.querySelectorAll('input[type=radio]')[KEYS[e.code]];
-          if (input && !input.disabled) {
-            e.preventDefault();
-            input.checked = true;
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        } else if (e.code === 'Enter' && !e.target.closest('button, a, summary, textarea, input:not([type=radio])')) {
+    /* Keyboard: A–D or 1–4 choose, Enter checks or moves on. */
+    const KEYS = { KeyA: 0, KeyB: 1, KeyC: 2, KeyD: 3, Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3 };
+    document.addEventListener('keydown', (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.repeat) return;
+      const item = items[index];
+      if (!item || item.hidden) return;
+      if (e.code in KEYS) {
+        const input = item.querySelectorAll('input[type=radio]')[KEYS[e.code]];
+        if (input && !input.disabled) {
           e.preventDefault();
-          const checkBtn = item.querySelector('[data-check]');
-          if (!checkBtn.hidden) check(item);
-          else item.querySelector('[data-next]')?.click();
+          input.checked = true;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
         }
-      });
-      updateBar();
-    }
+      } else if (e.code === 'Enter' && !e.target.closest('button, a, summary, textarea, input:not([type=radio])')) {
+        e.preventDefault();
+        const checkBtn = item.querySelector('[data-check]');
+        if (!checkBtn.hidden) check(item);
+        else item.querySelector('[data-next]')?.click();
+      }
+    });
+    updateBar();
   });
 })();
