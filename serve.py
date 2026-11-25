@@ -32,6 +32,8 @@ from i18n import questions_word as _questions_word  # noqa: F401  (re-exported f
 from mailer import mail_config_from_env, send_mail
 from store import Store
 
+# `neon deploy` / `neon env pull` write DATABASE_URL to .env.local; it takes precedence over .env.
+load_dotenv(Path(__file__).with_name(".env.local"))
 load_dotenv()
 
 logger = logging.getLogger(__name__)

@@ -40,7 +40,9 @@ DIY mode requires only `BATCH_SIZE` (no `GEMINI_API_KEY`/`GEMINI_MODEL`).
 
 - `i18n.py` — every interface string, EN + UK (same keys and placeholders in both; tests enforce it).
 - `store.py` — SQLAlchemy Core: users, exam attempts, one-time sign-in tokens. `DATABASE_URL`
-  (Postgres in production; local SQLite at `data/app.db` by default).
+  (Postgres in production; local SQLite at `data/app.db` by default). The Neon project is linked
+  in `.neon`; `neon env pull` writes its `DATABASE_URL` (pooled) to `.env.local`, which `serve.py`
+  loads before `.env` — so a local run then uses the Neon `production` branch.
 - `mailer.py` — sign-in links via Brevo's HTTPS API (`BREVO_API_KEY`; Render's free plan blocks SMTP
   ports) or SMTP; `python serve.py` without either prints links to the terminal.
 - `templates/serve/` + `static/` — pages, `app.css`, and per-page scripts (`exam.js` keeps the

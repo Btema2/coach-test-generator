@@ -22,7 +22,7 @@ def db_url(tmp_path):
 
 @pytest.fixture
 def client(db_url, monkeypatch):
-    for var in ("ADMIN_PASSWORD", "SMTP_HOST", "BREVO_API_KEY", "MAIL_FROM", "PUBLIC_URL", "RENDER_EXTERNAL_URL", "GUEST_FREE_EXAMS"):
+    for var in ("DATABASE_URL", "ADMIN_PASSWORD", "SMTP_HOST", "BREVO_API_KEY", "MAIL_FROM", "PUBLIC_URL", "RENDER_EXTERNAL_URL", "GUEST_FREE_EXAMS"):
         monkeypatch.delenv(var, raising=False)
     app.config.update(TESTING=True, MAIL_CONSOLE=False)
     serve.init_store(db_url)
