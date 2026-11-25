@@ -1,0 +1,31 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{{ t.login_title }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<div class="narrow">
+  <h1>{{ t.login_title }}</h1>
+  {% if gate %}<p class="notice">{{ t.login_gate }}</p>{% endif %}
+  {% if expired %}<p class="notice notice-warn">{{ t.login_expired }}</p>{% endif %}
+
+  {% if available %}
+  <p>{{ t.login_text }}</p>
+  <form class="panel" method="post" action="{{ url_for('login', lang=lang) }}" novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+    <div class="field">
+      <label for="email">{{ t.email_label }}</label>
+      <input class="input" id="email" name="email" type="email" autocomplete="email" required
+             value="{{ email }}" placeholder="name@example.com"
+             {% if error %}aria-invalid="true" aria-describedby="email-error"{% endif %} autofocus>
+      {% if error %}<p class="field-error" id="email-error">{{ error }}</p>{% endif %}
+    </div>
+    <button class="btn btn-primary btn-block" type="submit">{{ t.send_link }}</button>
+  </form>
+  {% else %}
+  <p class="notice notice-warn">{{ t.login_unavailable }}</p>
+  <p><a href="{{ url_for('exams') }}">{{ t.back_to_exams }}</a></p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{{ t.account_title }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<div class="narrow">
+  <h1>{{ t.account_title }}</h1>
+  <div class="panel">
+    <p>{{ fmt('account_email', email=user.email) }}</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="{{ url_for('exams') }}">{{ t.my_exams_title }}</a>
+      <form method="post" action="{{ url_for('logout') }}">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <button class="btn btn-secondary" type="submit">{{ t.sign_out }}</button>
+      </form>
+    </div>
+  </div>
+
+  <form class="panel panel-danger" method="post" action="{{ url_for('account_delete') }}">
+    <h2>{{ t.delete_title }}</h2>
+    <p>{{ t.delete_text }}</p>
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label class="check-row"><input type="checkbox" name="confirm" value="yes" required>{{ t.delete_confirm_label }}</label>
+    <div><button class="btn btn-danger" type="submit">{{ t.delete_btn }}</button></div>
+  </form>
+</div>
+{% endblock %}

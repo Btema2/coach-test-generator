@@ -1,0 +1,15 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{{ t.login_confirm_title }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<div class="narrow">
+  <h1>{{ t.login_confirm_title }}</h1>
+  <p>{{ t.login_confirm_text }}</p>
+  <form method="post" action="{{ url_for('login_verify', token=token, lang=lang) }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn btn-primary btn-block" type="submit" autofocus>{{ t.login_confirm_btn }}</button>
+  </form>
+</div>
+{% endblock %}
