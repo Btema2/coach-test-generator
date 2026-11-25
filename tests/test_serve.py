@@ -7,6 +7,7 @@ import pytest
 
 import i18n
 import serve
+import mailer
 import store as store_module
 from serve import JSONS_DIR, UI, _questions_word, app
 
@@ -21,7 +22,7 @@ def db_url(tmp_path):
 
 @pytest.fixture
 def client(db_url, monkeypatch):
-    for var in ("ADMIN_PASSWORD", "SMTP_HOST", "MAIL_FROM", "PUBLIC_URL", "RENDER_EXTERNAL_URL", "GUEST_FREE_EXAMS"):
+    for var in ("ADMIN_PASSWORD", "SMTP_HOST", "BREVO_API_KEY", "MAIL_FROM", "PUBLIC_URL", "RENDER_EXTERNAL_URL", "GUEST_FREE_EXAMS"):
         monkeypatch.delenv(var, raising=False)
     app.config.update(TESTING=True, MAIL_CONSOLE=False)
     serve.init_store(db_url)
@@ -429,3 +430,48 @@ def test_not_found_page(client):
     resp = client.get("/no-such-page?lang=en")
     assert resp.status_code == 404
     assert "Page not found" in resp.get_data(as_text=True)
+
+
+def test_brevo_api_is_used_when_its_key_is_set(monkeypatch):
+    monkeypatch.setenv("MAIL_FROM", "Coach Exam Prep <hello@example.com>")
+    monkeypatch.setenv("BREVO_API_KEY", "xkeysib-test")
+    monkeypatch.setenv("SMTP_HOST", "smtp.example.com")
+    cfg = mailer.mail_config_from_env()
+    assert cfg.brevo_api_key == "xkeysib-test"
+
+    calls = []
+
+    class Resp:
+        status_code = 201
+        text = ""
+
+    monkeypatch.setattr(mailer.requests, "post", lambda url, **kw: calls.append((url, kw)) or Resp())
+    monkeypatch.setattr(mailer.smtplib, "SMTP", lambda *a, **kw: pytest.fail("SMTP must not be used"))
+    mailer.send_mail(cfg, "user@example.com", "Sign in", "Link: https://x/login/abc")
+
+    (url, kw), = calls
+    assert url == mailer.BREVO_API_URL
+    assert kw["headers"]["api-key"] == "xkeysib-test"
+    assert kw["json"] == {
+        "sender": {"email": "hello@example.com", "name": "Coach Exam Prep"},
+        "to": [{"email": "user@example.com"}],
+        "subject": "Sign in",
+        "textContent": "Link: https://x/login/abc",
+    }
+
+
+def test_brevo_error_is_raised(monkeypatch):
+    class Resp:
+        status_code = 401
+        text = "Key not found"
+
+    monkeypatch.setattr(mailer.requests, "post", lambda url, **kw: Resp())
+    cfg = mailer.MailConfig(sender="hello@example.com", brevo_api_key="bad")
+    with pytest.raises(RuntimeError, match="401"):
+        mailer.send_mail(cfg, "user@example.com", "Sign in", "body")
+
+
+def test_mail_needs_a_sender(monkeypatch):
+    monkeypatch.delenv("MAIL_FROM", raising=False)
+    monkeypatch.setenv("BREVO_API_KEY", "xkeysib-test")
+    assert mailer.mail_config_from_env() is None

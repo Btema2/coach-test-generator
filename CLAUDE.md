@@ -41,13 +41,14 @@ DIY mode requires only `BATCH_SIZE` (no `GEMINI_API_KEY`/`GEMINI_MODEL`).
 - `i18n.py` — every interface string, EN + UK (same keys and placeholders in both; tests enforce it).
 - `store.py` — SQLAlchemy Core: users, exam attempts, one-time sign-in tokens. `DATABASE_URL`
   (Postgres in production; local SQLite at `data/app.db` by default).
-- `mailer.py` — SMTP for sign-in links; `python serve.py` without SMTP prints links to the terminal.
+- `mailer.py` — sign-in links via Brevo's HTTPS API (`BREVO_API_KEY`; Render's free plan blocks SMTP
+  ports) or SMTP; `python serve.py` without either prints links to the terminal.
 - `templates/serve/` + `static/` — pages, `app.css`, and per-page scripts (`exam.js` keeps the
   in-progress exam in localStorage with wall-clock deadlines; `practice.js` checks answers via
   `/api/check/...`).
 - `/admin` (answer key) is off unless `ADMIN_PASSWORD` is set, and is never linked publicly.
 - Guests finish `GUEST_FREE_EXAMS` exams (default 1) before being asked to sign in, but only when
-  sign-in actually works (SMTP + `PUBLIC_URL`/`RENDER_EXTERNAL_URL`, or console mode).
+  sign-in actually works (`MAIL_FROM` + Brevo or SMTP, + `PUBLIC_URL`/`RENDER_EXTERNAL_URL`, or console mode).
 - Flask caches templates when not in debug mode: restart the server after editing them.
 
 See `.env.example` for all settings.
