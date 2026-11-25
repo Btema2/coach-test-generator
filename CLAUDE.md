@@ -39,18 +39,18 @@ DIY mode requires only `BATCH_SIZE` (no `GEMINI_API_KEY`/`GEMINI_MODEL`).
 `python serve.py [--port N]` runs the public exam site; production runs `gunicorn serve:app`.
 
 - `i18n.py` — every interface string, EN + UK (same keys and placeholders in both; tests enforce it).
-- `store.py` — SQLAlchemy Core: users, exam attempts, one-time sign-in tokens. `DATABASE_URL`
+- `store.py` — SQLAlchemy Core: users (username + password hash), exam attempts. `DATABASE_URL`
   (Postgres in production; local SQLite at `data/app.db` by default). The Neon project is linked
   in `.neon`; `neon env pull` writes its `DATABASE_URL` (pooled) to `.env.local`, which `serve.py`
   loads before `.env` — so a local run then uses the Neon `production` branch.
-- `mailer.py` — sign-in links via Brevo's HTTPS API (`BREVO_API_KEY`; Render's free plan blocks SMTP
-  ports) or SMTP; `python serve.py` without either prints links to the terminal.
+- Accounts are username + password (Werkzeug scrypt hashes). No email is collected or sent, so there
+  is no password reset.
 - `templates/serve/` + `static/` — pages, `app.css`, and per-page scripts (`exam.js` keeps the
   in-progress exam in localStorage with wall-clock deadlines; `practice.js` checks answers via
   `/api/check/...`).
 - `/admin` (answer key) is off unless `ADMIN_PASSWORD` is set, and is never linked publicly.
-- Guests finish `GUEST_FREE_EXAMS` exams (default 1) before being asked to sign in, but only when
-  sign-in actually works (`MAIL_FROM` + Brevo or SMTP, + `PUBLIC_URL`/`RENDER_EXTERNAL_URL`, or console mode).
+- Guests finish `GUEST_FREE_EXAMS` exams (default 1; -1 = no limit) before being asked to sign in;
+  their results move to the account when they sign in or register.
 - Flask caches templates when not in debug mode: restart the server after editing them.
 
 See `.env.example` for all settings.

@@ -25,18 +25,16 @@ from flask import (
     session,
     url_for,
 )
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import i18n
 from i18n import DEFAULT_LANG, UI
 from i18n import questions_word as _questions_word  # noqa: F401  (re-exported for tests)
-from mailer import mail_config_from_env, send_mail
 from store import Store
 
 # `neon deploy` / `neon env pull` write DATABASE_URL to .env.local; it takes precedence over .env.
 load_dotenv(Path(__file__).with_name(".env.local"))
 load_dotenv()
-
-logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).parent
 JSONS_DIR = ROOT / "jsons"
@@ -47,7 +45,8 @@ BREAK_SECONDS = 10 * 60
 LANG_COOKIE = "lang"
 BRAND = os.getenv("BRAND_NAME", "").strip() or "Coach Exam Prep"
 LEGAL_UPDATED = datetime(2026, 11, 25)
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+USERNAME_RE = re.compile(r"\w[\w.\-]{2,31}")  # letters, digits, . _ -; 3–32 chars
+PASSWORD_MIN = 8
 FILENAME_RE = re.compile(r"[\w.\-]+\.json")
 OPTION_IDS = {"A", "B", "C", "D"}
 CSRF_EXEMPT = {"submit", "api_check", "static"}
@@ -57,7 +56,6 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_HTTPONLY=True,
     PERMANENT_SESSION_LIFETIME=timedelta(days=365),
-    MAIL_CONSOLE=False,
 )
 
 
@@ -255,21 +253,6 @@ def _ensure_guest_id() -> str:
     return session["guest_id"]
 
 
-def _public_base() -> str | None:
-    base = app.config.get("PUBLIC_URL") or _env_public_url()
-    if base:
-        return base.rstrip("/")
-    if app.config.get("MAIL_CONSOLE"):
-        return request.host_url.rstrip("/")
-    return None
-
-
-def _login_available() -> bool:
-    if app.config.get("MAIL_CONSOLE"):
-        return True
-    return mail_config_from_env() is not None and _public_base() is not None
-
-
 def _guest_free_exams() -> int | None:
     raw = os.getenv("GUEST_FREE_EXAMS", "1").strip()
     try:
@@ -280,8 +263,8 @@ def _guest_free_exams() -> int | None:
 
 
 def _guest_gated() -> bool:
-    """Guests must sign in after their free exams, but only if signing in works."""
-    if g.user or not _login_available():
+    """Guests must sign in after their free exams."""
+    if g.user:
         return False
     limit = _guest_free_exams()
     if limit is None:
@@ -320,7 +303,7 @@ def admin_required(view):
 
 _CSRF_FALLBACK = {
     "login": "login",
-    "login_verify": "login",
+    "register": "register",
     "admin_login": "admin_login",
     "account_delete": "account",
 }
@@ -374,7 +357,6 @@ def _globals():
         "asset": asset,
         "csrf_token": _csrf_token,
         "switch_lang_url": switch_lang_url,
-        "login_available": _login_available(),
         "is_admin": bool(session.get("admin")) and _admin_enabled(),
         "contact_email": os.getenv("CONTACT_EMAIL", "").strip(),
         "public_base": _env_public_url(),
@@ -405,7 +387,7 @@ def ping():
 @app.route("/robots.txt")
 def robots():
     body = "User-agent: *\n" + "".join(
-        f"Disallow: {p}\n" for p in ("/admin", "/results/", "/test/", "/login", "/account")
+        f"Disallow: {p}\n" for p in ("/admin", "/results/", "/test/", "/login", "/register", "/account")
     )
     return body, 200, {"Content-Type": "text/plain; charset=utf-8"}
 
@@ -592,7 +574,7 @@ def results(token: str):
         areas=areas,
         weak_area=weak,
         next_exam=_next_exam(info, _store().list_attempts(**_owner())),
-        show_save=is_owner and not g.user and _login_available(),
+        show_save=is_owner and not g.user,
     )
 
 
@@ -641,86 +623,80 @@ def api_check(filename: str, qid: str):
 
 # ── Sign in ──
 
+def _sign_in(user: dict, lang: str, next_url: str | None):
+    store = _store()
+    store.touch_login(user["id"])
+    guest_id = session.pop("guest_id", None)
+    session["user_id"] = user["id"]
+    session.permanent = True
+    flash(_fmt(lang, "signed_in", username=user["username"]))
+    if guest_id and store.claim_guest_attempts(guest_id, user["id"]):
+        flash(UI[lang]["results_claimed"])
+    return redirect(next_url or url_for("exams"))
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    lang = _ui_lang()
+    next_url = _safe_next(request.values.get("next"))
+    if g.user:
+        return redirect(next_url or url_for("exams"))
+
+    error = None
+    username = ""
+    if request.method == "POST":
+        username = request.form.get("username", "").strip().casefold()
+        password = request.form.get("password", "")
+        user = _store().get_user_by_username(username) if username else None
+        if user and check_password_hash(user["password_hash"], password):
+            return _sign_in(user, lang, next_url)
+        error = UI[lang]["login_wrong"]
+
+    return _render(
+        "serve/login.html", lang,
+        mode="login",
+        errors={"password": error} if error else {},
+        username=username,
+        next_url=next_url,
+        gate=request.args.get("reason") == "gate",
+        lang_switch=True,
+    )
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
     lang = _ui_lang()
     t = UI[lang]
     next_url = _safe_next(request.values.get("next"))
     if g.user:
         return redirect(next_url or url_for("exams"))
 
-    available = _login_available()
-    error = None
-    email = ""
-    if request.method == "POST" and available:
-        email = request.form.get("email", "").strip().lower()
-        if len(email) > 320 or not EMAIL_RE.match(email):
-            error = t["login_invalid_email"]
-        else:
-            raw = _store().create_login_token(email)
-            if raw is None:
-                error = t["login_throttled"]
-            else:
-                link = _public_base() + url_for("login_verify", token=raw, lang=lang)
-                try:
-                    send_mail(
-                        mail_config_from_env(),
-                        email,
-                        _fmt(lang, "mail_subject"),
-                        _fmt(lang, "mail_body", link=link),
-                        console=app.config.get("MAIL_CONSOLE", False),
-                    )
-                except Exception:
-                    logger.exception("Could not send sign-in email")
-                    error = t["login_send_failed"]
-                else:
-                    session["login_email"] = email
-                    if next_url:
-                        session["login_next"] = next_url
-                    return redirect(url_for("login_sent"))
+    errors: dict[str, str] = {}
+    username = ""
+    if request.method == "POST":
+        username = request.form.get("username", "").strip().casefold()
+        password = request.form.get("password", "")
+        if not USERNAME_RE.fullmatch(username):
+            errors["username"] = t["username_invalid"]
+        if len(password) < PASSWORD_MIN:
+            errors["password"] = t["password_short"]
+        elif password != request.form.get("password2", ""):
+            errors["password2"] = t["password_mismatch"]
+        if not errors:
+            user = _store().create_user(username, generate_password_hash(password))
+            if user:
+                return _sign_in(user, lang, next_url)
+            errors["username"] = t["username_taken"]
 
     return _render(
         "serve/login.html", lang,
-        error=error,
-        email=email,
+        mode="register",
+        errors=errors,
+        username=username,
         next_url=next_url,
-        gate=request.args.get("reason") == "gate",
-        expired=request.args.get("reason") == "expired",
-        available=available,
+        gate=False,
         lang_switch=True,
     )
-
-
-@app.route("/login/sent")
-def login_sent():
-    email = session.get("login_email")
-    if not email:
-        return redirect(url_for("login"))
-    return _render("serve/login_sent.html", _ui_lang(), email=email)
-
-
-@app.route("/login/<token>", methods=["GET", "POST"])
-def login_verify(token: str):
-    lang = _ui_lang()
-    if request.method == "GET":
-        # Mail scanners open links, so signing in takes one click on this page.
-        return _render("serve/login_confirm.html", lang, token=token)
-
-    email = _store().consume_login_token(token)
-    if not email:
-        return redirect(url_for("login", reason="expired"))
-    store = _store()
-    user = store.get_or_create_user(email)
-    store.touch_login(user["id"])
-    guest_id = session.pop("guest_id", None)
-    next_url = session.pop("login_next", None)
-    session.pop("login_email", None)
-    session["user_id"] = user["id"]
-    session.permanent = True
-    flash(_fmt(lang, "signed_in", email=user["email"]))
-    if guest_id and store.claim_guest_attempts(guest_id, user["id"]):
-        flash(UI[lang]["results_claimed"])
-    return redirect(_safe_next(next_url) or url_for("exams"))
 
 
 @app.route("/logout", methods=["POST"])
@@ -825,16 +801,11 @@ def main() -> None:
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
-    if mail_config_from_env() is None:
-        # Local run without SMTP: print sign-in links to this terminal.
-        app.config["MAIL_CONSOLE"] = True
     init_store()
 
     url = f"http://localhost:{args.port}"
     print(f"\n  Local:   {url}")
     print(f"  Network: accessible on port {args.port}")
-    if app.config["MAIL_CONSOLE"]:
-        print("  Sign-in links are printed here (SMTP is not configured).")
     print()
 
     if not args.no_browser:

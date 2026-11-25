@@ -14,7 +14,7 @@
     <p>{{ brand }} збирає лише дані, потрібні для роботи пробних іспитів.</p>
     <h2>Що ми зберігаємо</h2>
     <ul>
-      <li><strong>Адресу email</strong>, якщо ви створюєте акаунт. Ми використовуємо її лише для надсилання посилань для входу.</li>
+      <li><strong>Ім’я користувача й пароль</strong>, якщо ви створюєте акаунт. Пароль зберігається лише у вигляді захищеного хешу, тож прочитати його не може ніхто, зокрема й ми.</li>
       <li><strong>Результати іспитів</strong>: ваші відповіді, бал і витрачений час для кожного завершеного іспиту. Вони пов’язані з вашим акаунтом або, якщо ви не входили, з випадковим ідентифікатором у файлі cookie.</li>
     </ul>
     <h2>Файли cookie та сховище браузера</h2>
@@ -25,16 +25,16 @@
     </ul>
     <p>Ми не використовуємо рекламні чи аналітичні файли cookie.</p>
     <h2>Хто обробляє дані</h2>
-    <p>Сайт і база даних розміщені в нашого хостинг-провайдера, а листи для входу надсилає наш поштовий сервіс. Ми не продаємо й не передаємо ваші дані для реклами.</p>
+    <p>Сайт і база даних розміщені в наших хостинг-провайдерів. Ми не продаємо й не передаємо ваші дані для реклами.</p>
     <h2>Ваш вибір</h2>
-    <p>Ви можете будь-коли видалити акаунт на сторінці «Акаунт». Це видалить вашу адресу email і всі результати, пов’язані з акаунтом.</p>
+    <p>Ви можете будь-коли видалити акаунт на сторінці «Акаунт». Це видалить ваше ім’я користувача, пароль і всі результати, пов’язані з акаунтом.</p>
     {% if contact_email %}<p>Запитання щодо конфіденційності надсилайте на <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
 
   {% elif page == 'privacy' %}
     <p>{{ brand }} collects only the data it needs to run the practice exams.</p>
     <h2>What we store</h2>
     <ul>
-      <li><strong>Your email address</strong>, if you create an account. We use it only to send you sign-in links.</li>
+      <li><strong>Your username and password</strong>, if you create an account. The password is stored only as a secure hash, so nobody, including us, can read it.</li>
       <li><strong>Your exam results</strong>: your answers, score and time taken for each exam you finish. These are linked to your account, or to a random identifier in a cookie if you haven't signed in.</li>
     </ul>
     <h2>Cookies and browser storage</h2>
@@ -45,9 +45,9 @@
     </ul>
     <p>We don't use advertising or analytics cookies.</p>
     <h2>Who processes your data</h2>
-    <p>The site and its database are hosted by our hosting provider, and sign-in emails are sent by our email provider. We don't sell your data or share it for advertising.</p>
+    <p>The site and its database are hosted by our hosting providers. We don't sell your data or share it for advertising.</p>
     <h2>Your choices</h2>
-    <p>You can delete your account at any time from the Account page. This removes your email address and every result linked to your account.</p>
+    <p>You can delete your account at any time from the Account page. This removes your username, password and every result linked to your account.</p>
     {% if contact_email %}<p>Send privacy questions to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
 
   {% elif lang == 'uk' %}
@@ -58,7 +58,7 @@
     <h2>Зміст</h2>
     <p>Питання й пояснення надаються «як є». Ми стежимо за їхньою точністю, але вони можуть містити помилки. Офіційні вимоги та стандарти шукайте в матеріалах ICF.</p>
     <h2>Ваш акаунт</h2>
-    <p>Посилання для входу надходять на вашу пошту, тож захищайте доступ до неї. Не передавайте посилання для входу іншим людям.</p>
+    <p>Не передавайте свій пароль іншим людям. Відновити пароль не можна: якщо ви його забудете, доведеться створити новий акаунт.</p>
     <h2>Чесне використання</h2>
     <p>Не копіюйте й не публікуйте питання та пояснення в інших місцях без нашого дозволу.</p>
     <h2>Зміни</h2>
@@ -73,7 +73,7 @@
     <h2>Content</h2>
     <p>Questions and explanations are provided as they are. We work to keep them accurate, but they may contain mistakes. For official requirements and standards, rely on ICF's own materials.</p>
     <h2>Your account</h2>
-    <p>Sign-in links are sent to your email, so keep access to your inbox secure. Don't share sign-in links with other people.</p>
+    <p>Don't share your password with other people. There's no password reset: if you forget your password, you'll need to create a new account.</p>
     <h2>Fair use</h2>
     <p>Don't copy or republish the questions or explanations elsewhere without our permission.</p>
     <h2>Changes</h2>

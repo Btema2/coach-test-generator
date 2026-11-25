@@ -1,14 +1,12 @@
-"""Persistent storage for the exam site: accounts, results and sign-in links.
+"""Persistent storage for the exam site: accounts and exam results.
 
 Uses SQLAlchemy Core, so the same code runs on a local SQLite file and on a
 hosted Postgres database (set DATABASE_URL). Datetimes are stored as naive UTC.
 """
 
-import hashlib
 import json
-import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from sqlalchemy import (
@@ -30,16 +28,14 @@ from sqlalchemy import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.pool import StaticPool
 
-LOGIN_TOKEN_TTL = timedelta(minutes=30)
-LOGIN_RESEND_AFTER = timedelta(seconds=60)
-
 metadata = MetaData()
 
 users = Table(
     "users",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("email", String(320), unique=True, nullable=False),
+    Column("username", String(32), unique=True, nullable=False),
+    Column("password_hash", String(255), nullable=False),
     Column("created_at", DateTime, nullable=False),
     Column("last_login_at", DateTime),
 )
@@ -60,16 +56,6 @@ attempts = Table(
     Column("created_at", DateTime, nullable=False, index=True),
 )
 
-login_tokens = Table(
-    "login_tokens",
-    metadata,
-    Column("token_hash", String(64), primary_key=True),
-    Column("email", String(320), nullable=False, index=True),
-    Column("created_at", DateTime, nullable=False),
-    Column("expires_at", DateTime, nullable=False),
-    Column("used_at", DateTime),
-)
-
 app_settings = Table(
     "app_settings",
     metadata,
@@ -80,10 +66,6 @@ app_settings = Table(
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
-
-
-def _hash_token(raw: str) -> str:
-    return hashlib.sha256(raw.encode()).hexdigest()
 
 
 def normalize_url(url: str) -> str:
@@ -131,19 +113,19 @@ class Store:
             row = conn.execute(select(users).where(users.c.id == user_id)).first()
         return dict(row._mapping) if row else None
 
-    def get_or_create_user(self, email: str) -> dict:
-        email = email.strip().lower()
+    def get_user_by_username(self, username: str) -> dict | None:
         with self.engine.begin() as conn:
-            row = conn.execute(select(users).where(users.c.email == email)).first()
-            if row:
-                return dict(row._mapping)
+            row = conn.execute(select(users).where(users.c.username == username)).first()
+        return dict(row._mapping) if row else None
+
+    def create_user(self, username: str, password_hash: str) -> dict | None:
+        """Create an account, or return None if the username is taken."""
         try:
             with self.engine.begin() as conn:
-                conn.execute(insert(users).values(email=email, created_at=utcnow()))
+                conn.execute(insert(users).values(username=username, password_hash=password_hash, created_at=utcnow()))
         except IntegrityError:
-            pass
-        with self.engine.begin() as conn:
-            return dict(conn.execute(select(users).where(users.c.email == email)).one()._mapping)
+            return None
+        return self.get_user_by_username(username)
 
     def touch_login(self, user_id: int) -> None:
         with self.engine.begin() as conn:
@@ -151,52 +133,8 @@ class Store:
 
     def delete_user(self, user_id: int) -> None:
         with self.engine.begin() as conn:
-            email = conn.execute(select(users.c.email).where(users.c.id == user_id)).scalar()
             conn.execute(delete(attempts).where(attempts.c.user_id == user_id))
-            if email:
-                conn.execute(delete(login_tokens).where(login_tokens.c.email == email))
             conn.execute(delete(users).where(users.c.id == user_id))
-
-    # ── Sign-in links ──
-
-    def create_login_token(self, email: str) -> str | None:
-        """Return a new one-time token, or None if one was sent moments ago."""
-        email = email.strip().lower()
-        now = utcnow()
-        with self.engine.begin() as conn:
-            recent = conn.execute(
-                select(func.count())
-                .select_from(login_tokens)
-                .where(login_tokens.c.email == email)
-                .where(login_tokens.c.created_at > now - LOGIN_RESEND_AFTER)
-            ).scalar_one()
-            if recent:
-                return None
-            conn.execute(delete(login_tokens).where(login_tokens.c.expires_at < now))
-            raw = secrets.token_urlsafe(32)
-            conn.execute(
-                insert(login_tokens).values(
-                    token_hash=_hash_token(raw),
-                    email=email,
-                    created_at=now,
-                    expires_at=now + LOGIN_TOKEN_TTL,
-                )
-            )
-        return raw
-
-    def consume_login_token(self, raw: str) -> str | None:
-        """Mark the token used and return its email, or None if invalid."""
-        now = utcnow()
-        with self.engine.begin() as conn:
-            result = conn.execute(
-                update(login_tokens)
-                .where(login_tokens.c.token_hash == _hash_token(raw))
-                .where(login_tokens.c.used_at.is_(None))
-                .where(login_tokens.c.expires_at > now)
-                .values(used_at=now)
-                .returning(login_tokens.c.email)
-            ).first()
-        return result.email if result else None
 
     # ── Attempts ──
 

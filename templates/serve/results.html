@@ -74,17 +74,14 @@
       </div>
 
       {% if show_save %}
-      <form class="save-panel" method="post" action="{{ url_for('login', lang=lang) }}">
+      <div class="save-panel">
         <h3>{{ t.save_title }}</h3>
         <p>{{ t.save_text }}</p>
-        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
-        <input type="hidden" name="next" value="{{ url_for('results', token=token) }}">
-        <div class="field">
-          <label for="save-email">{{ t.email_label }}</label>
-          <input class="input" id="save-email" name="email" type="email" autocomplete="email" required placeholder="name@example.com">
+        <div class="btn-row">
+          <a class="btn btn-primary" href="{{ url_for('register', next=url_for('results', token=token), lang=lang) }}">{{ t.save_create }}</a>
+          <a class="btn btn-quiet" href="{{ url_for('login', next=url_for('results', token=token), lang=lang) }}">{{ t.save_signin }}</a>
         </div>
-        <button class="btn btn-primary" type="submit">{{ t.send_link }}</button>
-      </form>
+      </div>
       {% endif %}
     </aside>
   </div>

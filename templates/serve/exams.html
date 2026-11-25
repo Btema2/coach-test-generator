@@ -10,7 +10,7 @@
     <p>{{ t.exams_intro }}</p>
   </header>
 
-  {% if not user and login_available and recent %}
+  {% if not user and recent %}
   <div class="banner">
     <p>{{ t.signin_banner }}</p>
     <a class="btn btn-secondary" href="{{ url_for('login', next=request.path) }}">{{ t.nav_signin }}</a>

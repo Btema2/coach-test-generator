@@ -1,14 +1,11 @@
 import html as html_lib
 import json
 import re
-from datetime import timedelta
 
 import pytest
 
 import i18n
 import serve
-import mailer
-import store as store_module
 from serve import JSONS_DIR, UI, _questions_word, app
 
 EXAM_FILES = sorted(p.name for p in JSONS_DIR.glob("*.json"))
@@ -22,25 +19,13 @@ def db_url(tmp_path):
 
 @pytest.fixture
 def client(db_url, monkeypatch):
-    for var in ("DATABASE_URL", "ADMIN_PASSWORD", "SMTP_HOST", "BREVO_API_KEY", "MAIL_FROM", "PUBLIC_URL", "RENDER_EXTERNAL_URL", "GUEST_FREE_EXAMS"):
+    for var in ("DATABASE_URL", "ADMIN_PASSWORD", "PUBLIC_URL", "RENDER_EXTERNAL_URL", "GUEST_FREE_EXAMS"):
         monkeypatch.delenv(var, raising=False)
     app.config.update(TESTING=True, MAIL_CONSOLE=False)
     serve.init_store(db_url)
     with app.test_client() as c:
         yield c
     app.extensions.pop("store", None)
-
-
-@pytest.fixture
-def sent_mail(client, monkeypatch):
-    """Turn sign-in on (console mode) and capture the emails instead of printing them."""
-    app.config["MAIL_CONSOLE"] = True
-    outbox: list[dict] = []
-    monkeypatch.setattr(
-        serve, "send_mail",
-        lambda cfg, to, subject, body, console=False: outbox.append({"to": to, "subject": subject, "body": body}),
-    )
-    return outbox
 
 
 def _exam(filename: str) -> dict:
@@ -70,17 +55,23 @@ def _submit(client, filename: str, count: int, **extra) -> str:
     return resp.headers["Location"]
 
 
-def _sign_in(client, outbox, email="coach@example.com", next_url=None):
+PASSWORD = "correct horse battery"
+
+
+def _register(client, username="coach", password=PASSWORD, next_url=None, password2=None):
     _set_csrf(client)
-    data = {"email": email, "csrf": CSRF}
+    data = {"username": username, "password": password, "password2": password if password2 is None else password2, "csrf": CSRF}
     if next_url:
         data["next"] = next_url
-    resp = client.post("/login", data=data)
-    assert resp.status_code == 302 and resp.headers["Location"].endswith("/login/sent")
-    link = re.search(r"http://\S+/login/(\S+?)\?lang=\w+", outbox[-1]["body"])
-    token = link.group(1)
+    return client.post("/register?lang=en", data=data)
+
+
+def _login(client, username="coach", password=PASSWORD, next_url=None):
     _set_csrf(client)
-    return client.post(f"/login/{token}", data={"csrf": CSRF}), token
+    data = {"username": username, "password": password, "csrf": CSRF}
+    if next_url:
+        data["next"] = next_url
+    return client.post("/login?lang=en", data=data)
 
 
 # ── Exam content ──
@@ -140,6 +131,10 @@ def test_ui_languages_have_same_keys():
 def test_ui_placeholders_match_between_languages():
     for key, en in UI["en"].items():
         assert set(re.findall(r"\{(\w+)\}", en)) == set(re.findall(r"\{(\w+)\}", UI["uk"][key])), key
+
+
+def test_english_strings_have_no_cyrillic():
+    assert [k for k, v in UI["en"].items() if re.search("[Ѐ-ӿ]", v)] == []
 
 
 def test_exam_list_filters_by_lang_param(client):
@@ -323,13 +318,11 @@ def test_no_admin_link_in_public_nav(client, monkeypatch):
 
 # ── Accounts ──
 
-def test_sign_in_is_hidden_when_email_is_not_set_up(client):
-    html = html_lib.unescape(client.get("/login?lang=en").get_data(as_text=True))
-    assert "Signing in isn't available right now." in html
-    assert ">Sign in<" not in client.get("/exams?lang=en").get_data(as_text=True)
+def test_sign_in_link_in_nav_for_guests(client):
+    assert ">Sign in<" in client.get("/exams?lang=en").get_data(as_text=True)
 
 
-def test_guests_get_one_free_exam_then_sign_in(client, sent_mail):
+def test_guests_get_one_free_exam_then_sign_in(client):
     assert client.get("/test/set-2-en.json").status_code == 200
     _submit(client, "set-2-en.json", 10)
     resp = client.get("/test/2026-06-15T19-30-29.json")
@@ -337,76 +330,84 @@ def test_guests_get_one_free_exam_then_sign_in(client, sent_mail):
     assert "/login" in resp.headers["Location"] and "reason=gate" in resp.headers["Location"]
 
 
-def test_no_guest_limit_when_sign_in_is_unavailable(client):
+def test_guest_limit_can_be_turned_off(client, monkeypatch):
+    monkeypatch.setenv("GUEST_FREE_EXAMS", "-1")
     _submit(client, "set-2-en.json", 10)
     assert client.get("/test/2026-06-15T19-30-29.json").status_code == 200
 
 
-def test_sign_in_claims_guest_results(client, sent_mail):
+def test_register_claims_guest_results(client):
     location = _submit(client, "set-2-en.json", 50)
-    resp, _ = _sign_in(client, sent_mail, next_url=location)
+    resp = _register(client, username="Coach.Anna", next_url=location)
     assert resp.status_code == 302 and resp.headers["Location"].endswith(location)
-    assert sent_mail[0]["to"] == "coach@example.com"
 
     html = client.get("/exams?lang=en").get_data(as_text=True)
     assert "Your exams" in html
-    assert "Recent results" in html
     assert "Best score 83%" in html
-    user = serve._store().get_or_create_user("coach@example.com")
+    user = serve._store().get_user_by_username("coach.anna")  # usernames are case-insensitive
     assert serve._store().count_attempts(user_id=user["id"]) == 1
+    assert PASSWORD not in user["password_hash"] and user["password_hash"].startswith("scrypt:")
 
 
-def test_sign_in_link_works_once(client, sent_mail):
-    _, token = _sign_in(client, sent_mail)
+def test_sign_in_with_password(client):
+    _register(client)
     client.post("/logout", data={"csrf": CSRF})
-    _set_csrf(client)
-    again = client.post(f"/login/{token}", data={"csrf": CSRF})
-    assert "reason=expired" in again.headers["Location"]
+    assert client.get("/account").status_code == 302
+
+    wrong = _login(client, password="not the password")
+    assert wrong.status_code == 200
+    assert "That username and password don't match." in html_lib.unescape(wrong.get_data(as_text=True))
+    unknown = _login(client, username="nobody")
+    assert "That username and password don't match." in html_lib.unescape(unknown.get_data(as_text=True))
+
+    ok = _login(client, username="COACH")
+    assert ok.status_code == 302 and ok.headers["Location"].endswith("/exams")
+    assert "Signed in as coach" in client.get("/account?lang=en").get_data(as_text=True)
 
 
-def test_expired_sign_in_link_is_rejected(client, sent_mail, monkeypatch):
-    monkeypatch.setattr(store_module, "LOGIN_TOKEN_TTL", timedelta(seconds=-1))
-    resp, _ = _sign_in(client, sent_mail)
-    assert "reason=expired" in resp.headers["Location"]
+@pytest.mark.parametrize("kwargs, message", [
+    ({"username": "ab"}, "Use 3–32 characters"),
+    ({"username": "has space"}, "Use 3–32 characters"),
+    ({"username": "x" * 33}, "Use 3–32 characters"),
+    ({"password": "short"}, "Use at least 8 characters."),
+    ({"password2": "something else"}, "The passwords don't match."),
+])
+def test_register_validates_input(client, kwargs, message):
+    resp = _register(client, **kwargs)
+    assert resp.status_code == 200
+    assert message in html_lib.unescape(resp.get_data(as_text=True))
+    assert serve._store().get_user_by_username(kwargs.get("username", "coach").casefold()) is None
+    assert client.get("/account").status_code == 302
 
 
-def test_sign_in_needs_csrf_token(client, sent_mail):
-    resp = client.post("/login", data={"email": "coach@example.com"})
-    assert resp.status_code == 302
-    assert sent_mail == []
+def test_register_rejects_taken_username(client):
+    _register(client)
+    client.post("/logout", data={"csrf": CSRF})
+    resp = _register(client, username="Coach", password="another password")
+    assert "That username is taken." in resp.get_data(as_text=True)
+    assert client.get("/account").status_code == 302
 
 
-def test_sign_in_rejects_bad_email_and_throttles_repeats(client, sent_mail):
-    _set_csrf(client)
-    bad = client.post("/login?lang=en", data={"email": "not-an-email", "csrf": CSRF})
-    assert "Enter a valid email address" in bad.get_data(as_text=True)
-    client.post("/login?lang=en", data={"email": "coach@example.com", "csrf": CSRF})
-    again = client.post("/login?lang=en", data={"email": "coach@example.com", "csrf": CSRF})
-    assert "Wait a minute" in again.get_data(as_text=True)
-    assert len(sent_mail) == 1
+def test_ukrainian_usernames_work(client):
+    assert _register(client, username="коуч_олена").status_code == 302
+    assert serve._store().get_user_by_username("коуч_олена") is not None
 
 
-def test_sign_in_ignores_offsite_next(client, sent_mail):
-    resp, _ = _sign_in(client, sent_mail, next_url="//evil.example/steal")
+def test_sign_in_needs_csrf_token(client):
+    resp = client.post("/register", data={"username": "coach", "password": PASSWORD, "password2": PASSWORD})
+    assert resp.status_code == 302 and "/register" in resp.headers["Location"]
+    assert serve._store().get_user_by_username("coach") is None
+
+
+def test_sign_in_ignores_offsite_next(client):
+    resp = _register(client, next_url="//evil.example/steal")
     assert resp.headers["Location"].endswith("/exams")
 
 
-def test_sign_in_link_uses_public_url(client, monkeypatch):
-    monkeypatch.setenv("SMTP_HOST", "smtp.example.com")
-    monkeypatch.setenv("MAIL_FROM", "hello@example.com")
-    monkeypatch.setenv("PUBLIC_URL", "https://prep.example.com")
-    outbox = []
-    monkeypatch.setattr(serve, "send_mail", lambda cfg, to, subject, body, console=False: outbox.append(body))
-    _set_csrf(client)
-    client.post("/login", data={"email": "coach@example.com", "csrf": CSRF})
-    assert "https://prep.example.com/login/" in outbox[0]
-    assert "localhost" not in outbox[0]  # never built from the request's Host header
-
-
-def test_delete_account_removes_results(client, sent_mail):
-    _sign_in(client, sent_mail)
+def test_delete_account_removes_results(client):
+    _register(client)
     _submit(client, "set-2-en.json", 50)
-    user = serve._store().get_or_create_user("coach@example.com")
+    user = serve._store().get_user_by_username("coach")
     assert client.get("/account?lang=en").status_code == 200
 
     _set_csrf(client)
@@ -431,47 +432,3 @@ def test_not_found_page(client):
     assert resp.status_code == 404
     assert "Page not found" in resp.get_data(as_text=True)
 
-
-def test_brevo_api_is_used_when_its_key_is_set(monkeypatch):
-    monkeypatch.setenv("MAIL_FROM", "Coach Exam Prep <hello@example.com>")
-    monkeypatch.setenv("BREVO_API_KEY", "xkeysib-test")
-    monkeypatch.setenv("SMTP_HOST", "smtp.example.com")
-    cfg = mailer.mail_config_from_env()
-    assert cfg.brevo_api_key == "xkeysib-test"
-
-    calls = []
-
-    class Resp:
-        status_code = 201
-        text = ""
-
-    monkeypatch.setattr(mailer.requests, "post", lambda url, **kw: calls.append((url, kw)) or Resp())
-    monkeypatch.setattr(mailer.smtplib, "SMTP", lambda *a, **kw: pytest.fail("SMTP must not be used"))
-    mailer.send_mail(cfg, "user@example.com", "Sign in", "Link: https://x/login/abc")
-
-    (url, kw), = calls
-    assert url == mailer.BREVO_API_URL
-    assert kw["headers"]["api-key"] == "xkeysib-test"
-    assert kw["json"] == {
-        "sender": {"email": "hello@example.com", "name": "Coach Exam Prep"},
-        "to": [{"email": "user@example.com"}],
-        "subject": "Sign in",
-        "textContent": "Link: https://x/login/abc",
-    }
-
-
-def test_brevo_error_is_raised(monkeypatch):
-    class Resp:
-        status_code = 401
-        text = "Key not found"
-
-    monkeypatch.setattr(mailer.requests, "post", lambda url, **kw: Resp())
-    cfg = mailer.MailConfig(sender="hello@example.com", brevo_api_key="bad")
-    with pytest.raises(RuntimeError, match="401"):
-        mailer.send_mail(cfg, "user@example.com", "Sign in", "body")
-
-
-def test_mail_needs_a_sender(monkeypatch):
-    monkeypatch.delenv("MAIL_FROM", raising=False)
-    monkeypatch.setenv("BREVO_API_KEY", "xkeysib-test")
-    assert mailer.mail_config_from_env() is None

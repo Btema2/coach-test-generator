@@ -151,7 +151,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .input { width: 100%; min-height: 48px; padding: 0.6rem 0.85rem; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); font-size: 1rem; }
 .input:focus { outline: 2px solid var(--pine); outline-offset: 1px; border-color: var(--pine); }
 .input[aria-invalid="true"] { border-color: var(--bad); }
-.field-error { color: var(--bad); font-size: 0.875rem; }
+.field .field-error { color: var(--bad); font-size: 0.875rem; }
 .inline-form { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 .inline-form .input { flex: 1 1 16rem; width: auto; }
 .check-row { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.9375rem; }
@@ -471,3 +471,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
 }
+
+/* ── Sign in / create account ── */
+.field-hint { color: var(--muted); font-size: 0.875rem; }
+.auth-switch { text-align: center; }
+.save-panel .btn-row { margin-top: 0.25rem; }

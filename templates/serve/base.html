@@ -29,8 +29,8 @@
         <a href="{{ url_for('exams') }}" {% if request.endpoint == 'exams' %}aria-current="page"{% endif %}>{{ t.nav_exams }}</a>
         {% if user %}
           <a href="{{ url_for('account') }}" {% if request.endpoint == 'account' %}aria-current="page"{% endif %}>{{ t.nav_account }}</a>
-        {% elif login_available %}
-          <a href="{{ url_for('login') }}" {% if request.endpoint == 'login' %}aria-current="page"{% endif %}>{{ t.nav_signin }}</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" {% if request.endpoint in ('login', 'register') %}aria-current="page"{% endif %}>{{ t.nav_signin }}</a>
         {% endif %}
         {% if lang_switch %}{{ lang_switcher(lang, t) }}{% endif %}
       </div>
