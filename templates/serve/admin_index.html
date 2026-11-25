@@ -1,0 +1,35 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{{ t.admin_picker_title }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <header class="page-head">
+    <h1>{{ t.admin_picker_title }}</h1>
+    <p>{{ t.admin_picker_sub }}</p>
+    <form method="post" action="{{ url_for('admin_logout') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn btn-quiet" type="submit">{{ t.admin_signout }}</button>
+    </form>
+  </header>
+  <ul class="exam-list">
+    {% for exam in exams %}
+    {% set et = ui[exam.lang] %}
+    <li class="exam-row" lang="{{ exam.lang }}">
+      <div class="exam-row-body">
+        <h3>{{ exam.title }}</h3>
+        <div class="exam-row-meta">
+          <span>{{ et.lang_name }}</span>
+          <span>{{ fmt_in(exam.lang, 'n_questions', n=exam.count) }}</span>
+          <span>{{ exam.filename }}</span>
+        </div>
+      </div>
+      <div class="exam-row-actions">
+        <a class="btn btn-secondary" href="{{ url_for('admin_view', filename=exam.filename) }}">{{ et.browse }}</a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{{ fmt('practice_title', title=exam.title) }}: {{ brand }}{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <header class="page-head practice-head">
+    <h1>{{ fmt('practice_title', title=exam.title) }}</h1>
+    <p>{{ t.practice_sub }}</p>
+    {% if area %}
+    <p class="notice">{{ fmt('practice_area', area=area.name) }} <a href="{{ url_for('practice', filename=filename) }}">{{ t.practice_show_all }}</a></p>
+    {% endif %}
+  </header>
+
+  <div class="practice-layout" data-practice>
+    <div class="practice-bar">
+      <span data-counter>{{ fmt('question_of', i=1, total=questions|length) }}</span>
+      <span data-score aria-live="polite"></span>
+    </div>
+
+    {% for q in questions %}
+      {% with prefix='p_', hide=not loop.first, with_prev=True, after_link=None %}
+        {% include "serve/_practice_question.html" %}
+      {% endwith %}
+    {% endfor %}
+
+    <div class="practice-done" data-done tabindex="-1" hidden>
+      <h2>{{ t.practice_done }}</h2>
+      <p data-final-score></p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="{{ url_for('test', filename=filename) }}">{{ t.practice_timed }}</a>
+        <a class="btn btn-secondary" href="{{ request.full_path }}">{{ t.practice_restart }}</a>
+        <a class="btn btn-quiet" href="{{ url_for('exams') }}">{{ t.back_to_exams }}</a>
+      </div>
+    </div>
+
+    <script type="application/json" data-config>{{ config|tojson }}</script>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ asset('js/practice.js') }}" defer></script>
+{% endblock %}

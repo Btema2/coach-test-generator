@@ -1,0 +1,85 @@
+{% extends "serve/base.html" %}
+{% from "serve/_macros.html" import icon %}
+
+{% block title %}{{ t.exams_title }}: {{ brand }}{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <header class="page-head">
+    <h1>{{ t.my_exams_title if user else t.exams_title }}</h1>
+    <p>{{ t.exams_intro }}</p>
+  </header>
+
+  {% if not user and recent %}
+  <div class="banner">
+    <p>{{ t.signin_banner }}</p>
+    <a class="btn btn-secondary" href="{{ url_for('login', next=request.path) }}">{{ t.nav_signin }}</a>
+  </div>
+  {% endif %}
+
+  {% with show_status=True %}{% include "serve/_exam_list.html" %}{% endwith %}
+
+  {% if chart %}
+  <section class="chart-block" aria-labelledby="progress-title">
+    <div class="section-head">
+      <h2 id="progress-title">{{ t.progress_title }}</h2>
+      <p>{{ t.progress_sub }}</p>
+    </div>
+    <div class="chart-frame" data-chart role="group" aria-label="{{ fmt('progress_chart_label', n=chart.points|length) }}">
+      <div class="chart-plot">
+        {% for v in chart.ticks %}
+        <span class="chart-gridline" style="top: {{ 100 - v }}%"></span>
+        <span class="chart-ylabel" style="top: {{ 100 - v }}%" aria-hidden="true">{{ v }}%</span>
+        {% endfor %}
+        <span class="chart-passline" style="top: 30%"></span>
+        <span class="chart-ylabel" style="top: 30%" aria-hidden="true">70%</span>
+        <svg class="chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path class="chart-line" d="{{ chart.path }}"/>
+        </svg>
+        {% for p in chart.points %}
+        <a class="chart-point" href="{{ url_for('results', token=p.id) }}" style="left: {{ p.x }}%; top: {{ p.y }}%"
+           data-title="{{ p.title }}" data-date="{{ p.date }}" data-pct="{{ p.pct }}%"
+           aria-label="{{ p.title }}, {{ p.date }}: {{ p.pct }}%"><span class="chart-dot"></span></a>
+        {% endfor %}
+        {% set first = chart.points[0] %}{% set last = chart.points[-1] %}
+        <span class="chart-xlabel" style="left: 0" aria-hidden="true">{{ first.date }}</span>
+        <span class="chart-xlabel chart-xlabel-end" aria-hidden="true">{{ last.date }}</span>
+      </div>
+      <div class="chart-tip" role="tooltip" hidden></div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if recent %}
+  <section class="chart-block" aria-labelledby="history-title">
+    <h2 id="history-title">{{ t.history_title }}</h2>
+    <table class="history">
+      <thead>
+        <tr><th scope="col">{{ t.history_date }}</th><th scope="col">{{ t.history_exam }}</th><th scope="col" class="num">{{ t.history_score }}</th><th scope="col"><span class="visually-hidden">{{ t.history_view }}</span></th></tr>
+      </thead>
+      <tbody>
+        {% for a in recent %}
+        {% set pct = (a.score / a.total * 100)|round|int if a.total else 0 %}
+        <tr>
+          <td>{{ a.date }}</td>
+          <td>{{ a.exam_title }}</td>
+          <td class="num">
+            {% if a.score >= pass_score(a.total) %}
+            <span class="status status-good">{{ icon('check') }}{{ pct }}%</span>
+            {% else %}
+            <span class="status status-bad">{{ icon('cross') }}{{ pct }}%</span>
+            {% endif %}
+          </td>
+          <td class="num"><a href="{{ url_for('results', token=a.id) }}">{{ t.history_view }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if chart %}<script src="{{ asset('js/chart.js') }}" defer></script>{% endif %}
+{% endblock %}

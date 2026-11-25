@@ -1,0 +1,55 @@
+{% extends "serve/base.html" %}
+
+{% set register = mode == 'register' %}
+{% set heading = t.register_title if register else t.login_title %}
+
+{% block title %}{{ heading }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% macro field(name, label, type='text', autocomplete=None, hint=None, value='', autofocus=False) %}
+  {% set error = errors.get(name) %}
+  <div class="field">
+    <label for="{{ name }}">{{ label }}</label>
+    <input class="input" id="{{ name }}" name="{{ name }}" type="{{ type }}" required
+           {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+           {% if type == 'text' %}autocapitalize="none" spellcheck="false"{% endif %}
+           {% if value %}value="{{ value }}"{% endif %}
+           {% if error %}aria-invalid="true"{% endif %}
+           {% if error %}aria-describedby="{{ name }}-error"{% elif hint %}aria-describedby="{{ name }}-hint"{% endif %}
+           {% if autofocus %}autofocus{% endif %}>
+    {% if error %}<p class="field-error" id="{{ name }}-error">{{ error }}</p>
+    {% elif hint %}<p class="field-hint" id="{{ name }}-hint">{{ hint }}</p>{% endif %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+<div class="narrow">
+  <h1>{{ heading }}</h1>
+  {% if gate %}<p class="notice">{{ t.login_gate }}</p>{% endif %}
+  {% if register %}<p>{{ t.register_text }}</p>{% endif %}
+
+  <form class="panel" method="post" action="{{ url_for(mode, lang=lang) }}" novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+    {% if register %}
+      {{ field('username', t.username_label, autocomplete='username', hint=t.username_hint, value=username, autofocus=not username or 'username' in errors) }}
+      {{ field('password', t.password_label, type='password', autocomplete='new-password', hint=t.password_hint, autofocus=username and 'username' not in errors) }}
+      {{ field('password2', t.password2_label, type='password', autocomplete='new-password') }}
+      <p class="field-hint">{{ t.register_note }}</p>
+      <button class="btn btn-primary btn-block" type="submit">{{ t.register_btn }}</button>
+    {% else %}
+      {{ field('username', t.username_label, autocomplete='username', value=username, autofocus=not username) }}
+      {{ field('password', t.password_label, type='password', autocomplete='current-password', autofocus=username) }}
+      <button class="btn btn-primary btn-block" type="submit">{{ t.login_btn }}</button>
+    {% endif %}
+  </form>
+
+  <p class="auth-switch">
+    {% if register %}
+      {{ t.register_have_account }} <a href="{{ url_for('login', next=next_url, lang=lang) }}">{{ t.register_login_link }}</a>
+    {% else %}
+      {{ t.login_no_account }} <a href="{{ url_for('register', next=next_url, lang=lang) }}">{{ t.login_register_link }}</a>
+    {% endif %}
+  </p>
+</div>
+{% endblock %}

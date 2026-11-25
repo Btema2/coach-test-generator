@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
+data/
+.neon
+node_modules/
+.env.local

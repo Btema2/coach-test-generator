@@ -34,6 +34,27 @@ Run `python generate.py --diy [--port N]` to generate without the paid API:
 
 DIY mode requires only `BATCH_SIZE` (no `GEMINI_API_KEY`/`GEMINI_MODEL`).
 
+## Web App (`serve.py`)
+
+`python serve.py [--port N]` runs the public exam site; production runs `gunicorn serve:app`.
+
+- `i18n.py` — every interface string, EN + UK (same keys and placeholders in both; tests enforce it).
+- `store.py` — SQLAlchemy Core: users (username + password hash), exam attempts. `DATABASE_URL`
+  (Postgres in production; local SQLite at `data/app.db` by default). The Neon project is linked
+  in `.neon`; `neon env pull` writes its `DATABASE_URL` (pooled) to `.env.local`, which `serve.py`
+  loads before `.env` — so a local run then uses the Neon `production` branch.
+- Accounts are username + password (Werkzeug scrypt hashes). No email is collected or sent, so there
+  is no password reset.
+- `templates/serve/` + `static/` — pages, `app.css`, and per-page scripts (`exam.js` keeps the
+  in-progress exam in localStorage with wall-clock deadlines; `practice.js` checks answers via
+  `/api/check/...`).
+- `/admin` (answer key) is off unless `ADMIN_PASSWORD` is set, and is never linked publicly.
+- Guests finish `GUEST_FREE_EXAMS` exams (default 1; -1 = no limit) before being asked to sign in;
+  their results move to the account when they sign in or register.
+- Flask caches templates when not in debug mode: restart the server after editing them.
+
+See `.env.example` for all settings.
+
 ## JSON Output Schema
 
 ```json

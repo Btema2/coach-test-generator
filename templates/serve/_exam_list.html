@@ -1,0 +1,38 @@
+{% from "serve/_macros.html" import icon %}
+{% if not exams %}
+  <div class="empty">
+    <p>{{ t.empty }}</p>
+    <p>{{ t.empty_hint }}</p>
+  </div>
+{% else %}
+<ul class="exam-list" data-exam-list>
+  {% for exam in exams %}
+  {% set s = stats.get(exam.filename) if stats else None %}
+  <li class="exam-row" data-exam="{{ exam.filename }}">
+    <div class="exam-row-body">
+      <h3>{{ exam.title }}</h3>
+      {% if exam.description %}<p class="exam-row-desc">{{ exam.description }}</p>{% endif %}
+      <div class="exam-row-meta">
+        <span>{{ fmt('card_meta', n=exam.count) }}</span>
+        <span class="status status-progress" data-status-progress hidden>{{ icon('clock') }}{{ t.status_progress }}</span>
+        {% if s %}
+          {% if s.best >= 70 %}
+          <span class="status status-good">{{ icon('check') }}{{ fmt('status_best', pct=s.best) }}</span>
+          {% else %}
+          <span class="status status-none">{{ fmt('status_best', pct=s.best) }}</span>
+          {% endif %}
+          <span>{{ fmt('status_attempts', n=s.count) }}</span>
+        {% elif show_status %}
+          <span class="status status-none" data-status-new>{{ t.status_new }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="exam-row-actions">
+      <a class="btn btn-secondary" href="{{ url_for('practice', filename=exam.filename) }}">{{ t.practice_btn }}</a>
+      <a class="btn btn-primary" href="{{ url_for('test', filename=exam.filename) }}" data-start data-resume-label="{{ t.resume }}">{{ t.start }}</a>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+<script src="{{ asset('js/exams.js') }}" defer></script>
+{% endif %}
