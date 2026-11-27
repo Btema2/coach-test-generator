@@ -1,0 +1,51 @@
+{% macro icon(name) -%}
+{%- if name == 'check' -%}
+<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif name == 'cross' -%}
+<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+{%- elif name == 'dash' -%}
+<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 8h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+{%- elif name == 'flag' -%}
+<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5M3.5 2.5h8l-2 3 2 3h-8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif name == 'clock' -%}
+<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.8V8l2.2 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+{%- elif name == 'chevron' -%}
+<svg class="chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif name == 'back' -%}
+<svg class="chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif name == 'home' -%}
+<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 10.6L12 3.8l8.5 6.8M5.8 9v10.2a.8.8 0 0 0 .8.8h3.6v-5.6h3.6V20h3.6a.8.8 0 0 0 .8-.8V9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif name == 'flag-solid' -%}
+<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5M3.5 2.5h8l-2 3 2 3h-8" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif name == 'person' -%}
+<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="5.5" r="2.7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.8 14c.6-2.6 2.7-4.2 5.2-4.2s4.6 1.6 5.2 4.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro option_input(name, opt) -%}
+<label class="cbt-option" data-option="{{ opt.id }}">
+  <input type="radio" name="{{ name }}" value="{{ opt.id }}">
+  <span class="cbt-letter">{{ opt.id }}.</span>
+  <span class="option-text">{{ opt.text }}</span>
+</label>
+{%- endmacro %}
+
+{% macro lang_switcher(lang, t) -%}
+<nav class="lang-switch" aria-label="{{ t.lang_switch_label }}">
+  <a href="{{ switch_lang_url('en') }}" lang="en" hreflang="en" {% if lang == 'en' %}aria-current="true"{% endif %}>EN</a>
+  <a href="{{ switch_lang_url('uk') }}" lang="uk" hreflang="uk" {% if lang == 'uk' %}aria-current="true"{% endif %}>UA</a>
+</nav>
+{%- endmacro %}
+
+{# An answer option shown, not chosen (results review, answer key): a drawn radio mark,
+   the letter, the text, and a tag when it is the person's answer or the correct one. #}
+{% macro static_option(opt, is_correct, is_mine, t) -%}
+<div class="cbt-option is-static {{ 'is-correct' if is_correct else ('is-wrong' if is_mine else '') }}">
+  <span class="radio-mark {{ 'is-on' if is_mine else '' }}" aria-hidden="true"></span>
+  <span class="cbt-letter">{{ opt.id }}.</span>
+  <span class="option-text">{{ opt.text }}
+    {% if is_mine %}<span class="option-tag">{{ t.marker_yours }}</span>
+    {% elif is_correct %}<span class="option-tag">{{ t.marker_correct }}</span>{% endif %}
+  </span>
+</div>
+{%- endmacro %}

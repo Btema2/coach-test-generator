@@ -1,0 +1,13 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{{ t.not_found_title }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block bar_title %}{{ t.not_found_title }}{% endblock %}
+
+{% block content %}
+<div class="page page-narrow">
+  <h1 class="page-title">{{ t.not_found_title }}</h1>
+  <p class="lead">{{ t.not_found_text }}</p>
+  <p><a class="btn btn-primary" href="{{ url_for('exams') }}">{{ t.back_to_exams }}</a></p>
+</div>
+{% endblock %}

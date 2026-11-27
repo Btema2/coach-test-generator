@@ -1,540 +1,117 @@
 {% extends "serve/base.html" %}
+{% from "serve/_macros.html" import icon %}
 
-{% block title %}{{ exam.title }} · {{ t.site_title }}{% endblock %}
+{% block title %}{{ exam.title }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block body_class %}has-bottom-bar{% endblock %}
 
-{% block nav %}
-<div class="exam-bar">
-  <div class="exam-bar-inner">
-    <span class="exam-brand">ICF ACC</span>
-    <span class="exam-section" id="section-label">{{ fmt('part', n=1) }}</span>
-    <span class="exam-progress" id="progress-text">{{ fmt('progress', a=0, total=30) }}</span>
-    <span class="timer" id="timer">39:00</span>
-    <button type="button" class="btn btn-sm btn-outline" id="btn-leave" onclick="submitExam()">{{ t.leave_early }}</button>
+{# Laid out like the Pearson VUE test driver the real ACC exam runs in: a title bar with the
+   timer and item counter, a tool bar with Flag for Review, plain radio options, Previous/Next
+   at the bottom, and an Item Review Screen that closes the section with End Review. #}
+
+{% block header %}
+<header class="cbt-top">
+  <div class="cbt-titlebar">
+    <span class="cbt-title">{{ exam.title }}{% if user %} – {{ user.username }}{% endif %}</span>
+    <div class="cbt-status">
+      <span class="cbt-timer" id="timer">{{ icon('clock') }}<span>{{ t.time_remaining }}</span> <span id="timer-value">00:39:00</span></span>
+      <span class="cbt-count" id="item-count">{{ fmt('item_of', i=1, total=section_size) }}</span>
+    </div>
   </div>
-  <div class="progress-track">
-    <div class="progress-fill" id="progressBar"></div>
+  <div class="cbt-toolbar">
+    <span id="section-label">{{ fmt('section_of', n=1) }}</span>
+    <button type="button" class="cbt-tool" id="btn-flag" aria-pressed="false">{{ icon('flag') }}<span>{{ t.flag }}</span></button>
   </div>
-</div>
-{% endblock %}
-
-{% block style %}
-<style>
-  /* ── Exam bar ── */
-  .exam-bar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--nav-bg);
-    color: var(--nav-text);
-  }
-
-  .exam-bar-inner {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    max-width: var(--container);
-    margin: 0 auto;
-    padding: 0.75rem 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .exam-brand {
-    font-weight: 700;
-    font-size: 1rem;
-    margin-right: auto;
-  }
-
-  .exam-section {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .exam-progress {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .timer {
-    font-variant-numeric: tabular-nums;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--nav-text);
-    transition: color 0.3s;
-  }
-
-  .exam-bar .btn-outline {
-    color: var(--nav-text);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .exam-bar .btn-outline:hover {
-    color: var(--nav-bg);
-    background: var(--nav-text);
-    border-color: var(--nav-text);
-  }
-
-  .timer.warn { color: var(--warn); }
-
-  .timer.danger {
-    color: var(--error);
-    animation: pulse 1s ease infinite;
-  }
-
-  .progress-track {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .progress-fill {
-    height: 4px;
-    background: var(--accent);
-    width: 0%;
-    transition: width 0.3s ease;
-  }
-
-  /* ── Stages ── */
-  .stage { display: none; }
-  .stage.active { display: block; }
-
-  /* ── Question list ── */
-  .questions-list {
-    padding: 2rem 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .question-card {
-    animation: slideUp 0.4s ease both;
-    animation-delay: min(calc(var(--i) * 15ms), 500ms);
-  }
-
-  .q-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .q-num {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2rem;
-    height: 2rem;
-    background: var(--accent-bg);
-    color: var(--accent);
-    border-radius: 50%;
-    font-size: 0.8rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .q-scenario {
-    line-height: 1.65;
-    margin-bottom: 1rem;
-    color: var(--text);
-  }
-
-  .q-options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  /* ── Radio options ── */
-  .option { position: relative; }
-
-  .option input[type=radio] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .option-label {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    min-height: 44px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all var(--transition);
-    line-height: 1.5;
-  }
-
-  .option-label:hover {
-    border-color: var(--accent-dim);
-    background: var(--accent-bg);
-  }
-
-  .option input[type=radio]:checked + .option-label {
-    border-color: var(--accent);
-    background: var(--accent-bg);
-    font-weight: 500;
-  }
-
-  .option input[type=radio]:focus-visible + .option-label {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .opt-id {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 50%;
-    border: 1.5px solid currentColor;
-    font-size: 0.75rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .opt-text { flex: 1; }
-
-  /* ── Form footer ── */
-  .form-footer {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    padding: 2rem 0;
-  }
-
-  .q-fieldset { border: none; padding: 0; margin: 0; }
-
-  /* ── Break screen ── */
-  .break-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    padding: 2rem 0;
-  }
-
-  .break-card {
-    text-align: center;
-    max-width: 420px;
-    width: 100%;
-  }
-
-  .break-card h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-  }
-
-  .break-card p {
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-  }
-
-  .break-timer {
-    font-variant-numeric: tabular-nums;
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 2rem;
-  }
-
-  .break-timer.warn { color: var(--warn); }
-  .break-timer.danger {
-    color: var(--error);
-    animation: pulse 1s ease infinite;
-  }
-
-  .break-card .btn {
-    font-size: 1.05rem;
-    padding: 0.75rem 2rem;
-  }
-
-  /* ── Mobile ── */
-  @media (max-width: 640px) {
-    .exam-bar-inner {
-      gap: 0.5rem;
-      padding: 0.6rem 1rem;
-    }
-
-    .exam-brand { display: none; }
-
-    .timer { font-size: 1.1rem; }
-
-    .form-footer { flex-direction: column; }
-
-    .form-footer .btn {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .break-timer { font-size: 2.2rem; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .question-card { animation: none; }
-    .timer.danger { animation: none; }
-    .break-timer.danger { animation: none; }
-  }
-</style>
+</header>
 {% endblock %}
 
 {% block content %}
-<form method="post" action="{{ url_for('submit', filename=filename) }}" id="examForm">
+<form method="post" action="{{ url_for('submit', filename=filename) }}" id="exam-form" autocomplete="off">
+  <input type="hidden" name="elapsed_seconds" id="elapsed" value="">
 
-  <!-- ═══ Section 1: Q1-Q30 ═══ -->
-  <div class="stage active" id="stage-section1">
-    <div class="questions-list" id="questions-section1">
-      {% for q in questions[:30] %}
-      <article class="card question-card" style="--i: {{ loop.index0 }}">
-        <div class="q-header">
-          <span class="q-num">{{ loop.index }}</span>
-        </div>
-        <fieldset class="q-fieldset">
-          <legend class="q-scenario">{{ q.scenario_question }}</legend>
-          <div class="q-options">
-            {% for opt in q.options %}
-            <div class="option">
-              <input type="radio"
-                     id="q{{ q.question_id }}_{{ opt.id }}"
-                     name="q_{{ q.question_id }}"
-                     value="{{ opt.id }}">
-              <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
-                <span class="opt-id">{{ opt.id }}</span>
-                <span class="opt-text">{{ opt.text }}</span>
-              </label>
-            </div>
-            {% endfor %}
-          </div>
-        </fieldset>
-      </article>
+  <div class="cbt-body" id="stage-item">
+    <p class="cbt-note" id="resume-note" role="status" hidden>{{ t.restored }}</p>
+    {% for q in questions %}
+    <fieldset class="q cbt-q" id="q-{{ loop.index0 }}" data-qid="{{ q.question_id }}" tabindex="-1" {% if not loop.first %}hidden{% endif %}>
+      <legend class="cbt-stem">{{ q.scenario_question }}</legend>
+      {% for opt in q.options %}
+      <label class="cbt-option">
+        <input type="radio" name="q_{{ q.question_id }}" value="{{ opt.id }}">
+        <span class="cbt-letter">{{ opt.id }}.</span>
+        <span>{{ opt.text }}</span>
+      </label>
       {% endfor %}
-    </div>
-
-    <div class="form-footer">
-      <button type="button" class="btn btn-outline" onclick="submitExam()">{{ t.leave_early }}</button>
-      <button type="button" class="btn btn-primary" id="btn-section1-next" onclick="goToBreak()">{{ t.submit_section }}</button>
-    </div>
+    </fieldset>
+    {% endfor %}
   </div>
 
-  <!-- ═══ Break ═══ -->
-  <div class="stage" id="stage-break">
-    <div class="break-wrap">
-      <div class="break-card">
-        <h2>{{ t.section1_complete }}</h2>
-        <p>{{ t.answers_saved }}</p>
-        <div class="break-timer" id="breakTimer">10:00</div>
-        <button type="button" class="btn btn-primary" onclick="startSection2()">{{ t.continue_s2 }}</button>
+  <section class="cbt-body cbt-review" id="stage-review" aria-labelledby="review-title" tabindex="-1" hidden>
+    <h1 id="review-title">{{ t.review_screen_title }}</h1>
+    <details class="cbt-panel" open>
+      <summary>{{ t.review_instructions }}</summary>
+      <div class="cbt-panel-body">
+        <p>{{ t.review_intro }}</p>
+        <ol>
+          <li>{{ t.review_way_all }}</li>
+          <li>{{ t.review_way_incomplete }}</li>
+          <li>{{ t.review_way_flagged }}</li>
+        </ol>
+        <p>{{ t.review_jump }}</p>
+        <p><strong>{{ t.review_lock }}</strong></p>
+        <p class="cbt-keys">{{ t.keys_hint }}</p>
       </div>
+    </details>
+    <div class="cbt-panel">
+      <div class="cbt-panel-head"><span id="review-section-head"></span><span id="review-count"></span></div>
+      <ul class="cbt-grid">
+        {% for q in questions %}
+        {% set n = loop.index0 % section_size + 1 %}
+        <li class="cbt-cell" data-cell="{{ loop.index0 }}" data-section="{{ 1 if loop.index0 < section_size else 2 }}">
+          <button type="button" class="cbt-cell-flag" data-cell-flag aria-pressed="false" aria-label="{{ fmt('q_label', n=n) }}: {{ t.flag }}">{{ icon('flag') }}</button>
+          <button type="button" class="cbt-cell-go" data-cell-go>{{ fmt('q_label', n=n) }}</button>
+          <span class="cbt-incomplete" data-cell-incomplete>{{ t.incomplete }}</span>
+        </li>
+        {% endfor %}
+      </ul>
     </div>
-  </div>
+  </section>
 
-  <!-- ═══ Section 2: Q31-Q60 ═══ -->
-  <div class="stage" id="stage-section2">
-    <div class="questions-list" id="questions-section2">
-      {% for q in questions[30:] %}
-      <article class="card question-card" style="--i: {{ loop.index0 }}">
-        <div class="q-header">
-          <span class="q-num">{{ loop.index + 30 }}</span>
-        </div>
-        <fieldset class="q-fieldset">
-          <legend class="q-scenario">{{ q.scenario_question }}</legend>
-          <div class="q-options">
-            {% for opt in q.options %}
-            <div class="option">
-              <input type="radio"
-                     id="q{{ q.question_id }}_{{ opt.id }}"
-                     name="q_{{ q.question_id }}"
-                     value="{{ opt.id }}">
-              <label for="q{{ q.question_id }}_{{ opt.id }}" class="option-label">
-                <span class="opt-id">{{ opt.id }}</span>
-                <span class="opt-text">{{ opt.text }}</span>
-              </label>
-            </div>
-            {% endfor %}
-          </div>
-        </fieldset>
-      </article>
-      {% endfor %}
-    </div>
-
-    <div class="form-footer">
-      <button type="button" class="btn btn-outline" onclick="submitExam()">{{ t.leave_early }}</button>
-      <button type="button" class="btn btn-primary" id="btn-section2-submit" onclick="submitExam()">{{ t.submit_test }}</button>
-    </div>
-  </div>
-
+  <section class="cbt-body cbt-break" id="stage-break" aria-labelledby="break-title" tabindex="-1" hidden>
+    <h1 id="break-title">{{ t.break_title }}</h1>
+    <p class="cbt-note" id="break-timeup" hidden>{{ t.break_timeup }}</p>
+    <p>{{ t.break_text }}</p>
+    <div class="break-timer" id="break-timer">00:10:00</div>
+    <button type="button" class="cbt-action" id="btn-start-s2">{{ t.break_start }}</button>
+  </section>
 </form>
+
+<div class="cbt-bottom" id="bottom-bar">
+  <div class="cbt-bottom-group">
+    <button type="button" class="cbt-btn cbt-btn-end" id="btn-end-review" hidden>{{ t.end_review }}</button>
+    <button type="button" class="cbt-btn" id="btn-review-screen" hidden>{{ t.review_screen }}</button>
+  </div>
+  <div class="cbt-bottom-group cbt-bottom-right">
+    <button type="button" class="cbt-btn" id="btn-review-all" hidden>{{ t.review_all }}</button>
+    <button type="button" class="cbt-btn" id="btn-review-incomplete" hidden>{{ t.review_incomplete }}</button>
+    <button type="button" class="cbt-btn" id="btn-review-flagged" hidden>{{ t.review_flagged }}</button>
+    <button type="button" class="cbt-btn" id="btn-prev">← {{ t.prev }}</button>
+    <button type="button" class="cbt-btn" id="btn-next">{{ t.next }} →</button>
+  </div>
+</div>
+
+<dialog class="cbt-dialog" id="end-dialog" aria-labelledby="end-title">
+  <h2 class="cbt-dialog-title" id="end-title">{{ t.end_review_title }}</h2>
+  <p id="end-body"></p>
+  <div class="cbt-dialog-actions">
+    <button type="button" class="is-primary" id="end-yes">{{ t.yes }}</button>
+    <button type="button" data-close>{{ t.no }}</button>
+  </div>
+</dialog>
+
+<div class="submitting" id="submitting" role="status" hidden>{{ t.submitting }}</div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-  const T = {{ t_js | tojson }};
-  const SECTION_SIZE = 30;
-  const SECTION_DURATION = 39 * 60;
-  const BREAK_DURATION = 10 * 60;
-
-  let stage = 'section1';
-  let remaining = SECTION_DURATION;
-  let breakRemaining = BREAK_DURATION;
-  let submitted = false;
-  let sectionTimerId = null;
-  let breakTimerId = null;
-
-  /* ── Helpers ── */
-  function pad(n) { return String(n).padStart(2, '0'); }
-
-  function tr(key, vars) {
-    return T[key].replace(/\{(\w+)\}/g, (m, name) => (name in vars ? vars[name] : m));
-  }
-
-  function formatTime(sec) {
-    return pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
-  }
-
-  function setTimerClass(el, sec) {
-    if (sec <= 300) el.className = 'timer danger';
-    else if (sec <= 900) el.className = 'timer warn';
-    else el.className = 'timer';
-  }
-
-  function setBreakTimerClass(el, sec) {
-    if (sec <= 60) el.className = 'break-timer danger';
-    else if (sec <= 180) el.className = 'break-timer warn';
-    else el.className = 'break-timer';
-  }
-
-  /* ── Answer counting (per section) ── */
-  function countSectionAnswered(containerId) {
-    const container = document.getElementById(containerId);
-    const names = new Set();
-    container.querySelectorAll('input[type=radio]:checked').forEach(el => names.add(el.name));
-    return names.size;
-  }
-
-  function updateProgress() {
-    const containerId = stage === 'section1' ? 'questions-section1' : 'questions-section2';
-    const answered = countSectionAnswered(containerId);
-    document.getElementById('progress-text').textContent = tr('progress', { a: answered, total: SECTION_SIZE });
-    document.getElementById('progressBar').style.width = (answered / SECTION_SIZE * 100) + '%';
-
-    if (stage === 'section1') {
-      const btn = document.getElementById('btn-section1-next');
-      btn.textContent = answered >= SECTION_SIZE ? T.next_section : T.submit_section;
-    }
-  }
-
-  /* ── Section timer ── */
-  function tickSection() {
-    remaining--;
-    if (remaining <= 0) {
-      clearInterval(sectionTimerId);
-      if (stage === 'section1') goToBreak();
-      else submitExam();
-      return;
-    }
-    document.getElementById('timer').textContent = formatTime(remaining);
-    setTimerClass(document.getElementById('timer'), remaining);
-  }
-
-  function startSectionTimer() {
-    remaining = SECTION_DURATION;
-    document.getElementById('timer').textContent = formatTime(remaining);
-    document.getElementById('timer').className = 'timer';
-    clearInterval(sectionTimerId);
-    sectionTimerId = setInterval(tickSection, 1000);
-  }
-
-  /* ── Break timer ── */
-  function tickBreak() {
-    breakRemaining--;
-    if (breakRemaining <= 0) {
-      clearInterval(breakTimerId);
-      startSection2();
-      return;
-    }
-    document.getElementById('breakTimer').textContent = formatTime(breakRemaining);
-    setBreakTimerClass(document.getElementById('breakTimer'), breakRemaining);
-  }
-
-  /* ── Stage transitions ── */
-  function showStage(name) {
-    document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
-    document.getElementById('stage-' + name).classList.add('active');
-    stage = name;
-
-    const label = document.getElementById('section-label');
-    const leaveBtn = document.getElementById('btn-leave');
-
-    if (name === 'break') {
-      label.textContent = T.break;
-      leaveBtn.style.display = 'none';
-      document.getElementById('timer').textContent = '--:--';
-      document.getElementById('timer').className = 'timer';
-      document.getElementById('progress-text').textContent = T.break_time;
-      document.getElementById('progressBar').style.width = '100%';
-      clearInterval(sectionTimerId);
-    } else {
-      label.textContent = tr('part', { n: name === 'section1' ? 1 : 2 });
-      leaveBtn.style.display = '';
-      updateProgress();
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function goToBreak() {
-    if (stage !== 'section1') return;
-    showStage('break');
-    breakRemaining = BREAK_DURATION;
-    document.getElementById('breakTimer').textContent = formatTime(breakRemaining);
-    setBreakTimerClass(document.getElementById('breakTimer'), breakRemaining);
-    breakTimerId = setInterval(tickBreak, 1000);
-  }
-
-  function startSection2() {
-    clearInterval(breakTimerId);
-    showStage('section2');
-    startSectionTimer();
-  }
-
-  /* ── Submit ── */
-  function submitExam() {
-    if (submitted) return;
-    const allChecked = document.querySelectorAll('input[type=radio]:checked').length;
-    const allInputs = document.querySelectorAll('input[type=radio]').length / 4;
-    const unanswered = allInputs - allChecked;
-    if (unanswered > 0) {
-      const msg = unanswered === 1 ? T.confirm_one : tr('confirm_many', { n: unanswered });
-      if (!confirm(msg)) return;
-    }
-    submitted = true;
-    clearInterval(sectionTimerId);
-    clearInterval(breakTimerId);
-    document.querySelectorAll('#examForm button').forEach(b => b.disabled = true);
-    document.getElementById('examForm').submit();
-  }
-
-  /* ── Keep-alive ping ── */
-  setInterval(() => {
-    fetch('/ping')
-      .then(() => console.log('Keep-alive ping sent successfully.'))
-      .catch(err => console.error('Keep-alive ping failed.', err));
-  }, 50 * 1000);
-
-  /* ── Init ── */
-  document.querySelectorAll('input[type=radio]').forEach(el => el.addEventListener('change', updateProgress));
-  updateProgress();
-  startSectionTimer();
-
-  window.addEventListener('beforeunload', function(e) {
-    if (!submitted) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-  });
-</script>
+<script type="application/json" id="exam-config">{{ config|tojson }}</script>
+<script src="{{ asset('js/exam.js') }}" defer></script>
 {% endblock %}

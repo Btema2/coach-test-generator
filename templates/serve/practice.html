@@ -1,0 +1,58 @@
+{% extends "serve/base.html" %}
+{% from "serve/_macros.html" import icon %}
+
+{% block title %}{{ fmt('practice_title', title=exam.title) }}: {{ brand }}{% endblock %}
+{% block body_class %}has-bottom-bar{% endblock %}
+
+{% block header %}
+<header class="cbt-top">
+  <div class="cbt-titlebar">
+    <div class="cbt-titlebar-left">
+      <a href="{{ url_for('exams') }}" class="home-link" aria-label="{{ t.nav_home }}">{{ icon('home') }}</a>
+      <span class="cbt-title">{{ fmt('practice_title', title=exam.title) }}</span>
+    </div>
+    <div class="cbt-status">
+      <span data-counter>{{ fmt('question_of', i=1, total=questions|length) }}</span>
+      <span data-score aria-live="polite"></span>
+    </div>
+  </div>
+  <div class="cbt-toolbar">
+    <div class="cbt-toolbar-left">{{ t.practice_sub }}</div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h1 class="visually-hidden">{{ fmt('practice_title', title=exam.title) }}</h1>
+  {% if area %}
+  <p class="notice">{{ fmt('practice_area', area=area.name) }} <a href="{{ url_for('practice', filename=filename) }}">{{ t.practice_show_all }}</a></p>
+  {% endif %}
+
+  <div data-practice>
+    {% for q in questions %}
+      {% with prefix='p_', hide=not loop.first %}
+        {% include "serve/_practice_question.html" %}
+      {% endwith %}
+    {% endfor %}
+
+    <section class="panel" data-done tabindex="-1" hidden>
+      <h2 class="panel-head">{{ t.practice_done }}</h2>
+      <div class="panel-body form">
+        <p data-final-score></p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="{{ url_for('test', filename=filename) }}">{{ t.practice_timed }}</a>
+          <a class="btn btn-secondary" href="{{ request.full_path }}">{{ t.practice_restart }}</a>
+          <a class="btn btn-secondary" href="{{ url_for('exams') }}">{{ t.back_to_exams }}</a>
+        </div>
+      </div>
+    </section>
+
+    <script type="application/json" data-config>{{ config|tojson }}</script>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ asset('js/practice.js') }}" defer></script>
+{% endblock %}

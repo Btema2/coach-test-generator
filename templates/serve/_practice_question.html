@@ -1,0 +1,16 @@
+{% from "serve/_macros.html" import option_input %}
+<article class="pq" data-qid="{{ q.question_id }}" tabindex="-1" {% if hide %}hidden{% endif %}>
+  <fieldset class="cbt-q">
+    <legend class="cbt-stem">{{ q.scenario_question }}</legend>
+    {% for opt in q.options %}{{ option_input(prefix ~ q.question_id, opt) }}{% endfor %}
+  </fieldset>
+  <div class="feedback" data-feedback hidden aria-live="polite"></div>
+  <div class="cbt-bottom">
+    <div class="cbt-bottom-group"></div>
+    <div class="cbt-bottom-group cbt-bottom-right">
+      <button type="button" class="cbt-btn" data-prev>← {{ t.prev }}</button>
+      <button type="button" class="cbt-btn" data-check disabled>{{ t.check }}</button>
+      <button type="button" class="cbt-btn" data-next hidden>{{ t.next }} →</button>
+    </div>
+  </div>
+</article>

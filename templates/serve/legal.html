@@ -1,0 +1,85 @@
+{% extends "serve/base.html" %}
+
+{% block title %}{{ t.privacy_title if page == 'privacy' else t.terms_title }}: {{ brand }}{% endblock %}
+
+{% block bar_title %}{{ t.privacy_title if page == 'privacy' else t.terms_title }}{% endblock %}
+{% block toolbar %}{{ fmt('legal_updated', date=updated) }}{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h1 class="page-title">{{ t.privacy_title if page == 'privacy' else t.terms_title }}</h1>
+
+  <div class="prose">
+  {% if page == 'privacy' and lang == 'uk' %}
+    <p>{{ brand }} збирає лише дані, потрібні для роботи пробних іспитів.</p>
+    <h2>Що ми зберігаємо</h2>
+    <ul>
+      <li><strong>Ім’я користувача й пароль</strong>, якщо ви створюєте акаунт. Пароль зберігається лише у вигляді захищеного хешу, тож прочитати його не може ніхто, зокрема й ми.</li>
+      <li><strong>Результати іспитів</strong>: ваші відповіді, бал і витрачений час для кожного завершеного іспиту. Вони пов’язані з вашим акаунтом або, якщо ви не входили, з випадковим ідентифікатором у файлі cookie.</li>
+    </ul>
+    <h2>Файли cookie та сховище браузера</h2>
+    <ul>
+      <li>Файл cookie сеансу підтримує вхід і пов’язує результати з вашим пристроєм.</li>
+      <li>Файл cookie мови запам’ятовує обрану мову інтерфейсу.</li>
+      <li>Під час іспиту відповіді й таймер зберігаються в браузері (localStorage), щоб ви могли продовжити після перезавантаження. Ці дані видаляються після завершення іспиту.</li>
+    </ul>
+    <p>Ми не використовуємо рекламні чи аналітичні файли cookie.</p>
+    <h2>Хто обробляє дані</h2>
+    <p>Сайт і база даних розміщені в наших хостинг-провайдерів. Ми не продаємо й не передаємо ваші дані для реклами.</p>
+    <h2>Ваш вибір</h2>
+    <p>Ви можете будь-коли видалити акаунт на сторінці «Акаунт». Це видалить ваше ім’я користувача, пароль і всі результати, пов’язані з акаунтом.</p>
+    {% if contact_email %}<p>Запитання щодо конфіденційності надсилайте на <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
+
+  {% elif page == 'privacy' %}
+    <p>{{ brand }} collects only the data it needs to run the practice exams.</p>
+    <h2>What we store</h2>
+    <ul>
+      <li><strong>Your username and password</strong>, if you create an account. The password is stored only as a secure hash, so nobody, including us, can read it.</li>
+      <li><strong>Your exam results</strong>: your answers, score and time taken for each exam you finish. These are linked to your account, or to a random identifier in a cookie if you haven't signed in.</li>
+    </ul>
+    <h2>Cookies and browser storage</h2>
+    <ul>
+      <li>A session cookie keeps you signed in and links results to your device.</li>
+      <li>A language cookie remembers the interface language you chose.</li>
+      <li>During an exam, your answers and timer are saved in your browser (localStorage) so you can continue after a reload. They're removed when you finish the exam.</li>
+    </ul>
+    <p>We don't use advertising or analytics cookies.</p>
+    <h2>Who processes your data</h2>
+    <p>The site and its database are hosted by our hosting providers. We don't sell your data or share it for advertising.</p>
+    <h2>Your choices</h2>
+    <p>You can delete your account at any time from the Account page. This removes your username, password and every result linked to your account.</p>
+    {% if contact_email %}<p>Send privacy questions to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
+
+  {% elif lang == 'uk' %}
+    <h2>Лише для підготовки</h2>
+    <p>Іспити на {{ brand }} призначені для тренування. Це не Credentialing Exam ICF, і результати тут не передбачають і не гарантують ваш результат на справжньому іспиті.</p>
+    <h2>Незалежний сервіс</h2>
+    <p>{{ fmt('footer_disclaimer') }}</p>
+    <h2>Зміст</h2>
+    <p>Питання й пояснення надаються «як є». Ми стежимо за їхньою точністю, але вони можуть містити помилки. Офіційні вимоги та стандарти шукайте в матеріалах ICF.</p>
+    <h2>Ваш акаунт</h2>
+    <p>Не передавайте свій пароль іншим людям. Відновити пароль не можна: якщо ви його забудете, доведеться створити новий акаунт.</p>
+    <h2>Чесне використання</h2>
+    <p>Не копіюйте й не публікуйте питання та пояснення в інших місцях без нашого дозволу.</p>
+    <h2>Зміни</h2>
+    <p>Ми можемо оновлювати ці умови. Дата вгорі сторінки показує останню версію.</p>
+    {% if contact_email %}<p>Запитання надсилайте на <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
+
+  {% else %}
+    <h2>Practice only</h2>
+    <p>The exams on {{ brand }} are for practice. They aren't the ICF Credentialing Exam, and your results here don't predict or guarantee your result on the real exam.</p>
+    <h2>Independent service</h2>
+    <p>{{ fmt('footer_disclaimer') }}</p>
+    <h2>Content</h2>
+    <p>Questions and explanations are provided as they are. We work to keep them accurate, but they may contain mistakes. For official requirements and standards, rely on ICF's own materials.</p>
+    <h2>Your account</h2>
+    <p>Don't share your password with other people. There's no password reset: if you forget your password, you'll need to create a new account.</p>
+    <h2>Fair use</h2>
+    <p>Don't copy or republish the questions or explanations elsewhere without our permission.</p>
+    <h2>Changes</h2>
+    <p>We may update these terms. The date at the top of this page shows the latest version.</p>
+    {% if contact_email %}<p>Send questions to <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>{% endif %}
+  {% endif %}
+  </div>
+</div>
+{% endblock %}

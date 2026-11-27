@@ -249,6 +249,7 @@ def test_main_no_diy_uses_api_path(monkeypatch, tmp_path):
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / "ACC-test-prompt.md").write_text("template")
+    monkeypatch.setenv("BATCH_SIZE", "10")  # main() reads it before _load_env; don't rely on a local .env
     monkeypatch.setattr(generate, "_load_env", lambda: ("k", "m", 10))
     monkeypatch.setattr("sys.argv", ["generate.py"])
     monkeypatch.setattr(generate, "_run_batched", lambda *a, **k: [])

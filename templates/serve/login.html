@@ -1,0 +1,54 @@
+{% extends "serve/base.html" %}
+
+{% set register = mode == 'register' %}
+{% set heading = t.register_title if register else t.login_title %}
+
+{% block title %}{{ heading }}: {{ brand }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% macro field(name, label, type='text', autocomplete=None, hint=None, value='', autofocus=False) %}
+  {% set error = errors.get(name) %}
+  <div class="field">
+    <label for="{{ name }}">{{ label }}</label>
+    <input class="input" id="{{ name }}" name="{{ name }}" type="{{ type }}" required
+           {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+           {% if type == 'text' %}autocapitalize="none" spellcheck="false"{% endif %}
+           {% if value %}value="{{ value }}"{% endif %}
+           {% if error %}aria-invalid="true"{% endif %}
+           {% if error %}aria-describedby="{{ name }}-error"{% elif hint %}aria-describedby="{{ name }}-hint"{% endif %}
+           {% if autofocus %}autofocus{% endif %}>
+    {% if error %}<p class="field-error" id="{{ name }}-error">{{ error }}</p>
+    {% elif hint %}<p class="field-hint" id="{{ name }}-hint">{{ hint }}</p>{% endif %}
+  </div>
+{% endmacro %}
+
+{% block bar_title %}{{ heading }}{% endblock %}
+
+{% block content %}
+<div class="page page-narrow">
+  <h1 class="visually-hidden">{{ heading }}</h1>
+  <section class="panel">
+    <nav class="panel-tabs" aria-label="{{ heading }}">
+      <a href="{{ url_for('login', next=next_url, lang=lang) }}" {% if not register %}aria-current="page"{% endif %}>{{ t.login_btn }}</a>
+      <a href="{{ url_for('register', next=next_url, lang=lang) }}" {% if register %}aria-current="page"{% endif %}>{{ t.register_btn }}</a>
+    </nav>
+    <form class="panel-body form" method="post" action="{{ url_for(mode, lang=lang) }}" novalidate>
+      {% if register %}<p>{{ t.register_text }}</p>{% endif %}
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+      {% if register %}
+        {{ field('username', t.username_label, autocomplete='username', hint=t.username_hint, value=username, autofocus=not username or 'username' in errors) }}
+        {{ field('password', t.password_label, type='password', autocomplete='new-password', hint=t.password_hint, autofocus=username and 'username' not in errors) }}
+        {{ field('password2', t.password2_label, type='password', autocomplete='new-password') }}
+        <p class="field-hint">{{ t.register_note }}</p>
+        <div><button class="btn btn-primary" type="submit">{{ t.register_btn }}</button></div>
+      {% else %}
+        {{ field('username', t.username_label, autocomplete='username', value=username, autofocus=not username) }}
+        {{ field('password', t.password_label, type='password', autocomplete='current-password', autofocus=username) }}
+        <div><button class="btn btn-primary" type="submit">{{ t.login_btn }}</button></div>
+      {% endif %}
+    </form>
+  </section>
+  <p class="fine-print"><a href="{{ url_for('privacy') }}">{{ t.footer_privacy }}</a> · <a href="{{ url_for('terms') }}">{{ t.footer_terms }}</a></p>
+</div>
+{% endblock %}
