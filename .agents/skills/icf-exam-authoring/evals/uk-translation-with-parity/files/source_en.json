@@ -1,0 +1,124 @@
+{
+  "mock_exam_batch": [
+    {
+      "question_id": "1",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality & Legal Compliance",
+      "scenario_question": "A division director pays for an employee's coaching and asks which leadership topics the employee is addressing. What should the coach do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ask the employee for written permission to share a brief list of session topics.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Provide only broad developmental themes while keeping the employee's specific remarks private.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Decline to disclose session topics and invite the director to speak with the employee.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Send the director a summary of session topics since the organization funds the engagement.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct under 2025 ICF Code of Ethics Section 2 (Confidentiality and Legal Compliance). Option D is clearly wrong because paying for coaching grants no right to session details. Option A places implicit organizational pressure on the client, and Option B still breaches confidentiality without prior authorization."
+      }
+    },
+    {
+      "question_id": "2",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Consulting",
+      "scenario_question": "A founder asks a coach with prior startup experience to review their product roadmap and flag critical risks. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Point out two obvious risks briefly before inviting the founder's perspective.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Explain coaching boundaries and ask how the founder evaluates roadmap risks.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Refuse to discuss the product roadmap because product strategy is consulting.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Provide a structured risk audit of the roadmap using past executive experience.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct under 2025 Core Competency 1 (Demonstrates Ethical Practice — Coaching vs. Consulting). Option D crosses into consulting. Option A blends consulting into coaching, while Option C rigidly refuses to coach around the client's strategic thinking."
+      }
+    },
+    {
+      "question_id": "3",
+      "competency_reference": "Core Competency 7: Evokes Awareness",
+      "scenario_question": "A client asks, 'Should I confront my boss or look for another job?' What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ask the client to compare the pros and cons of those two choices.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Ask why their boss might be micromanaging their daily work right now.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Advise the client to address the concern with their boss before resigning.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask what matters most to the client in this situation right now.",
+          "is_correct": true
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option D is correct under 2025 Core Competency 7 (Evokes Awareness). Option C gives direct advice. Option A accepts a forced binary prematurely, and Option B invites speculation about a third party."
+      }
+    },
+    {
+      "question_id": "4",
+      "competency_reference": "Core Competency 8: Facilitates Client Growth",
+      "scenario_question": "A client misses two self-assigned deadlines and apologizes repeatedly at the start of the session. What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Explore what got in the way and what feels realistic going forward.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Suggest lowering the goal size so next week's steps feel easier.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Normalize missed deadlines warmly and move on to a fresher topic.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Remind the client that consistent follow-through is essential for coaching results.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct under 2025 Core Competency 8 (Facilitates Client Growth). Option D is directive and scolding. Option B prescribes shrinking the goal, while Option C avoids learning from the setback."
+      }
+    }
+  ]
+}

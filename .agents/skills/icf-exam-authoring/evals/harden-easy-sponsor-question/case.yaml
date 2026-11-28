@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: harden-easy-sponsor-question
+expected_outcome: |
+  A valid 4-question JSON batch in hardened_batch.json following the 2025 ICF schema, with lean stems (no "have not agreed to share" leak), 1 ICF-correct + 1 clearly wrong + 2 plausible distractors per item, balanced A/B/C/D keys, and rationales explaining all 4 options.

@@ -141,6 +141,7 @@ the exam files and that `i18n.py` has the same keys and placeholders in English 
 
 ```
 ACC-test-prompt.md       prompt template for the generator
+.agents/skills/          agent skill for authoring, auditing, and translating exam sets (.claude/skills symlink)
 generate.py              generator CLI (Gemini API, or --diy)
 gemini_client.py         Gemini call with a JSON response schema and retries on 503
 diy.py                   DIY mode: a local page for copying and pasting with a chatbot

@@ -1,0 +1,124 @@
+{
+  "mock_exam_batch": [
+    {
+      "question_id": "1",
+      "competency_reference": "Code of Ethics Section 2: Confidentiality & Legal Compliance",
+      "scenario_question": "A coach wants to publish an anonymized client case study in an industry magazine. What MUST the coach do first?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Publish it immediately since the client's real name is omitted.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Clarify publication boundaries and obtain explicit written client consent before sharing any details, even if anonymized.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "Wait until the contract ends completely before publishing.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask the sponsor instead.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct under Section 2."
+      }
+    },
+    {
+      "question_id": "2",
+      "competency_reference": "Core Competency 1: Demonstrates Ethical Practice — Coaching vs. Therapy",
+      "scenario_question": "A client mentions feeling worried before an annual board meeting and asks how to prepare. What is the BEST action for the coach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Refer them immediately to a therapist for clinical anxiety.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Tell them exactly what to say to the board.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Validate their nerves, explore what success at the meeting looks like, and partner on preparation.",
+          "is_correct": true
+        },
+        {
+          "id": "D",
+          "text": "Ignore the worry completely.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option C is correct under Competency 1."
+      }
+    },
+    {
+      "question_id": "3",
+      "competency_reference": "Core Competency 3: Establishes and Maintains Agreements",
+      "scenario_question": "Midway through a session, a client shifts away from their initial topic toward a sudden workplace conflict. What should the coach do?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Firmly redirect them back to the original topic immediately.",
+          "is_correct": false
+        },
+        {
+          "id": "B",
+          "text": "Acknowledge the shift without judgment, check what feels most urgent now, and re-confirm the session agreement.",
+          "is_correct": true
+        },
+        {
+          "id": "C",
+          "text": "End the session early.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Give direct advice on the conflict.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option B is correct under Competency 3."
+      }
+    },
+    {
+      "question_id": "4",
+      "competency_reference": "Core Competency 7: Evokes Awareness",
+      "scenario_question": "A client says, 'No one in leadership listens to operational voices.' What is the BEST response?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Clarify what concrete assumptions shape that belief, explore alternative viewpoints, and ask what new possibilities emerge.",
+          "is_correct": true
+        },
+        {
+          "id": "B",
+          "text": "Agree that executives rarely listen.",
+          "is_correct": false
+        },
+        {
+          "id": "C",
+          "text": "Tell them to schedule a meeting right away.",
+          "is_correct": false
+        },
+        {
+          "id": "D",
+          "text": "Ask why leaders behave so poorly.",
+          "is_correct": false
+        }
+      ],
+      "ai_rationale": {
+        "explanation": "Option A is correct under Competency 7."
+      }
+    }
+  ]
+}
