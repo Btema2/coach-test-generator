@@ -3,7 +3,7 @@
 Mock exams for the ICF **ACC** (Associate Certified Coach) credential, in two parts:
 
 - **Question generator** (`generate.py`): writes scenario-based multiple-choice questions on the
-  ICF Core Competencies (2019) and the ICF Code of Ethics, using the Gemini API or, at no cost, any
+  ICF Core Competencies (2025) and the ICF Code of Ethics (2025), using the Gemini API or, at no cost, any
   free AI chatbot.
 - **Exam site** (`serve.py`): a bilingual (English / Ukrainian) Flask site where people take the
   exams. It has a timed exam in two sections, a practice mode, accounts, and a history of results.
@@ -76,7 +76,7 @@ exam by its file name, so renaming it would break links to past results.
     {
       "question_id": "1",
       "competency_reference": "Core Competency 7: Evokes Awareness",
-      "scenario_question": "A 3-5 sentence scenario, then the question.",
+      "scenario_question": "A 1-2 sentence scenario, then the question.",
       "options": [
         { "id": "A", "text": "...", "is_correct": false },
         { "id": "B", "text": "...", "is_correct": true },

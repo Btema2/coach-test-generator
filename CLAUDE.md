@@ -8,7 +8,7 @@ User-facing setup and usage are in `README.md`.
 Two parts in one repo:
 - **Generator** (`generate.py`): CLI that writes ICF ACC (Associate Certified Coach) mock exam
   questions with the Gemini API (or a free chatbot in DIY mode), following the ICF Core Competencies
-  (2019) and the ICF Code of Ethics (2025/2026). Output is JSON in `jsons/`.
+  (2025) and the ICF Code of Ethics (2025). Output is JSON in `jsons/`.
 - **Exam site** (`serve.py`): public bilingual (EN/UK) Flask site where people take those exams.
 
 ## Commands
@@ -90,7 +90,7 @@ See `.env.example` for all settings.
     {
       "question_id": "1",
       "competency_reference": "e.g. 'Core Competency 7: Evokes Awareness'",
-      "scenario_question": "3-5 sentence scenario + question prompt",
+      "scenario_question": "1-2 sentence scenario + question prompt",
       "options": [
         { "id": "A", "text": "...", "is_correct": false },
         { "id": "B", "text": "...", "is_correct": true },
